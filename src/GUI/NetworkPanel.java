@@ -34,7 +34,7 @@ public class NetworkPanel extends OshiJPanel{
 
         sysConstraints.weightx = 1d;
         sysConstraints.weighty = 1d;
-        sysConstraints.fill = GridBagConstraints.BOTH;
+        sysConstraints.fill = GridBagConstraints.NONE;
 
         GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
         procConstraints.gridx = 1;
@@ -90,7 +90,12 @@ public class NetworkPanel extends OshiJPanel{
 
     private String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
     {
-        String txt = net.getDisplayName() + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
+        String name = net.getDisplayName();
+        if (name.length() > 20)
+        {
+            name = name.substring(0,20) + "...";
+        }
+        String txt = name + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
         return buttonTextLines(txt);
     }
     

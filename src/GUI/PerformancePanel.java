@@ -3,6 +3,7 @@ package GUI;
 import javax.swing.*;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JPanel;
@@ -72,7 +73,9 @@ public class PerformancePanel extends OshiJPanel{
             perfMenuBar.add(netButton[i], netC);
         }
 
+        perfMenuBar.setMaximumSize(new Dimension(100,100));
         perfPanel.add(perfMenuBar, BorderLayout.WEST);
+        
         add(perfPanel, BorderLayout.WEST);
 
         // Update up time every second
@@ -117,9 +120,14 @@ public class PerformancePanel extends OshiJPanel{
         cpuButton.doClick();
     }
 
-    private String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
+    public static String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
     {
-        String txt = net.getDisplayName() + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
+        String name = net.getDisplayName();
+        if (name.length() > 20)
+        {
+            name = name.substring(0,20) + "...";
+        }
+        String txt = name + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
         return buttonTextLines(txt);
     }
 
@@ -183,12 +191,12 @@ public class PerformancePanel extends OshiJPanel{
         displayPanel.repaint();
     }
 
-    public String buttonTextLines(String txt)
+    public static String buttonTextLines(String txt)
     {
         return "<html>" + htmlSpace(3) + txt.replaceAll("\\n", "<br>" + htmlSpace(3));
     }
 
-    private String htmlSpace(int num)
+    public static String htmlSpace(int num)
     {
         return "&nbsp;".repeat(num);
     }
