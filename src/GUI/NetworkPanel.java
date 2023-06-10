@@ -72,7 +72,7 @@ public class NetworkPanel extends OshiJPanel{
                 int newest = networkData.getNewestIndex();
                 long sendSpeed = (sendNow - sendLast)*1000/(net.getTimeStamp()-timeNow);
                 long recvSpeed = (recvNow - recvLast)*1000/(net.getTimeStamp()-timeNow);
-                button.setText(updateNetwork(net, recvSpeed, sendSpeed));
+                button.setText(PerformancePanel.updateNetwork(net, recvSpeed, sendSpeed));
                 networkData.advanceTime();
                 networkData.addValue(0, newest, (float)sendSpeed/1024);
                 networkData.addValue(1, newest, (float)recvSpeed/1024);
@@ -88,6 +88,7 @@ public class NetworkPanel extends OshiJPanel{
         return f;
     }
 
+<<<<<<< Updated upstream
     private String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
     {
         String name = net.getDisplayName();
@@ -109,4 +110,6 @@ public class NetworkPanel extends OshiJPanel{
         return "&nbsp;".repeat(num);
     }
 
+=======
+>>>>>>> Stashed changes
 }
