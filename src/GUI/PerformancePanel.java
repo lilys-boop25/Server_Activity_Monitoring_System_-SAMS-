@@ -2,19 +2,12 @@ package GUI;
 
 import javax.swing.*;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import javax.swing.JPanel;
-import javax.swing.Timer;
-
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JMenuBar;
 
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -61,7 +54,7 @@ public class PerformancePanel extends OshiJPanel{
         perfMenuBar.add(memButton, memC);
 
         int y = 2;
-        List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs();
+        List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
         JButton[] netButton = new JButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
         {
@@ -74,18 +67,18 @@ public class PerformancePanel extends OshiJPanel{
         }
 
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
-        perfMenuBarConstraints.fill = GridBagConstraints.NONE;
         perfMenuBarConstraints.gridx = 0;
         perfMenuBarConstraints.gridy = 0;
         perfMenuBarConstraints.weightx = 1d;
         perfMenuBarConstraints.weighty = 1d;
         perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
 
-        perfPanel.add(perfMenuBar, perfMenuBarConstraints);
+        JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
+        scrollPerfPanel.setMinimumSize(new Dimension(320, getSize().height));
+        scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
-        //add(perfPanel, BorderLayout.WEST);
         GridBagConstraints perfConstraints = new GridBagConstraints();
-        perfConstraints.fill = GridBagConstraints.NONE;
         perfConstraints.gridx = 0;
         perfConstraints.gridy = 0;
         perfConstraints.weightx = 1d;
@@ -133,24 +126,31 @@ public class PerformancePanel extends OshiJPanel{
         thread.start();
 
         GridBagConstraints displayConstraints = new GridBagConstraints();
-        displayConstraints.fill = GridBagConstraints.NONE;
         displayConstraints.gridx = 1;
         displayConstraints.gridy = 0;
         displayConstraints.weightx = 4d;
         displayConstraints.weighty = 1d;
+        displayConstraints.fill = GridBagConstraints.NONE;
         displayConstraints.anchor = GridBagConstraints.NORTHWEST;
+
         perfPanel.add(displayPanel, displayConstraints);
+
         cpuButton.doClick();
     }
 
     public static String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
     {
         String name = net.getDisplayName();
-        if (name.length() > 20)
+        if (name.length() > 30)
         {
-            name = name.substring(0,20) + "...";
+            name = name.substring(0,30) + "...";
         }
-        String txt = name + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
+        String alias = net.getIfAlias();
+        if (alias.length() > 30)
+        {
+            alias = alias.substring(0,30) + "...";
+        }
+        String txt = name + "\n" + alias + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
         return buttonTextLines(txt);
     }
 

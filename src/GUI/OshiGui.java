@@ -48,8 +48,6 @@ public class OshiGui {
     }
 
     private void init() {
-
-        
         // Create the external frame
         mainFrame = new JFrame(Config.GUI_TITLE);
         mainFrame.setSize(Config.GUI_WIDTH, Config.GUI_HEIGHT);

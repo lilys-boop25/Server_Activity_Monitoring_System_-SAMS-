@@ -1,6 +1,6 @@
 package GUI;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
@@ -28,34 +28,36 @@ public class NetworkPanel extends OshiJPanel{
     
 
     private void initial(NetworkIF net, JButton button) {
-        GridBagConstraints sysConstraints = new GridBagConstraints();
+        GridBagConstraints netConstraints = new GridBagConstraints();
 
-        sysConstraints.weightx = 1d;
-        sysConstraints.weighty = 1d;
-        sysConstraints.fill = GridBagConstraints.NONE;
-
-        GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
-        procConstraints.gridx = 1;
+        netConstraints.weightx = 1d;
+        netConstraints.weighty = 1d;
+        netConstraints.fill = GridBagConstraints.NONE;
+        netConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection networkData = new DynamicTimeSeriesCollection(2, 60, new Second());
         networkData.setTimeBase(new Second(date));
         networkData.addSeries(floatArrayPercent(0d), 0, "Send");
         networkData.addSeries(floatArrayPercent(0d), 1, "Receive");
-        JFreeChart systemNetChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
+        JFreeChart netChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
 
-        systemNetChart.getXYPlot().getRangeAxis().setAutoRange(false);
-        systemNetChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
+        netChart.getXYPlot().getRangeAxis().setAutoRange(false);
+        netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
 
         JPanel netPanel = new JPanel();
         netPanel.setLayout(new GridBagLayout());
-        netPanel.add(new ChartPanel(systemNetChart), sysConstraints);
+        ChartPanel myChartPanel = new ChartPanel(netChart);
+        myChartPanel.setMinimumSize(new Dimension(700, 350));
+        netPanel.add(myChartPanel, netConstraints);
 
-        //add(netPanel, BorderLayout.EAST);
         GridBagConstraints netPanelConstraints = new GridBagConstraints();
         netPanelConstraints.fill = GridBagConstraints.NONE;
         netPanelConstraints.weightx = 3;
+        netPanelConstraints.weighty = 1;
         netPanelConstraints.gridx = 1;
+        netPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        netPanel.setMinimumSize(new Dimension(685, 420));
         add(netPanel, netPanelConstraints);
 
         Thread thread = new Thread(() -> {
