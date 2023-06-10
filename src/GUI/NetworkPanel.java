@@ -17,8 +17,6 @@ import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
 import oshi.hardware.NetworkIF;
-import oshi.util.FormatUtil;
-
 
 
 public class NetworkPanel extends OshiJPanel{
@@ -44,17 +42,22 @@ public class NetworkPanel extends OshiJPanel{
         networkData.setTimeBase(new Second(date));
         networkData.addSeries(floatArrayPercent(0d), 0, "Send");
         networkData.addSeries(floatArrayPercent(0d), 1, "Receive");
-        JFreeChart systemCpuChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
+        JFreeChart systemNetChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
 
-        systemCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
-        systemCpuChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
+        systemNetChart.getXYPlot().getRangeAxis().setAutoRange(false);
+        systemNetChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
 
-        JPanel cpuPanel = new JPanel();
-        cpuPanel.setLayout(new GridBagLayout());
-        cpuPanel.add(new ChartPanel(systemCpuChart), sysConstraints);
+        JPanel netPanel = new JPanel();
+        netPanel.setLayout(new GridBagLayout());
+        netPanel.add(new ChartPanel(systemNetChart), sysConstraints);
 
-        add(cpuPanel, BorderLayout.EAST);
-        
+        //add(netPanel, BorderLayout.EAST);
+        GridBagConstraints netPanelConstraints = new GridBagConstraints();
+        netPanelConstraints.fill = GridBagConstraints.NONE;
+        netPanelConstraints.weightx = 3;
+        netPanelConstraints.gridx = 1;
+        add(netPanel, netPanelConstraints);
+
         Thread thread = new Thread(() -> {
             while(true)
             {
@@ -88,28 +91,4 @@ public class NetworkPanel extends OshiJPanel{
         return f;
     }
 
-<<<<<<< Updated upstream
-    private String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
-    {
-        String name = net.getDisplayName();
-        if (name.length() > 20)
-        {
-            name = name.substring(0,20) + "...";
-        }
-        String txt = name + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
-        return buttonTextLines(txt);
-    }
-    
-    public String buttonTextLines(String txt)
-    {
-        return "<html>" + htmlSpace(3) + txt.replaceAll("\\n", "<br>" + htmlSpace(3));
-    }
-
-    private String htmlSpace(int num)
-    {
-        return "&nbsp;".repeat(num);
-    }
-
-=======
->>>>>>> Stashed changes
 }

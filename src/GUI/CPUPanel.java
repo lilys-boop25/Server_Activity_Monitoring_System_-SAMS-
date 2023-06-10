@@ -74,7 +74,12 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         cpuPanel.add(new ChartPanel(systemCpuChart), sysConstraints);
         cpuPanel.add(new ChartPanel(procCpuChart), procConstraints);
 
-        add(cpuPanel, BorderLayout.EAST);
+        //add(cpuPanel, BorderLayout.EAST);
+        GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
+        cpuPanelConstraints.fill = GridBagConstraints.NONE;
+        cpuPanelConstraints.weightx = 3;
+        cpuPanelConstraints.gridx = 1;
+        add(cpuPanel, cpuPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             sysData.advanceTime();

@@ -37,7 +37,7 @@ public class PerformancePanel extends OshiJPanel{
     
     private void initial(SystemInfo si) {
         JPanel perfPanel = new JPanel();
-        perfPanel.setLayout(new BorderLayout());
+        perfPanel.setLayout(new GridBagLayout());
 
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new GridBagLayout());
@@ -73,10 +73,26 @@ public class PerformancePanel extends OshiJPanel{
             perfMenuBar.add(netButton[i], netC);
         }
 
-        perfMenuBar.setMaximumSize(new Dimension(100,100));
-        perfPanel.add(perfMenuBar, BorderLayout.WEST);
+        GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
+        perfMenuBarConstraints.fill = GridBagConstraints.NONE;
+        perfMenuBarConstraints.gridx = 0;
+        perfMenuBarConstraints.gridy = 0;
+        perfMenuBarConstraints.weightx = 1d;
+        perfMenuBarConstraints.weighty = 1d;
+        perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
+
+        perfPanel.add(perfMenuBar, perfMenuBarConstraints);
         
-        add(perfPanel, BorderLayout.WEST);
+        //add(perfPanel, BorderLayout.WEST);
+        GridBagConstraints perfConstraints = new GridBagConstraints();
+        perfConstraints.fill = GridBagConstraints.NONE;
+        perfConstraints.gridx = 0;
+        perfConstraints.gridy = 0;
+        perfConstraints.weightx = 1d;
+        perfConstraints.weighty = 1d;
+        perfConstraints.anchor = GridBagConstraints.NORTHWEST;
+        add(perfPanel, perfConstraints);
+
 
         // Update up time every second
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
@@ -116,7 +132,14 @@ public class PerformancePanel extends OshiJPanel{
         });
         thread.start();
 
-        perfPanel.add(displayPanel, BorderLayout.CENTER);
+        GridBagConstraints displayConstraints = new GridBagConstraints();
+        displayConstraints.fill = GridBagConstraints.NONE;
+        displayConstraints.gridx = 1;
+        displayConstraints.gridy = 0;
+        displayConstraints.weightx = 4d;
+        displayConstraints.weighty = 1d;
+        displayConstraints.anchor = GridBagConstraints.NORTHWEST;
+        perfPanel.add(displayPanel, displayConstraints);
         cpuButton.doClick();
     }
 

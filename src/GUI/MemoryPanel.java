@@ -80,7 +80,14 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         textArea.setText("Total RAM: " + FormatUtil.formatBytes(memory.getTotal()) + "\nTotal virtual memory: " + FormatUtil.formatBytes(memory.getVirtualMemory().getSwapTotal()));
         memoryPanel.add(textArea, textConstraints);
 
-        add(memoryPanel, BorderLayout.EAST);
+        //add(memoryPanel, BorderLayout.EAST);
+        GridBagConstraints memoryPanelConstraints = new GridBagConstraints();
+        memoryPanelConstraints.fill = GridBagConstraints.NONE;
+        memoryPanelConstraints.weightx = 3;
+        memoryPanelConstraints.weighty = 1;
+        memoryPanelConstraints.gridx = 1;
+        memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        add(memoryPanel, memoryPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             ramData.advanceTime();
