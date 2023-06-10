@@ -1,6 +1,6 @@
 package GUI;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
@@ -44,7 +44,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         sysConstraints.weightx = 1d;
         sysConstraints.weighty = 1d;
-        sysConstraints.fill = GridBagConstraints.BOTH;
+        sysConstraints.fill = GridBagConstraints.NONE;
 
         GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
         procConstraints.gridx = 1;
@@ -71,10 +71,17 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         JPanel cpuPanel = new JPanel();
         cpuPanel.setLayout(new GridBagLayout());
-        cpuPanel.add(new ChartPanel(systemCpuChart), sysConstraints);
-        cpuPanel.add(new ChartPanel(procCpuChart), procConstraints);
+        ChartPanel systemCpuChartPanel = new ChartPanel(systemCpuChart);
+        cpuPanel.add(systemCpuChartPanel, sysConstraints);
+        ChartPanel procCpuChartPanel = new ChartPanel(procCpuChart);
+        cpuPanel.add(procCpuChartPanel, procConstraints);
 
-        add(cpuPanel, BorderLayout.EAST);
+        //add(cpuPanel, BorderLayout.EAST);
+        GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
+        cpuPanelConstraints.fill = GridBagConstraints.NONE;
+        cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        cpuPanel.setMinimumSize(new Dimension(1365,420));
+        add(cpuPanel, cpuPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             sysData.advanceTime();

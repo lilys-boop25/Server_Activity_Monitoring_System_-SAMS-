@@ -1,6 +1,6 @@
 package GUI;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
@@ -70,7 +70,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         GridBagConstraints virConstraints = (GridBagConstraints)ramConstraints.clone();
         virConstraints.gridx = 1;
 
-        memoryPanel.add(new ChartPanel(virChart), virConstraints);
+        ChartPanel virChartPanel = new ChartPanel(virChart);
+        memoryPanel.add(virChartPanel, virConstraints);
 
         JTextArea textArea = new JTextArea();
         GridBagConstraints textConstraints = new GridBagConstraints();
@@ -80,7 +81,14 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         textArea.setText("Total RAM: " + FormatUtil.formatBytes(memory.getTotal()) + "\nTotal virtual memory: " + FormatUtil.formatBytes(memory.getVirtualMemory().getSwapTotal()));
         memoryPanel.add(textArea, textConstraints);
 
-        add(memoryPanel, BorderLayout.EAST);
+        GridBagConstraints memoryPanelConstraints = new GridBagConstraints();
+        memoryPanelConstraints.fill = GridBagConstraints.NONE;
+        memoryPanelConstraints.weightx = 3;
+        memoryPanelConstraints.weighty = 1;
+        memoryPanelConstraints.gridx = 1;
+        memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        memoryPanel.setMinimumSize(new Dimension(1365, 455));
+        add(memoryPanel, memoryPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             ramData.advanceTime();

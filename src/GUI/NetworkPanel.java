@@ -1,6 +1,6 @@
 package GUI;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
@@ -17,8 +17,6 @@ import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
 import oshi.hardware.NetworkIF;
-import oshi.util.FormatUtil;
-
 
 
 public class NetworkPanel extends OshiJPanel{
@@ -30,31 +28,38 @@ public class NetworkPanel extends OshiJPanel{
     
 
     private void initial(NetworkIF net, JButton button) {
-        GridBagConstraints sysConstraints = new GridBagConstraints();
+        GridBagConstraints netConstraints = new GridBagConstraints();
 
-        sysConstraints.weightx = 1d;
-        sysConstraints.weighty = 1d;
-        sysConstraints.fill = GridBagConstraints.BOTH;
-
-        GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
-        procConstraints.gridx = 1;
+        netConstraints.weightx = 1d;
+        netConstraints.weighty = 1d;
+        netConstraints.fill = GridBagConstraints.NONE;
+        netConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection networkData = new DynamicTimeSeriesCollection(2, 60, new Second());
         networkData.setTimeBase(new Second(date));
         networkData.addSeries(floatArrayPercent(0d), 0, "Send");
         networkData.addSeries(floatArrayPercent(0d), 1, "Receive");
-        JFreeChart systemCpuChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
+        JFreeChart netChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
 
-        systemCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
-        systemCpuChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
+        netChart.getXYPlot().getRangeAxis().setAutoRange(false);
+        netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
 
-        JPanel cpuPanel = new JPanel();
-        cpuPanel.setLayout(new GridBagLayout());
-        cpuPanel.add(new ChartPanel(systemCpuChart), sysConstraints);
+        JPanel netPanel = new JPanel();
+        netPanel.setLayout(new GridBagLayout());
+        ChartPanel myChartPanel = new ChartPanel(netChart);
+        myChartPanel.setMinimumSize(new Dimension(700, 350));
+        netPanel.add(myChartPanel, netConstraints);
 
-        add(cpuPanel, BorderLayout.EAST);
-        
+        GridBagConstraints netPanelConstraints = new GridBagConstraints();
+        netPanelConstraints.fill = GridBagConstraints.NONE;
+        netPanelConstraints.weightx = 3;
+        netPanelConstraints.weighty = 1;
+        netPanelConstraints.gridx = 1;
+        netPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        netPanel.setMinimumSize(new Dimension(685, 420));
+        add(netPanel, netPanelConstraints);
+
         Thread thread = new Thread(() -> {
             while(true)
             {
@@ -72,7 +77,7 @@ public class NetworkPanel extends OshiJPanel{
                 int newest = networkData.getNewestIndex();
                 long sendSpeed = (sendNow - sendLast)*1000/(net.getTimeStamp()-timeNow);
                 long recvSpeed = (recvNow - recvLast)*1000/(net.getTimeStamp()-timeNow);
-                button.setText(updateNetwork(net, recvSpeed, sendSpeed));
+                button.setText(PerformancePanel.updateNetwork(net, recvSpeed, sendSpeed));
                 networkData.advanceTime();
                 networkData.addValue(0, newest, (float)sendSpeed/1024);
                 networkData.addValue(1, newest, (float)recvSpeed/1024);
@@ -86,22 +91,6 @@ public class NetworkPanel extends OshiJPanel{
         float[] f = new float[1];
         f[0] = (float) (d);
         return f;
-    }
-
-    private String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
-    {
-        String txt = net.getDisplayName() + "\n" + net.getIfAlias() + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
-        return buttonTextLines(txt);
-    }
-    
-    public String buttonTextLines(String txt)
-    {
-        return "<html>" + htmlSpace(3) + txt.replaceAll("\\n", "<br>" + htmlSpace(3));
-    }
-
-    private String htmlSpace(int num)
-    {
-        return "&nbsp;".repeat(num);
     }
 
 }
