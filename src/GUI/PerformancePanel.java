@@ -16,6 +16,9 @@ import oshi.util.FormatUtil;
 
 public class PerformancePanel extends OshiJPanel{
 
+    public PerformancePanel() {
+    }
+
     public PerformancePanel(SystemInfo si) {
         super();
         initial(si);
