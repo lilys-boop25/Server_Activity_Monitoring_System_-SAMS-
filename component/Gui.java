@@ -104,32 +104,6 @@ public class Gui {
         return button;
     }
 
-    private JButton getjMenu(String title, String toolTip, Panel panel){
-        JButton button = new JButton(title);
-        Font font = new Font ("Helvetica", Font.PLAIN, 14);
-        button.setFont(font);
-        button.setToolTipText(toolTip);
-        button.setBackground(COLOR_DEFAULT);
-
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                setSelectedButton(button);
-            }
-        });
-
-        button.addActionListener((e) -> {
-            Container contentPane = this.mainFrame.getContentPane();
-            int nComponents = contentPane.getComponents().length;
-            if (nComponents <= 0 || contentPane.getComponent(0) != panel) {
-                this.resetMainGui();
-                this.mainFrame.getContentPane().add(panel);
-                this.refreshMainGui();
-            }
-        });
-
-        return button;
-    }
-
     public void resetMainGui(){
         this.mainFrame.getContentPane().removeAll();
     }

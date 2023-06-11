@@ -16,15 +16,5 @@ public class OshiJPanel extends JPanel{
             setSize(maxSize);
         }
         setLayout(new GridBagLayout());
-//        setLayout(new BorderLayout());
-//        setBorder(BorderFactory.createEmptyBorder(5,10,10,10));
-//        msgPanel.add(msgLabel);
-//
-//        JPanel topPanel = new JPanel(new BorderLayout());
-//        topPanel.add(msgPanel, BorderLayout.CENTER);
-//        add(topPanel, BorderLayout.NORTH);
-
-//        GridBagConstraints oshiConstraint = new GridBagConstraints();
-//        setLayout(new GridBagLayout());
     }
 }

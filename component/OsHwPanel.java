@@ -1,8 +1,5 @@
 package component;
 
-//import component.OshiJPanel;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -16,7 +13,7 @@ import java.awt.*;
 import java.time.Instant;
 import java.util.List;
 
-public class OsHwPanel extends Panel {
+public class OsHwPanel extends OshiJPanel {
     private static final String OPERATING_SYSTEM = "Operating System ";
     private static final String HARDWARE_INFORMATION = "Hardware Information";
     private static final String PROCESSOR = "Processor";
@@ -93,7 +90,7 @@ public class OsHwPanel extends Panel {
         oshwPanel.add(hardwareTitle, csLabel);
         oshwPanel.add(csArea, csConstraints);
 
-        add(oshwPanel, BorderLayout.CENTER);
+        add(oshwPanel);
 
         // Update up time every second
         Timer timer = new Timer(Config.REFRESH_FAST, e -> osArea.setText(updateOsData(si)));
@@ -112,13 +109,25 @@ public class OsHwPanel extends Panel {
 
     private static String getHw(SystemInfo si){
         StringBuilder sb = new StringBuilder();
-        ObjectMapper mapper = new ObjectMapper();
         ComputerSystem computerSystem = si.getHardware().getComputerSystem();
-        try {
-            sb.append(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(computerSystem));
-        } catch (JsonProcessingException e) {
-            sb.append(e.getMessage());
-        }
+
+        sb.append("SYSTEM \n");
+        sb.append("     HardwareUUID: " + computerSystem.getHardwareUUID()+"\n");
+        sb.append("     Model: " + computerSystem.getModel()+"\n");
+        sb.append("     Serial number: " + computerSystem.getSerialNumber() + "\n\n");
+
+        sb.append("FIRMWARE \n");
+        sb.append("     Name: " + computerSystem.getFirmware().getName() + "\n");
+        sb.append("     Version: " + computerSystem.getFirmware().getVersion() + "\n");
+        sb.append("     ReleaseDate:  " + computerSystem.getFirmware().getReleaseDate() + "\n");
+        sb.append("     Manufacturer: " + computerSystem.getFirmware().getManufacturer() + "\n\n");
+
+        sb.append("BASEBOARD\n");
+        sb.append("     Version: " + computerSystem.getBaseboard().getVersion() + "\n");
+        sb.append("     Model: " + computerSystem.getBaseboard().getModel() + "\n");
+        sb.append("     Manufacturer:  " + computerSystem.getBaseboard().getManufacturer() + "\n");
+        sb.append("     Serial Number: " + computerSystem.getBaseboard().getSerialNumber());
+
         return sb.toString();
     }
 

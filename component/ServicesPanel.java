@@ -14,7 +14,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 
 
-public class ServicesPanel extends Panel {
+public class ServicesPanel extends OshiJPanel {
     private static final long serialVersionUID = 1L;
     private static final String SERVICES = "Services";
     private static final String[] COLUMNS = {"Name", "PID", "Status"};
@@ -36,11 +36,18 @@ public class ServicesPanel extends Panel {
     }
 
     private void init(SystemInfo si){
-        OperatingSystem os = si.getOperatingSystem();
+        JPanel servicesPanel = new JPanel();
+        servicesPanel.setLayout(new GridBagLayout());
+        GridBagConstraints titleConstraints = new GridBagConstraints();
+        titleConstraints.anchor = GridBagConstraints.CENTER;
+
+        titleConstraints.insets = new Insets(10, 10, 10, 10);
         JLabel serLabel = new JLabel(SERVICES);
         Font arialFont = new Font("Arial", Font.BOLD, 18);
         serLabel.setFont(arialFont);
-        add(serLabel, BorderLayout.NORTH);
+        add(serLabel, titleConstraints);
+
+        OperatingSystem os = si.getOperatingSystem();
 
         TableModel model = new DefaultTableModel(parseServices(os.getServices(), si), COLUMNS);
         JTable serTable = new JTable(model);
@@ -52,7 +59,16 @@ public class ServicesPanel extends Panel {
 
         JScrollPane scroll = new JScrollPane(serTable);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        add(scroll, BorderLayout.CENTER);
+
+        servicesPanel.setLayout(new GridBagLayout());
+        GridBagConstraints servicesConstraints = new GridBagConstraints();
+        servicesConstraints.gridx = 0;
+        servicesConstraints.gridy = 1;
+        servicesConstraints.weightx = 1d;
+        servicesConstraints.weighty = 1d;
+        servicesConstraints.fill = GridBagConstraints.BOTH;
+        servicesConstraints.insets = new Insets(10, 10, 10, 10);
+        add(scroll, servicesConstraints);
 
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {

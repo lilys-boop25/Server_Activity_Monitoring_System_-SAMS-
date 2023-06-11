@@ -1,6 +1,5 @@
 package component;
 
-//import component.OshiJPanel;
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
@@ -14,7 +13,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class ProcessPanel extends Panel {
+public class ProcessPanel extends OshiJPanel {
     private static final long serialVersionUID = 1L;
     private static final String PROCESSES = "Processes";
     private static final String[] COLUMNS = {"PID", "PPID", "Status", "User", "Threads", "% CPU", " Cumulative", "VSZ", "RSS", "% Memory",
@@ -25,9 +24,6 @@ public class ProcessPanel extends Panel {
     private transient ButtonGroup cpuOption = new ButtonGroup();
     private transient JRadioButton perProc = new JRadioButton("of one Processor");
     private transient JRadioButton perSystem = new JRadioButton("of System");
-
-//    private transient JRadioButton memButton = new JRadioButton("% Memory");
-//    private transient JRadioButton cpuButton = new JRadioButton("% CPU");
 
 
     public ProcessPanel(SystemInfo si) {
@@ -50,7 +46,15 @@ public class ProcessPanel extends Panel {
         Font arialFont = new Font("Arial", Font.BOLD, 18);
         procLabel.setFont(arialFont);
 
-        add(procLabel, BorderLayout.NORTH);
+        JPanel processPanel = new JPanel();
+        processPanel.setLayout(new GridBagLayout());
+        GridBagConstraints nameConstraints = new GridBagConstraints();
+        nameConstraints.anchor = GridBagConstraints.CENTER;
+//        nameConstraints.fill = GridBagConstraints.BOTH;
+        nameConstraints.insets = new Insets(10, 10, 10, 10);
+        procLabel.setMinimumSize(new Dimension(0,0));
+        procLabel.setMaximumSize(new Dimension(50,50));
+        add(procLabel, nameConstraints);
 
         JPanel settings = new JPanel();
         JLabel cpuChoice = new JLabel("          % CPU:");
@@ -89,8 +93,23 @@ public class ProcessPanel extends Panel {
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         resizeColumns(procTable.getColumnModel());
 
-        add(scroll, BorderLayout.CENTER);
-        add(settings, BorderLayout.SOUTH);
+        GridBagConstraints processConstraints = new GridBagConstraints();
+        processConstraints.gridx = 0;
+        processConstraints.gridy = 1;
+        processConstraints.weightx = 1d;
+        processConstraints.weighty = 1d;
+        processConstraints.anchor = GridBagConstraints.NORTHWEST;
+        processConstraints.fill = GridBagConstraints.BOTH;
+        processConstraints.insets = new Insets(10, 10, 10, 10);
+
+        add(scroll, processConstraints);
+        GridBagConstraints settingsConstraints = new GridBagConstraints();
+        settingsConstraints.gridx = 0;
+        settingsConstraints.gridy = 2;
+
+        settingsConstraints.anchor = GridBagConstraints.NORTHWEST;
+        settingsConstraints.fill = GridBagConstraints.BOTH;
+        add(settings, settingsConstraints);
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
