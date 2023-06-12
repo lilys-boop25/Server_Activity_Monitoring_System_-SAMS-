@@ -100,7 +100,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     }
 
-    public static double getVirtualMemory(GlobalMemory memory)
+    private double getVirtualMemory(GlobalMemory memory)
     {
         return (double)(memory.getVirtualMemory().getSwapUsed())/memory.getVirtualMemory().getSwapTotal();
     }
