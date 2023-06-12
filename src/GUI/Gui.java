@@ -1,4 +1,4 @@
-package component;
+package GUI;
 
 import com.sun.jna.Platform;
 import oshi.PlatformEnum;
@@ -10,12 +10,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class Gui {
-    JButton selectedButton;
+
     private JFrame mainFrame;
     private JButton jMenu;
     private SystemInfo si = new SystemInfo();
+    private JButton selectedButton;
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
-
     private final Color COLOR_DEFAULT = new Color(238,238,238);
 
     public Gui(){
@@ -49,7 +49,7 @@ public class Gui {
         JLabel label = new JLabel("This is our project");
         label.setFont(new Font("Arial", Font.PLAIN, 24));
 
-        // Thiết lập các ràng buộc và vị trí cho đoạn văn bản
+//         Thiết lập các ràng buộc và vị trí cho đoạn văn bản
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -79,32 +79,6 @@ public class Gui {
     }
 
     private JButton getjMenu(String title, String toolTip, OshiJPanel panel){
-        JButton button = new JButton(title);
-        Font font = new Font ("Helvetica", Font.PLAIN, 14);
-        button.setFont(font);
-        button.setToolTipText(toolTip);
-        button.setBackground(COLOR_DEFAULT);
-
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                setSelectedButton(button);
-            }
-        });
-
-        button.addActionListener((e) -> {
-            Container contentPane = this.mainFrame.getContentPane();
-            int nComponents = contentPane.getComponents().length;
-            if (nComponents <= 0 || contentPane.getComponent(0) != panel) {
-                this.resetMainGui();
-                this.mainFrame.getContentPane().add(panel);
-                this.refreshMainGui();
-            }
-        });
-
-        return button;
-    }
-
-    private JButton getjMenu(String title, String toolTip, Panel panel){
         JButton button = new JButton(title);
         Font font = new Font ("Helvetica", Font.PLAIN, 14);
         button.setFont(font);

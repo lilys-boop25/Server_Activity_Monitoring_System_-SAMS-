@@ -1,13 +1,6 @@
-package component;
+package GUI;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.labels.PieSectionLabelGenerator;
-import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
-import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.data.general.DefaultPieDataset;
+
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.software.os.FileSystem;
@@ -16,11 +9,9 @@ import oshi.util.FormatUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
-public class FileSystemPanel extends Panel {
+public class FileSystemPanel extends OshiJPanel {
 
     private static final String USED = "Used";
     private static final String AVAILABLE = "Available";
@@ -87,7 +78,7 @@ public class FileSystemPanel extends Panel {
 
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        add(scrollPane,BorderLayout.CENTER);
+        add(scrollPane,fsConstraints);
 
         Timer timer = new Timer(Config.REFRESH_SLOWER, e -> {
             if (!updateData(fs.getFileStores())) {
