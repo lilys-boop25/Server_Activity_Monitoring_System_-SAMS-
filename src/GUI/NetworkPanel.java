@@ -25,7 +25,7 @@ public class NetworkPanel extends PerformancePanel{
         super();
         initial(net, button);
     }
-    
+
 
     private void initial(NetworkIF net, JButton button) {
         GridBagConstraints netConstraints = new GridBagConstraints();
@@ -92,5 +92,4 @@ public class NetworkPanel extends PerformancePanel{
         f[0] = (float) (d);
         return f;
     }
-
 }
