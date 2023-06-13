@@ -1,4 +1,4 @@
-package GUI;
+package component;
 
 public final class Config {
 

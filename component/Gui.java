@@ -1,4 +1,4 @@
-package GUI;
+package component;
 
 import com.sun.jna.Platform;
 import oshi.PlatformEnum;
@@ -9,16 +9,16 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class OshiGui {
-
+public class Gui {
+    JButton selectedButton;
     private JFrame mainFrame;
+    private JButton jMenu;
     private SystemInfo si = new SystemInfo();
-    private JButton jMenu = this.getjMenu("Performance", "Performance",new PerformancePanel(this.si));
-    private JButton selectedButton = jMenu;
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
+
     private final Color COLOR_DEFAULT = new Color(238,238,238);
 
-    public OshiGui(){
+    public Gui(){
 
     }
 
@@ -27,16 +27,14 @@ public class OshiGui {
         {
             return;
         }
-        OshiGui gui = new OshiGui();
+        Gui gui = new Gui();
         gui.init();
         SwingUtilities.invokeLater(gui::setVisible);
     }
 
     private void setVisible(){
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setLocation(0, 0);
         this.mainFrame.setVisible(true);
-        this.jMenu.setBackground(new Color(179, 177, 178));
         this.jMenu.doClick();
     }
 
@@ -47,11 +45,22 @@ public class OshiGui {
         this.mainFrame.setResizable(false);
         this.mainFrame.setLocationByPlatform(true);
         this.mainFrame.setLayout(new BorderLayout());
-        
+        JPanel panel = new JPanel(new GridBagLayout());
+        JLabel label = new JLabel("This is our project");
+        label.setFont(new Font("Arial", Font.PLAIN, 24));
+
+        // Thiết lập các ràng buộc và vị trí cho đoạn văn bản
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(label, gbc);
+
+        this.mainFrame.add(panel);
         JMenuBar menuBar = new JMenuBar();
         this.mainFrame.setJMenuBar(menuBar);
 
-        menuBar.add(jMenu);
+        menuBar.add(this.getjMenu("Performance", "Performance",new PerformancePanel(this.si)));
         menuBar.add(this.getjMenu("File Systems","File Systems", new FileSystemPanel(this.si)));
         menuBar.add(this.getjMenu("Processes","Processes", new ProcessPanel(this.si)));
         menuBar.add(this.getjMenu("Services", "Services", new ServicesPanel(this.si)));

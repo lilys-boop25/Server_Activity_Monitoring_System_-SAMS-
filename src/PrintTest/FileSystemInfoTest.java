@@ -1,5 +1,4 @@
 package PrintTest;
-
 import oshi.*;
 
 import com.sun.jna.Platform;

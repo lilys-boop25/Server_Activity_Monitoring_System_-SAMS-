@@ -1,4 +1,4 @@
-package GUI;
+package component;
 
 import javax.swing.*;
 
@@ -15,6 +15,9 @@ import oshi.hardware.NetworkIF;
 import oshi.util.FormatUtil;
 
 public class PerformancePanel extends OshiJPanel {
+
+    public PerformancePanel() {
+    }
 
     public PerformancePanel(SystemInfo si) {
         super();
