@@ -96,7 +96,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-
+    
 
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
