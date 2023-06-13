@@ -1,3 +1,5 @@
+package PrintTest;
+
 import oshi.*;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
