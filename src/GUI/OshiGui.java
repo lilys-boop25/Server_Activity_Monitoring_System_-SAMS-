@@ -1,28 +1,37 @@
 package GUI;
 
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+
+import java.awt.BorderLayout;
+//import java.awt.Component;
+import java.awt.Container;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+
 import com.sun.jna.Platform;
+
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
+/**
+ * Basic Swing class to demonstrate potential uses for OSHI in a monitoring GUI. Not ready for production use and
+ * intended as inspiration/examples.
+ */
 public class OshiGui {
 
     private JFrame mainFrame;
+    private JButton jMenu;
+
     private SystemInfo si = new SystemInfo();
-    private JButton jMenu = this.getjMenu("Performance", "Performance",new PerformancePanel(this.si));
-    private JButton selectedButton = jMenu;
+
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
-    private final Color COLOR_DEFAULT = new Color(238,238,238);
 
-    public OshiGui(){
-
-    }
-
-    public static void main(String[] args){
+    public static void main(String[] args) {
         if (!CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS) && !CURRENT_PLATFORM.equals(PlatformEnum.LINUX))
         {
             return;
@@ -32,74 +41,64 @@ public class OshiGui {
         SwingUtilities.invokeLater(gui::setVisible);
     }
 
-    private void setVisible(){
-        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private void setVisible() {
+        mainFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         mainFrame.setLocation(0, 0);
-        this.mainFrame.setVisible(true);
-        this.jMenu.setBackground(new Color(179, 177, 178));
-        this.jMenu.doClick();
+        mainFrame.setVisible(true);
+        jMenu.doClick();
     }
 
-    private void init(){
-        this.mainFrame = new JFrame("Operating System & Hardware Information");
-        this.mainFrame.setSize(Config.GUI_WIDTH,Config.GUI_HEIGHT);
-        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.mainFrame.setResizable(false);
-        this.mainFrame.setLocationByPlatform(true);
-        this.mainFrame.setLayout(new BorderLayout());
-        
+    private void init() {
+        // Create the external frame
+        mainFrame = new JFrame(Config.GUI_TITLE);
+        mainFrame.setSize(Config.GUI_WIDTH, Config.GUI_HEIGHT);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        //mainFrame.setResizable(true);
+        mainFrame.setResizable(false);
+        mainFrame.setLocationByPlatform(true);
+        mainFrame.setLayout(new BorderLayout());
+        // Add a menu bar
         JMenuBar menuBar = new JMenuBar();
-        this.mainFrame.setJMenuBar(menuBar);
-
+        mainFrame.setJMenuBar(menuBar);
+        // Assign the first menu option to be clicked on visibility
+        jMenu = getJMenu("Performance", 'M', "", new PerformancePanel(si));
         menuBar.add(jMenu);
-        menuBar.add(this.getjMenu("File Systems","File Systems", new FileSystemPanel(this.si)));
-        menuBar.add(this.getjMenu("Processes","Processes", new ProcessPanel(this.si)));
-        menuBar.add(this.getjMenu("Services", "Services", new ServicesPanel(this.si)));
-        menuBar.add(this.getjMenu("OS & HW Info", "Hardware & OS Summary", new OsHwPanel(this.si)));
+        menuBar.add(this.getJMenu("File Systems", 'F',"File Systems", new FileSystemPanel(this.si)));
+        menuBar.add(this.getJMenu("Processes", 'P',"Processes", new ProcessPanel(this.si)));
+        menuBar.add(this.getJMenu("Services", 'S', "Services", new ServicesPanel(this.si)));
+        menuBar.add(this.getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", new OsHwPanel(this.si)));
 
+        // Add later menu items
     }
 
-    public void setSelectedButton(JButton button) {
-        if (selectedButton != button) {
-            if (selectedButton != null) {
-                selectedButton.setBackground(COLOR_DEFAULT); // đặt lại màu ban đầu cho JButton được chọn trước đó
-            }
-            button.setBackground(new Color(179, 177, 178));
-            selectedButton = button; // lưu trạng thái của JButton mới được chọn
-        }
-    }
-
-    private JButton getjMenu(String title, String toolTip, OshiJPanel panel){
+    private JButton getJMenu(String title, char mnemonic, String toolTip, OshiJPanel panel) {
         JButton button = new JButton(title);
-        Font font = new Font ("Helvetica", Font.PLAIN, 14);
-        button.setFont(font);
+
+        // Set a shortcut keyboard for this button, press Alt + mnemonic
+        button.setMnemonic(mnemonic);
+        // Set text to display when we move out mouse to the button
         button.setToolTipText(toolTip);
-        button.setBackground(COLOR_DEFAULT);
 
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                setSelectedButton(button);
-            }
-        });
-
-        button.addActionListener((e) -> {
+        // Set what to do when we push the button
+        button.addActionListener(e -> {
             Container contentPane = this.mainFrame.getContentPane();
-            int nComponents = contentPane.getComponents().length;
-            if (nComponents <= 0 || contentPane.getComponent(0) != panel) {
-                this.resetMainGui();
+            // Check if the given panel is the first component in the contentPane and if it equal to our callback panel.
+            int nComponents = (int)contentPane.getComponents().length;
+            if (nComponents <= (int)0 || contentPane.getComponent(0) != panel) {
+                resetMainGui();
                 this.mainFrame.getContentPane().add(panel);
-                this.refreshMainGui();
+                refreshMainGui();
             }
         });
 
         return button;
     }
 
-    public void resetMainGui(){
+    private void resetMainGui() {
         this.mainFrame.getContentPane().removeAll();
     }
 
-    private void refreshMainGui(){
+    private void refreshMainGui() {
         this.mainFrame.revalidate();
         this.mainFrame.repaint();
     }
