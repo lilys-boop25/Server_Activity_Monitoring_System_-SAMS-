@@ -63,7 +63,11 @@ public class OshiGui {
         // Assign the first menu option to be clicked on visibility
         jMenu = getJMenu("Performance", 'M', "", new PerformancePanel(si));
         menuBar.add(jMenu);
-        menuBar.add(getJMenu("Process", 'P', "", new ProcessPanel(si)));
+        menuBar.add(getJMenu("File Systems", 'F',"File Systems", new FileSystemPanel(si)));
+        menuBar.add(getJMenu("Processes", 'P',"Processes", new ProcessPanel(si)));
+        menuBar.add(getJMenu("Services", 'S', "Services", new ServicesPanel(si)));
+        menuBar.add(getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", new OsHwPanel(si)));
+
 
         // Add later menu items
     }
