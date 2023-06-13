@@ -13,9 +13,6 @@ import java.util.List;
 
 public class FileSystemPanel extends OshiJPanel {
 
-    private static final String USED = "Used";
-    private static final String AVAILABLE = "Available";
-
     private JProgressBar[] progressBars;
 
     public FileSystemPanel(SystemInfo si) {
