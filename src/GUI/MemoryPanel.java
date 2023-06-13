@@ -47,7 +47,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramData.addSeries(floatArrayPercent(getRAM(memory)), 0, "Used");
 
         JFreeChart ramChart = ChartFactory.createTimeSeriesChart(PHYSICAL_MEMORY, "", "% Memory", ramData, true, true, false);
-        
+
         ramChart.getXYPlot().getRangeAxis().setAutoRange(false);
         ramChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
@@ -57,7 +57,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramConstraints.fill = GridBagConstraints.BOTH;
 
         memoryPanel.add(new ChartPanel(ramChart), ramConstraints);
-        
+
+
         DynamicTimeSeriesCollection virtualMemData = new DynamicTimeSeriesCollection(1, 60, new Second());
         virtualMemData.setTimeBase(new Second(date));
         virtualMemData.addSeries(floatArrayPercent(getVirtualMemory(memory)), 0, "Used");
@@ -100,7 +101,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     }
 
-    public static double getVirtualMemory(GlobalMemory memory)
+    private double getVirtualMemory(GlobalMemory memory)
     {
         return (double)(memory.getVirtualMemory().getSwapUsed())/memory.getVirtualMemory().getSwapTotal();
     }
