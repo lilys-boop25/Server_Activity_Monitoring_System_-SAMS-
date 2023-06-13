@@ -14,20 +14,23 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.NetworkIF;
 import oshi.util.FormatUtil;
 
-public class PerformancePanel extends OshiJPanel {
+public class PerformancePanel extends OshiJPanel{
+
+    public PerformancePanel() {
+    }
 
     public PerformancePanel(SystemInfo si) {
         super();
         initial(si);
     }
-
+    
     class JVerticalMenuBar extends JMenuBar {
         private static final LayoutManager grid = new GridLayout(0,1);
         public JVerticalMenuBar() {
             setLayout(grid);
         }
     }
-
+    
     private void initial(SystemInfo si) {
         JPanel perfPanel = new JPanel();
         perfPanel.setLayout(new GridBagLayout());
@@ -45,7 +48,7 @@ public class PerformancePanel extends OshiJPanel {
         cpuC.gridx = 0;
         cpuC.gridy = 0;
         perfMenuBar.add(cpuButton, cpuC);
-
+        
         JButton memButton = createButton(updateMemory(si), 'M', "Display Memory" ,new MemoryPanel(si), displayPanel);
 
         GridBagConstraints memC = (GridBagConstraints)cpuC.clone();
@@ -77,7 +80,7 @@ public class PerformancePanel extends OshiJPanel {
         scrollPerfPanel.setMinimumSize(new Dimension(320, getSize().height));
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
-
+        
         GridBagConstraints perfConstraints = new GridBagConstraints();
         perfConstraints.gridx = 0;
         perfConstraints.gridy = 0;
@@ -89,16 +92,16 @@ public class PerformancePanel extends OshiJPanel {
 
         // Update up time every second
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
-
+            
             Thread cpuThread = new Thread( ()->{
                 cpuButton.setText(updateCPU(si));
             });
             cpuThread.start();
-
+    
             memButton.setText(updateMemory(si));
 
         });
-
+        
         timer.start();
         Thread thread = new Thread(() -> {
             while(true)
@@ -204,7 +207,7 @@ public class PerformancePanel extends OshiJPanel {
         });
         return button;
     }
-
+    
     private void resetMainGui(JPanel displayPanel) {
         displayPanel.removeAll();
     }
