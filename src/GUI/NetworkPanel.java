@@ -19,13 +19,13 @@ import org.jfree.data.time.Second;
 import oshi.hardware.NetworkIF;
 
 
-public class NetworkPanel extends PerformancePanel{
+public class NetworkPanel extends OshiJPanel{
 
     public NetworkPanel(NetworkIF net, JButton button) {
         super();
         initial(net, button);
     }
-    
+
 
     private void initial(NetworkIF net, JButton button) {
         GridBagConstraints netConstraints = new GridBagConstraints();
@@ -77,7 +77,7 @@ public class NetworkPanel extends PerformancePanel{
                 int newest = networkData.getNewestIndex();
                 long sendSpeed = (sendNow - sendLast)*1000/(net.getTimeStamp()-timeNow);
                 long recvSpeed = (recvNow - recvLast)*1000/(net.getTimeStamp()-timeNow);
-                button.setText(updateNetwork(net, recvSpeed, sendSpeed));
+                button.setText(PerformancePanel.updateNetwork(net, recvSpeed, sendSpeed));
                 networkData.advanceTime();
                 networkData.addValue(0, newest, (float)sendSpeed/1024);
                 networkData.addValue(1, newest, (float)recvSpeed/1024);
@@ -92,5 +92,4 @@ public class NetworkPanel extends PerformancePanel{
         f[0] = (float) (d);
         return f;
     }
-
 }

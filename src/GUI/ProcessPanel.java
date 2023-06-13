@@ -131,7 +131,20 @@ public class ProcessPanel extends OshiJPanel {
                 tableModel.removeRow(row);
             }
 
+            // Reset row sorter and maintain current sorting
+            TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) procTable.getRowSorter();
+            List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
+            re_sorter.setModel(tableModel);
+            re_sorter.setComparator(0, new NumericComparator());
+            re_sorter.setComparator(1, new NumericComparator());
+            re_sorter.setComparator(4, new NumericComparator());
+            re_sorter.setComparator(5, new NumericComparator());
+            re_sorter.setComparator(6, new NumericComparator());
+            re_sorter.setComparator(9, new NumericComparator());
+            re_sorter.setSortKeys(sortKeys);
+            re_sorter.sort();
         });
+
         timer.start();
     }
 
@@ -140,10 +153,18 @@ public class ProcessPanel extends OshiJPanel {
         int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
 
         int i = list.size();
+
         Object[][] procArr = new Object[i][COLUMNS.length];
+
         // These are in descending CPU order
         for (OSProcess p : list) {
-            // Matches order of COLUMNS field
+
+            // Ignore the Idle process on Windows
+            if (p.getProcessID() == 0 && SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
+                i--;
+                continue;
+            }
+
             i--;
             int pid = p.getProcessID();
             procArr[i][0] = pid;
@@ -169,6 +190,7 @@ public class ProcessPanel extends OshiJPanel {
             procArr[i][10] = p.getName();
         }
 
+        // Re-populate snapshot map
         priorSnapshotMap.clear();
         for (OSProcess p : list) {
             priorSnapshotMap.put(p.getProcessID(), p);
