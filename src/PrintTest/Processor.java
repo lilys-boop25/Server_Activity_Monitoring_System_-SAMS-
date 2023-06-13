@@ -1,6 +1,5 @@
 package PrintTest;
 
-
 import com.sun.jna.Platform;
 
 import oshi.PlatformEnum;

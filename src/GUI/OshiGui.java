@@ -1,6 +1,7 @@
 package GUI;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 import java.awt.BorderLayout;
 //import java.awt.Component;
@@ -62,6 +63,10 @@ public class OshiGui {
         // Assign the first menu option to be clicked on visibility
         jMenu = getJMenu("Performance", 'M', "", new PerformancePanel(si));
         menuBar.add(jMenu);
+        menuBar.add(this.getJMenu("File Systems", 'F',"File Systems", new FileSystemPanel(this.si)));
+        menuBar.add(this.getJMenu("Processes", 'P',"Processes", new ProcessPanel(this.si)));
+        menuBar.add(this.getJMenu("Services", 'S', "Services", new ServicesPanel(this.si)));
+        menuBar.add(this.getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", new OsHwPanel(this.si)));
 
         // Add later menu items
     }
