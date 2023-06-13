@@ -1,7 +1,6 @@
 package GUI;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 import java.awt.BorderLayout;
 //import java.awt.Component;
