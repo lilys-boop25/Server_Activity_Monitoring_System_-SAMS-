@@ -25,6 +25,7 @@ import oshi.hardware.CentralProcessor.TickType;
  */
 public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
+    
     private static final long serialVersionUID = 1L;
 
     private long[] oldTicks;
