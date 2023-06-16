@@ -58,7 +58,6 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
         memoryPanel.add(new ChartPanel(ramChart), ramConstraints);
 
-
         DynamicTimeSeriesCollection virtualMemData = new DynamicTimeSeriesCollection(1, 60, new Second());
         virtualMemData.setTimeBase(new Second(date));
         virtualMemData.addSeries(floatArrayPercent(getVirtualMemory(memory)), 0, "Used");

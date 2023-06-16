@@ -13,7 +13,7 @@ public class OshiGui {
 
     private JFrame mainFrame;
     private SystemInfo si = new SystemInfo();
-    private JButton jMenu = this.getjMenu("Performance", "Performance",new PerformancePanel(this.si));
+    private JButton jMenu = this.getJMenu("Performance", "Performance",new PerformancePanel(this.si));
     private JButton selectedButton = jMenu;
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
     private final Color COLOR_DEFAULT = new Color(238,238,238);
@@ -47,16 +47,15 @@ public class OshiGui {
         this.mainFrame.setResizable(false);
         this.mainFrame.setLocationByPlatform(true);
         this.mainFrame.setLayout(new BorderLayout());
-        
+
         JMenuBar menuBar = new JMenuBar();
         this.mainFrame.setJMenuBar(menuBar);
 
         menuBar.add(jMenu);
-        menuBar.add(this.getjMenu("File Systems","File Systems", new FileSystemPanel(this.si)));
-        menuBar.add(this.getjMenu("Processes","Processes", new ProcessPanel(this.si)));
-        menuBar.add(this.getjMenu("Services", "Services", new ServicesPanel(this.si)));
-        menuBar.add(this.getjMenu("OS & HW Info", "Hardware & OS Summary", new OsHwPanel(this.si)));
-
+        menuBar.add(this.getJMenu("File Systems", "File Systems", new FileSystemPanel(this.si)));
+        menuBar.add(this.getJMenu("Processes","Processes", new ProcessPanel(this.si)));
+        menuBar.add(this.getJMenu("Services", "Services", new ServicesPanel(this.si)));
+        menuBar.add(this.getJMenu("OS & HW Info", "Hardware & OS Summary", new OsHwPanel(this.si)));
     }
 
     public void setSelectedButton(JButton button) {
@@ -69,7 +68,7 @@ public class OshiGui {
         }
     }
 
-    private JButton getjMenu(String title, String toolTip, OshiJPanel panel){
+    private JButton getJMenu(String title, String toolTip, OshiJPanel panel){
         JButton button = new JButton(title);
         Font font = new Font ("Helvetica", Font.PLAIN, 14);
         button.setFont(font);

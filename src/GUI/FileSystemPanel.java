@@ -3,109 +3,192 @@ package GUI;
 
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
-import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class FileSystemPanel extends OshiJPanel {
-
-    private static final String USED = "Used";
-    private static final String AVAILABLE = "Available";
+public class FileSystemPanel extends OshiJPanel{
+    private static final String[] COLUMNS = {"Device", "Type", "Total", "Available", "Used", "Diagram"};
+    private static final double[] COLUMN_WIDTH_PERCENT = {0.03, 0.01, 0.01, 0.01, 0.01, 2};
+    private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
     private JProgressBar[] progressBars;
 
-    public FileSystemPanel(SystemInfo si) {
-        super();
-        init(si.getOperatingSystem().getFileSystem());
+    private static long parseSize(String sizeString) {
+        String[] parts = sizeString.split(" ");
+        float value = Float.parseFloat(parts[0]);
+        String unit = parts[1];
+        switch (unit) {
+            case "B":
+                return (long) value;
+            case "KiB":
+                return (long) (value * 1024);
+            case "MiB":
+                return (long) (value * 1024 * 1024);
+            case "GiB":
+                return (long) (value * 1024 * 1024 * 1024);
+            default:
+                throw new IllegalArgumentException("Unknown size unit: " + unit);
+        }
     }
 
-    private void init(FileSystem fs){
+    private static class NumericComparator implements Comparator<String> {
+        @Override
+        public int compare(String o1, String o2) {
+            long size1 = parseSize(o1);
+            long size2 = parseSize(o2);
+            return Float.compare(size1,size2);
+        }
+    }
+
+    public FileSystemPanel(SystemInfo si){
+        super();
+        init(si);
+    }
+
+    private void init(SystemInfo si){
+        oshi.software.os.FileSystem fs = si.getOperatingSystem().getFileSystem();
         List<OSFileStore> fileStores = fs.getFileStores();
         progressBars = new JProgressBar[fileStores.size()];
 
-        JPanel fsPanel = new JPanel();
-        fsPanel.setLayout(new GridBagLayout());
-        GridBagConstraints fsConstraints = new GridBagConstraints();
-        fsConstraints.weightx = 1d;
-        fsConstraints.weighty = 1d;
-        fsConstraints.fill = GridBagConstraints.BOTH;
-        fsConstraints.insets = new Insets(10, 10, 10, 10);
+        TableModel model;
+        model = new DefaultTableModel(parseFileSystem(fileStores,si), COLUMNS) {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 5) {
+                    return JProgressBar.class;
+                }
+                return super.getColumnClass(columnIndex);
+            }
+        };
 
-        JScrollPane scrollPane = new JScrollPane();
+        JTable systemTable = new JTable(model);
+        Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 12);
+        systemTable.setFont(sansSerifFont);
+        systemTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
 
-        int modBase = 2;
-        for (int i = 0; i < fileStores.size(); i++) {
-            progressBars[i] = new JProgressBar();
-            fsConstraints.gridx = i % modBase;
-            fsConstraints.gridy = i / modBase;
+        resizeColumns(systemTable.getColumnModel());
 
-            JPanel progressBarPanel = new JPanel(new BorderLayout());
+        systemTable.getColumnModel().getColumn(5).setCellRenderer(new ProgressRenderer());
 
-            JPanel northPanel = new JPanel();
-            northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+        // make sorter for Table
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(systemTable.getModel());
+        sorter.setComparator(2, new NumericComparator());
+        sorter.setComparator(3, new NumericComparator());
+        sorter.setComparator(4, new NumericComparator());
+        sorter.setSortable(5,false);
+        systemTable.setRowSorter(sorter);
 
-            JLabel labelName = new JLabel();
-            // check OS
-            if(SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)){
+        JScrollPane scroll = new JScrollPane(systemTable);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-                labelName.setText(String.format("%s %s",fileStores.get(i).getName(),fileStores.get(i).getLabel()));
+        GridBagConstraints scrollConstraints = new GridBagConstraints();
+        scrollConstraints.gridx = 0;
+        scrollConstraints.gridy = 1;
+        scrollConstraints.weightx = 1d;
+        scrollConstraints.weighty = 1d;
+        scrollConstraints.anchor = GridBagConstraints.NORTHWEST;
+        scrollConstraints.fill = GridBagConstraints.BOTH;
 
-            } else if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.LINUX)){
+        add(scroll, scrollConstraints);
 
-                labelName.setText(String.format("%s\n", fileStores.get(i).getVolume()));
 
+
+        Timer timer = new Timer(Config.REFRESH_FAST, e -> {
+            DefaultTableModel tableModel = (DefaultTableModel) systemTable.getModel();
+            Object[][] newData = parseFileSystem(si.getOperatingSystem().getFileSystem().getFileStores(), si);
+            int rowCount = tableModel.getRowCount();
+            for (int row = 0; row < newData.length; row++) {
+                if (row < rowCount) {
+                    // Overwrite row
+                    for (int col = 0; col < newData[row].length; col++) {
+                        tableModel.setValueAt(newData[row][col], row, col);
+                    }
+                } else {
+                    // Add row
+                    tableModel.addRow(newData[row]);
+                }
+            }
+            // Delete any extra rows
+            for (int row = rowCount - 1; row >= newData.length; row--) {
+                tableModel.removeRow(row);
             }
 
-            labelName.setFont(new Font ("Arial", Font.BOLD, 16));
-            northPanel.add(labelName);
-            JLabel type = new JLabel();
-            type.setText(fileStores.get(i).getType());
-            type.setFont(new Font ("Arial", Font.BOLD, 16));
+            // Reset row sorter and maintain current sorting
+            TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) systemTable.getRowSorter();
+            List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
+            re_sorter.setModel(tableModel);
+            re_sorter.setComparator(2, new NumericComparator());
+            re_sorter.setComparator(3, new NumericComparator());
+            re_sorter.setComparator(4, new NumericComparator());
+            re_sorter.setSortable(5,false);
 
-            northPanel.add(type);
-            progressBarPanel.add(northPanel, BorderLayout.NORTH);
-            progressBarPanel.add(progressBars[i], BorderLayout.CENTER);
-            progressBarPanel.setPreferredSize(new Dimension(Config.GUI_WIDTH/4, 20));
-
-            fsPanel.add(progressBarPanel, fsConstraints);
-            scrollPane.setViewportView(fsPanel);
-        }
-        updateData(fileStores);
-
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        add(scrollPane,fsConstraints);
-
-        Timer timer = new Timer(Config.REFRESH_SLOWER, e -> {
-            if (!updateData(fs.getFileStores())) {
-                ((Timer) e.getSource()).stop();
-                fsPanel.removeAll();
-                init(fs);
-                fsPanel.revalidate();
-                fsPanel.repaint();
-            }
+            re_sorter.setSortKeys(sortKeys);
+            re_sorter.sort();
         });
+
         timer.start();
     }
 
-    private boolean updateData(List<OSFileStore> fileStores) {
-        if (fileStores.size() != progressBars.length) {
-            return false;
-        }
+    private Object[][] parseFileSystem(List<OSFileStore> fileStores, SystemInfo si) {
+
+        Object[][] systemArr = new Object[fileStores.size()][COLUMNS.length];
+
         int i = 0;
+
+        // These are in descending CPU order
         for (OSFileStore fileStore : fileStores) {
-            long usable = fileStore.getUsableSpace();
-            long total = fileStore.getTotalSpace();
-            int value = (int) (((double) total - usable) / total * 100);
-            progressBars[i].setValue(value);
-            progressBars[i].setString(String.format("Available: (%s/%s)", FormatUtil.formatBytes(usable), FormatUtil.formatBytes(total)));
-            progressBars[i].setStringPainted(true);
+            if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)){
+                systemArr[i][0] = fileStore.getName();
+            } else if(SystemInfo.getCurrentPlatform().equals(PlatformEnum.LINUX)){
+                systemArr[i][0] = fileStore.getVolume();
+            }
+            systemArr[i][1] = fileStore.getType();
+            systemArr[i][2] = FormatUtil.formatBytes(fileStore.getTotalSpace());
+            systemArr[i][3] = FormatUtil.formatBytes(fileStore.getUsableSpace());
+            systemArr[i][4] = FormatUtil.formatBytes(fileStore.getTotalSpace()- fileStore.getUsableSpace());
+            int used = (int) ((fileStore.getTotalSpace() - fileStore.getUsableSpace()) *100 / fileStore.getTotalSpace());
+            systemArr[i][5] = used;
             i++;
         }
-        return true;
+
+        return systemArr;
+    }
+
+    private static void resizeColumns (TableColumnModel tableColumnModel){
+        TableColumn column;
+        int tW = tableColumnModel.getTotalColumnWidth();
+        int cantCols = tableColumnModel.getColumnCount();
+        for (int i = 0; i < cantCols; i++){
+            column = tableColumnModel.getColumn(i);
+            int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
+            column.setPreferredWidth(pWidth);
+        }
+    }
+
+    private static class ProgressRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
+        private final JProgressBar progressBar = new JProgressBar();
+
+        public ProgressRenderer() {
+            super();
+            setOpaque(true);
+            progressBar.setStringPainted(true);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+
+            Integer progress = (Integer) value;
+            progressBar.setValue(progress);
+            return progressBar;
+        }
     }
 }

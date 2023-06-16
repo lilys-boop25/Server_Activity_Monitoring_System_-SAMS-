@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -51,7 +52,32 @@ public class ServicesPanel extends OshiJPanel {
 
         TableModel model = new DefaultTableModel(parseServices(os.getServices(), si), COLUMNS);
         JTable serTable = new JTable(model);
+        Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 12);
+        serTable.setFont(sansSerifFont);
+        serTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
 
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Set font color for "Running" in status column
+                if (column == 2) {
+                    if(value != null) {
+                        String status = value.toString();
+                        if(status.equalsIgnoreCase("running")){
+                            c.setForeground(Color.RED);
+                        } else{
+                            c.setForeground(Color.BLACK);
+                        }
+                    }
+                }
+                return c;
+            }
+        };
+        serTable.getColumnModel().getColumn(2).setCellRenderer(renderer);
         // make sorter for Table
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(serTable.getModel());
         sorter.setComparator(1, new NumericComparator());

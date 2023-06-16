@@ -20,10 +20,11 @@ public class ProcessPanel extends OshiJPanel {
             "Process Name"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35};
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
-//    private transient ButtonGroup sortOption = new ButtonGroup();
+    //    private transient ButtonGroup sortOption = new ButtonGroup();
     private transient ButtonGroup cpuOption = new ButtonGroup();
     private transient JRadioButton perProc = new JRadioButton("of one Processor");
     private transient JRadioButton perSystem = new JRadioButton("of System");
+
 
 
     public ProcessPanel(SystemInfo si) {
@@ -72,26 +73,52 @@ public class ProcessPanel extends OshiJPanel {
         }
 
         TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);
-        JTable procTable = new JTable(model);
+        JTable proccessTable = new JTable(model);
+
+        Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 12);
+        proccessTable.setFont(sansSerifFont);
+        proccessTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Set font color for "Running" in status column
+                if (column == 2) {
+                    if(value != null) {
+                        String status = value.toString();
+                        if(status.equalsIgnoreCase("running")){
+                            c.setForeground(Color.RED);
+                        } else{
+                            c.setForeground(Color.BLACK);
+                        }
+                    }
+                }
+                return c;
+            }
+        };
+        proccessTable.getColumnModel().getColumn(2).setCellRenderer(renderer);
 
         // make sorter for Table
-        TableRowSorter<TableModel> sorter = new TableRowSorter<>(procTable.getModel());
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(proccessTable.getModel());
         sorter.setComparator(0, new NumericComparator());
         sorter.setComparator(1, new NumericComparator());
         sorter.setComparator(4, new NumericComparator());
         sorter.setComparator(5, new NumericComparator());
         sorter.setComparator(6, new NumericComparator());
         sorter.setComparator(9, new NumericComparator());
-
-
-        procTable.setRowSorter(sorter);
-        sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(9, SortOrder.DESCENDING)));
         sorter.setSortable(7,false);
         sorter.setSortable(8,false);
+        sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(9, SortOrder.DESCENDING)));
 
-        JScrollPane scroll = new JScrollPane(procTable);
+        proccessTable.setRowSorter(sorter);
+
+
+        JScrollPane scroll = new JScrollPane(proccessTable);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        resizeColumns(procTable.getColumnModel());
+        resizeColumns(proccessTable.getColumnModel());
 
         GridBagConstraints processConstraints = new GridBagConstraints();
         processConstraints.gridx = 0;
@@ -112,7 +139,7 @@ public class ProcessPanel extends OshiJPanel {
         add(settings, settingsConstraints);
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
-            DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
+            DefaultTableModel tableModel = (DefaultTableModel) proccessTable.getModel();
             Object[][] newData = parseProcesses(os.getProcesses(null, null, 0), si);
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
@@ -132,7 +159,7 @@ public class ProcessPanel extends OshiJPanel {
             }
 
             // Reset row sorter and maintain current sorting
-            TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) procTable.getRowSorter();
+            TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) proccessTable.getRowSorter();
             List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
             re_sorter.setModel(tableModel);
             re_sorter.setComparator(0, new NumericComparator());
@@ -140,6 +167,8 @@ public class ProcessPanel extends OshiJPanel {
             re_sorter.setComparator(4, new NumericComparator());
             re_sorter.setComparator(5, new NumericComparator());
             re_sorter.setComparator(6, new NumericComparator());
+            re_sorter.setSortable(7,false);
+            re_sorter.setSortable(8,false);
             re_sorter.setComparator(9, new NumericComparator());
             re_sorter.setSortKeys(sortKeys);
             re_sorter.sort();
@@ -152,20 +181,21 @@ public class ProcessPanel extends OshiJPanel {
         long totalMem = si.getHardware().getMemory().getTotal();
         int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
 
-        int i = list.size();
-
-        Object[][] procArr = new Object[i][COLUMNS.length];
-
-        // These are in descending CPU order
+        List<OSProcess> procList = new ArrayList<>();
         for (OSProcess p : list) {
 
             // Ignore the Idle process on Windows
             if (p.getProcessID() == 0 && SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
-                i--;
                 continue;
             }
 
-            i--;
+            procList.add(p);
+        }
+
+        Object[][] procArr = new Object[procList.size()][COLUMNS.length];
+
+        for (int i = 0; i < procList.size(); i++) {
+            OSProcess p = procList.get(i);
             int pid = p.getProcessID();
             procArr[i][0] = pid;
             procArr[i][1] = p.getParentProcessID();
@@ -176,14 +206,16 @@ public class ProcessPanel extends OshiJPanel {
             procArr[i][4] = p.getThreadCount();
             if (perProc.isSelected()) {
                 procArr[i][5] = String.format("%.1f",
-                            100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
+                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
                 procArr[i][6] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative() * cpuCount);
             } else {
                 procArr[i][5] = String.format("%.1f",
-                            100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
+                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
                 procArr[i][6] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
             }
 
+//            procArr[i][7] = String.format("%.1f MB", (float)(p.getVirtualSize())/(1024*1024));
+//            procArr[i][8] = String.format("%.1f MB", (float)(p.getResidentSetSize())/(1024*1024));
             procArr[i][7] = FormatUtil.formatBytes(p.getVirtualSize());
             procArr[i][8] = FormatUtil.formatBytes(p.getResidentSetSize());
             procArr[i][9] = String.format("%.1f", 100d * p.getResidentSetSize() / totalMem);
@@ -208,4 +240,3 @@ public class ProcessPanel extends OshiJPanel {
         }
     }
 }
-
