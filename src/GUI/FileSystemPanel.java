@@ -4,23 +4,17 @@ package GUI;
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FileSystemPanel extends OshiJPanel{
     private static final String[] COLUMNS = {"Device", "Type", "Total", "Available", "Used", "Diagram"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.03, 0.01, 0.01, 0.01, 0.01, 2};
-    private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
-
-    private JProgressBar[] progressBars;
 
     private static long parseSize(String sizeString) {
         String[] parts = sizeString.split(" ");
@@ -57,7 +51,6 @@ public class FileSystemPanel extends OshiJPanel{
     private void init(SystemInfo si){
         oshi.software.os.FileSystem fs = si.getOperatingSystem().getFileSystem();
         List<OSFileStore> fileStores = fs.getFileStores();
-        progressBars = new JProgressBar[fileStores.size()];
 
         TableModel model;
         model = new DefaultTableModel(parseFileSystem(fileStores,si), COLUMNS) {
@@ -174,7 +167,7 @@ public class FileSystemPanel extends OshiJPanel{
         }
     }
 
-    private static class ProgressRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
+    private static class ProgressRenderer extends DefaultTableCellRenderer {
         private final JProgressBar progressBar = new JProgressBar();
 
         public ProgressRenderer() {

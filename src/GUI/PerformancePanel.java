@@ -2,11 +2,16 @@ package GUI;
 
 import javax.swing.*;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
+import java.awt.Point;
 import java.util.List;
 
 import oshi.SystemInfo;
@@ -36,6 +41,30 @@ public class PerformancePanel extends OshiJPanel{
         }
     }
     
+    private static final class JGradientButton extends JButton{
+        private JGradientButton(String text){
+            super(text);
+            setContentAreaFilled(false);
+        }
+        
+        public Color color;
+
+        @Override
+        protected void paintComponent(Graphics g){
+            Graphics2D g2 = (Graphics2D)g.create();
+            g2.setPaint(new GradientPaint(
+                    new Point(0, 0), 
+                    Color.WHITE, 
+                    new Point(0, getHeight()), 
+                    this.color));
+            //g2.setPaint(color);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
+    }
+
     private void initial(SystemInfo si) {
         JPanel perfPanel = new JPanel();
         perfPanel.setLayout(new GridBagLayout());
@@ -46,7 +75,7 @@ public class PerformancePanel extends OshiJPanel{
         JPanel perfMenuBar = new JPanel();
         perfMenuBar.setLayout(new GridBagLayout());
 
-        JButton cpuButton = createButton(updateCPU(si), 'C', "Display CPU" , new CPUPanel(si), displayPanel);
+        JGradientButton cpuButton = createButton(updateCPUString(si), 'C', "Display CPU", Color.GREEN, new CPUPanel(si), displayPanel);
 
         GridBagConstraints cpuC = new GridBagConstraints();
         cpuC.fill = GridBagConstraints.HORIZONTAL;
@@ -54,7 +83,7 @@ public class PerformancePanel extends OshiJPanel{
         cpuC.gridy = 0;
         perfMenuBar.add(cpuButton, cpuC);
         
-        JButton memButton = createButton(updateMemory(si), 'M', "Display Memory" ,new MemoryPanel(si), displayPanel);
+        JGradientButton memButton = createButton(updateMemoryString(si), 'M', "Display Memory", Color.GREEN,new MemoryPanel(si), displayPanel);
 
         GridBagConstraints memC = (GridBagConstraints)cpuC.clone();
         memC.gridx = 0;
@@ -63,11 +92,11 @@ public class PerformancePanel extends OshiJPanel{
 
         int y = 2;
         List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
-        JButton[] netButton = new JButton[networkIFs.size()];
+        JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
         {
             NetworkIF net = networkIFs.get(i);
-            netButton[i] = createNetworkButton(updateNetwork(net, 0, 0), 'N', "Display Network", net, displayPanel);
+            netButton[i] = createNetworkButton(updateNetwork(net, 0, 0), 'N', "Display Network",Color.CYAN.brighter() , net, displayPanel);
             GridBagConstraints netC = (GridBagConstraints)cpuC.clone();
             netC.gridy =  y;
             y++;
@@ -82,7 +111,7 @@ public class PerformancePanel extends OshiJPanel{
         perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
-        scrollPerfPanel.setMinimumSize(new Dimension(320, getSize().height));
+        scrollPerfPanel.setSize(new Dimension(320, getSize().height));
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
@@ -99,12 +128,11 @@ public class PerformancePanel extends OshiJPanel{
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             
             Thread cpuThread = new Thread( ()->{
-                cpuButton.setText(updateCPU(si));
+                updateCPU(si, cpuButton);
             });
             cpuThread.start();
     
-            memButton.setText(updateMemory(si));
-
+            updateMemory(si,memButton);
         });
         
         timer.start();
@@ -136,7 +164,7 @@ public class PerformancePanel extends OshiJPanel{
         GridBagConstraints displayConstraints = new GridBagConstraints();
         displayConstraints.gridx = 1;
         displayConstraints.gridy = 0;
-        displayConstraints.weightx = 4d;
+        displayConstraints.weightx = 1;
         displayConstraints.weighty = 1d;
         displayConstraints.fill = GridBagConstraints.NONE;
         displayConstraints.anchor = GridBagConstraints.NORTHWEST;
@@ -162,23 +190,53 @@ public class PerformancePanel extends OshiJPanel{
         return buttonTextLines(txt);
     }
 
-    private String updateMemory(SystemInfo si) {
+    private Color getColorByPercent(double percent)
+    {
+        if (percent < 60.d) {
+            return Color.GREEN;
+        }
+        else if (percent < 80d) {
+            return Color.YELLOW;
+        }
+        else {
+            return Color.RED;
+        }
+    }
+
+    private String updateMemoryString(SystemInfo si) {
         GlobalMemory mem = si.getHardware().getMemory();
         double available = (double)mem.getAvailable()/(1024*1024*1024);
         double total = (double)mem.getTotal()/(1024*1024*1024);
         double used = total - available;
-        return buttonTextLines("Memory\n" + (String.format("%.2f/%.2f GB (%.0f)", used, total, (used/total)*100) + "%"));
+        return buttonTextLines("\nMemory\n" + (String.format("%.2f/%.2f GB (%.0f)", used, total, (used/total)*100) + "%\n"));
     }
 
-    private String updateCPU(SystemInfo si)
+    private String updateCPUString(SystemInfo si)
     {
         double load = si.getHardware().getProcessor().getSystemCpuLoad(1000);
-        return buttonTextLines("CPU\n" + (String.format("%.2f",load*100)) + "%");
+        return buttonTextLines("\nCPU\n" + (String.format("%.2f",load*100)) + "%\n");
     }
 
-    private JButton createNetworkButton(String title, char mnemonic, String toolTip, NetworkIF net, JPanel displayPanel)
+    private void updateMemory(SystemInfo si, JGradientButton memButton) {
+        GlobalMemory mem = si.getHardware().getMemory();
+        double available = (double)mem.getAvailable()/(1024*1024*1024);
+        double total = (double)mem.getTotal()/(1024*1024*1024);
+        double used = total - available;
+        memButton.setText(buttonTextLines("\nMemory\n" + (String.format("%.2f/%.2f GB (%.0f)", used, total, (used/total)*100) + "%\n")));
+        memButton.color = getColorByPercent((used/total)*100);
+    }
+
+    private void updateCPU(SystemInfo si, JGradientButton cpuButton)
     {
-        JButton button = new JButton(title, null);
+        double load = si.getHardware().getProcessor().getSystemCpuLoad(1000);
+        cpuButton.setText(buttonTextLines("\nCPU\n" + (String.format("%.2f",load*100)) + "%\n"));
+        cpuButton.color = getColorByPercent(load*100);
+    }
+
+    private JGradientButton createNetworkButton(String title, char mnemonic, String toolTip, Color color, NetworkIF net, JPanel displayPanel)
+    {
+        JGradientButton button = new JGradientButton(title);
+        button.color = color;
         button.setFont(button.getFont().deriveFont(16f));
         button.setHorizontalTextPosition(JButton.LEFT);
         button.setHorizontalAlignment(SwingConstants.LEFT);
@@ -195,9 +253,10 @@ public class PerformancePanel extends OshiJPanel{
         return button;
     }
 
-    private JButton createButton(String title, char mnemonic, String toolTip, OshiJPanel panel, JPanel displayPanel)
+    private JGradientButton createButton(String title, char mnemonic, String toolTip, Color color, OshiJPanel panel, JPanel displayPanel)
     {
-        JButton button = new JButton(title, null);
+        JGradientButton button = new JGradientButton(title);
+        button.color = color;
         button.setFont(button.getFont().deriveFont(16f));
         button.setHorizontalTextPosition(JButton.LEFT);
         button.setHorizontalAlignment(SwingConstants.LEFT);
@@ -224,7 +283,7 @@ public class PerformancePanel extends OshiJPanel{
 
     public static String buttonTextLines(String txt)
     {
-        return "<html>" + htmlSpace(3) + txt.replaceAll("\\n", "<br>" + htmlSpace(3));
+        return "<html>" + htmlSpace(3) + txt.replaceAll("\n", "<br>" + htmlSpace(3));
     }
 
     public static String htmlSpace(int num)
