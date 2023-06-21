@@ -24,7 +24,6 @@ import oshi.SystemInfo;
 public class OshiGui {
 
     private JFrame mainFrame;
-    private JButton jMenu;
 
     private SystemInfo si = new SystemInfo();
     private JButton jMenu = this.getJMenu("Performance", "Performance",new PerformancePanel(this.si));
