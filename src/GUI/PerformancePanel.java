@@ -12,14 +12,62 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.hardware.NetworkIF;
 import oshi.util.FormatUtil;
 
 public class PerformancePanel extends OshiJPanel{
+
+    /*
+     * Create protected static attributes for CPU, RAM, Disk, Network.
+     * All subclass will inherit (extends) from this PerformancePanel class.
+     */
+
+    protected static List<Long> diskReadSpeed = new ArrayList<Long>(100);
+    protected static List<Long> diskWriteSpeed = new ArrayList<Long>(100);
+    
+    protected static void updateDiskInfo(List<HWDiskStore> diskStores, JGradientButton[] diskButton)
+    {
+        Thread thread = new Thread(() -> {
+            while(true)
+            {
+                long timeNow[] = new long[diskStores.size()];
+                long readLast[] = new long[diskStores.size()];
+                long writeLast[] = new long[diskStores.size()];
+                long readNow[] = new long[diskStores.size()];
+                long writeNow[] = new long[diskStores.size()];
+                for (int i = 0; i < diskStores.size() ; i++)
+                {
+                    HWDiskStore disk = diskStores.get(i);
+                    timeNow[i] = disk.getTimeStamp();
+                    readLast[i] = disk.getReadBytes();
+                    writeLast[i] = disk.getWriteBytes();
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                for (int i = 0; i < diskStores.size() ; i++)
+                {
+                    HWDiskStore disk = diskStores.get(i);
+                    disk.updateAttributes();
+                    readNow[i] = disk.getReadBytes();
+                    writeNow[i] = disk.getWriteBytes();
+                    diskReadSpeed.set(i, (readNow[i] - readLast[i])*1000/(disk.getTimeStamp()-timeNow[i]));
+                    diskWriteSpeed.set(i, (writeNow[i] - writeLast[i])*1000/(disk.getTimeStamp()-timeNow[i]));
+                    diskButton[i].setText(updateDisk(disk, i, diskReadSpeed.get(i), diskWriteSpeed.get(i)));
+                }
+            }
+        });
+        thread.start();
+    }
 
     public PerformancePanel() {
     }
@@ -91,6 +139,7 @@ public class PerformancePanel extends OshiJPanel{
         perfMenuBar.add(memButton, memC);
 
         int y = 2;
+
         List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
         JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
@@ -101,6 +150,18 @@ public class PerformancePanel extends OshiJPanel{
             netC.gridy =  y;
             y++;
             perfMenuBar.add(netButton[i], netC);
+        }
+
+        List<HWDiskStore> hwDiskStore = si.getHardware().getDiskStores();
+        JGradientButton[] diskButton = new JGradientButton[hwDiskStore.size()];
+        for (int i = 0; i < hwDiskStore.size() ; i++)
+        {
+            HWDiskStore disk = hwDiskStore.get(i);
+            diskButton[i] = createDiskButton(updateDisk(disk, i, 0, 0), 'D', "Display Disk",Color.CYAN.brighter() , disk, i, displayPanel);
+            GridBagConstraints diskC = (GridBagConstraints)cpuC.clone();
+            diskC.gridy =  y;
+            y++;
+            perfMenuBar.add(diskButton[i], diskC);
         }
 
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
@@ -124,6 +185,8 @@ public class PerformancePanel extends OshiJPanel{
         add(perfPanel, perfConstraints);
 
 
+        updateDiskInfo(si.getHardware().getDiskStores(), netButton);
+
         // Update up time every second
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             
@@ -134,7 +197,6 @@ public class PerformancePanel extends OshiJPanel{
     
             updateMemory(si,memButton);
         });
-        
         timer.start();
         Thread thread = new Thread(() -> {
             while(true)
@@ -172,6 +234,27 @@ public class PerformancePanel extends OshiJPanel{
         perfPanel.add(displayPanel, displayConstraints);
 
         cpuButton.doClick();
+    }
+
+    public static String updateDisk(HWDiskStore disk, int index, long recvSpeed, long sendSpeed)
+    {
+        StringBuffer nameBuffer = new StringBuffer();
+        nameBuffer.append("Disk" + String.valueOf(index) + " (");
+        for (HWPartition partition: disk.getPartitions())
+        {
+            nameBuffer.append(partition.getMountPoint() + " ");
+        }
+        nameBuffer.deleteCharAt(nameBuffer.length() - 1);
+        nameBuffer.append(")");
+        String name;
+        if (nameBuffer.length() > 30) {
+            name = nameBuffer.substring(0,30) + "...";
+        }
+        else{
+            name = nameBuffer.toString();
+        }
+        String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed);
+        return buttonTextLines(txt);
     }
 
     public static String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
@@ -252,6 +335,27 @@ public class PerformancePanel extends OshiJPanel{
         });
         return button;
     }
+
+    private JGradientButton createDiskButton(String title, char mnemonic, String toolTip, Color color, HWDiskStore disk, int index, JPanel displayPanel)
+    {
+        JGradientButton button = new JGradientButton(title);
+        button.color = color;
+        button.setFont(button.getFont().deriveFont(16f));
+        button.setHorizontalTextPosition(JButton.LEFT);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        OshiJPanel panel = new DiskPanel(disk, index);
+        // Set what to do when we push the button
+        button.addActionListener(e -> {
+            int nComponents = (int)displayPanel.getComponents().length;
+            if (nComponents <= (int)0 || displayPanel.getComponent(0) != panel) {
+                resetMainGui(displayPanel);
+                displayPanel.add(panel);
+                refreshMainGui(displayPanel);
+            }
+        });
+        return button;
+    }
+
 
     private JGradientButton createButton(String title, char mnemonic, String toolTip, Color color, OshiJPanel panel, JPanel displayPanel)
     {
