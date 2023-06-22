@@ -13,6 +13,7 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import oshi.SystemInfo;
@@ -29,8 +30,14 @@ public class PerformancePanel extends OshiJPanel{
      * All subclass will inherit (extends) from this PerformancePanel class.
      */
 
-    protected static List<Long> diskReadSpeed = new ArrayList<Long>(100);
-    protected static List<Long> diskWriteSpeed = new ArrayList<Long>(100);
+    //protected static List<Long> diskReadSpeed = new ArrayList<Long>(100);
+    //protected static List<Long> diskWriteSpeed = new ArrayList<Long>(100);
+  
+    protected static List<Long> diskReadSpeed = new ArrayList<>(
+    Collections.nCopies(100, (long)0));
+    protected static List<Long> diskWriteSpeed = new ArrayList<>(
+    Collections.nCopies(100, (long)0));
+
     
     protected static void updateDiskInfo(List<HWDiskStore> diskStores, JGradientButton[] diskButton)
     {
@@ -140,6 +147,20 @@ public class PerformancePanel extends OshiJPanel{
 
         int y = 2;
 
+        List<HWDiskStore> hwDiskStore = si.getHardware().getDiskStores();
+        JGradientButton[] diskButton = new JGradientButton[hwDiskStore.size()];
+        for (int i = 0; i < hwDiskStore.size() ; i++)
+        {
+            HWDiskStore disk = hwDiskStore.get(i);
+            diskButton[i] = createDiskButton(updateDisk(disk, i, 0, 0), 'D', "Display Disk",Color.PINK.darker() , disk, i, displayPanel);
+            GridBagConstraints diskC = (GridBagConstraints)cpuC.clone();
+            diskC.gridy =  y;
+            y++;
+            perfMenuBar.add(diskButton[i], diskC);
+        }
+
+        updateDiskInfo(si.getHardware().getDiskStores(), diskButton);
+
         List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
         JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
@@ -150,18 +171,6 @@ public class PerformancePanel extends OshiJPanel{
             netC.gridy =  y;
             y++;
             perfMenuBar.add(netButton[i], netC);
-        }
-
-        List<HWDiskStore> hwDiskStore = si.getHardware().getDiskStores();
-        JGradientButton[] diskButton = new JGradientButton[hwDiskStore.size()];
-        for (int i = 0; i < hwDiskStore.size() ; i++)
-        {
-            HWDiskStore disk = hwDiskStore.get(i);
-            diskButton[i] = createDiskButton(updateDisk(disk, i, 0, 0), 'D', "Display Disk",Color.CYAN.brighter() , disk, i, displayPanel);
-            GridBagConstraints diskC = (GridBagConstraints)cpuC.clone();
-            diskC.gridy =  y;
-            y++;
-            perfMenuBar.add(diskButton[i], diskC);
         }
 
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
@@ -183,9 +192,6 @@ public class PerformancePanel extends OshiJPanel{
         perfConstraints.weighty = 1d;
         perfConstraints.anchor = GridBagConstraints.NORTHWEST;
         add(perfPanel, perfConstraints);
-
-
-        updateDiskInfo(si.getHardware().getDiskStores(), netButton);
 
         // Update up time every second
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
@@ -239,7 +245,7 @@ public class PerformancePanel extends OshiJPanel{
     public static String updateDisk(HWDiskStore disk, int index, long recvSpeed, long sendSpeed)
     {
         StringBuffer nameBuffer = new StringBuffer();
-        nameBuffer.append("Disk" + String.valueOf(index) + " (");
+        nameBuffer.append("Disk " + String.valueOf(index) + " (");
         for (HWPartition partition: disk.getPartitions())
         {
             nameBuffer.append(partition.getMountPoint() + " ");
@@ -253,7 +259,7 @@ public class PerformancePanel extends OshiJPanel{
         else{
             name = nameBuffer.toString();
         }
-        String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed);
+        String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed) + '\n';
         return buttonTextLines(txt);
     }
 

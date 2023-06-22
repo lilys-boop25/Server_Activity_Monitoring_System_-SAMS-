@@ -53,7 +53,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         diskData.setTimeBase(new Second(date));
         diskData.addSeries(floatArrayPercent(0d), 0, "Read");
         diskData.addSeries(floatArrayPercent(0d), 1, "Write");
-        JFreeChart netChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", diskData, true, true, false);
+        JFreeChart netChart = ChartFactory.createTimeSeriesChart(disk.getModel(), "Time", "Kbps", diskData, true, true, false);
 
         netChart.getXYPlot().getRangeAxis().setAutoRange(false);
         netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
@@ -81,7 +81,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 diskData.addValue(0, newest, (float)PerformancePanel.diskReadSpeed.get(index)/1024);
                 diskData.addValue(1, newest, (float)PerformancePanel.diskWriteSpeed.get(index)/1024);
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
