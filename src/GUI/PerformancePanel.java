@@ -9,11 +9,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.Scrollbar;
 import java.util.List;
 
 import oshi.SystemInfo;
-import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 
