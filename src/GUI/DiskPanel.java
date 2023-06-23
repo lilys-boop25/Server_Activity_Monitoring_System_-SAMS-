@@ -71,8 +71,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
             {
                 int newest = diskData.getNewestIndex();
                 diskData.advanceTime();
-                diskData.addValue(0, newest, (float)diskReadSpeed.get(index)/1024);
-                diskData.addValue(1, newest, (float)diskWriteSpeed.get(index)/1024);
+                diskData.addValue(0, newest, (float)diskReadSpeed.get(index)/(float)1024);
+                diskData.addValue(1, newest, (float)diskWriteSpeed.get(index)/(float)1024);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
