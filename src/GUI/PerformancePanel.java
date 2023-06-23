@@ -62,6 +62,8 @@ public class PerformancePanel extends OshiJPanel{
         cpuC.fill = GridBagConstraints.HORIZONTAL;
         cpuC.gridx = 0;
         cpuC.gridy = 0;
+        cpuC.weightx = 1d;
+        cpuC.anchor = GridBagConstraints.NORTHWEST;
         perfMenuBar.add(cpuButton, cpuC);
         
         JGradientButton memButton = createButton(updateMemoryString(si), 'M', "Display Memory", Color.GREEN,new MemoryPanel(si), displayPanel);
@@ -95,19 +97,22 @@ public class PerformancePanel extends OshiJPanel{
             GridBagConstraints netC = (GridBagConstraints)cpuC.clone();
             netC.gridy =  y;
             y++;
-            perfMenuBar.add(netButton[i], netC);
+            //perfMenuBar.add(netButton[i], netC);
         }
-        NetworkPanel.updateNetWorkInfo(si.getHardware().getNetworkIFs(), netButton);
+        //NetworkPanel.updateNetWorkInfo(si.getHardware().getNetworkIFs(), netButton);
     
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
         perfMenuBarConstraints.gridx = 0;
         perfMenuBarConstraints.gridy = 0;
         //perfMenuBarConstraints.gridwidth = 1d;
         //perfMenuBarConstraints.gridheight = 1d;
+        perfMenuBarConstraints.weightx = 1d;
+        perfMenuBarConstraints.weighty = 1d;
         perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
-        scrollPerfPanel.setSize(new Dimension(320, getSize().height));
+        scrollPerfPanel.setMinimumSize(new Dimension(300, 650));
+        scrollPerfPanel.setMaximumSize(new Dimension(300, 650));
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         

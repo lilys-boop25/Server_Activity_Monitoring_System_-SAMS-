@@ -52,8 +52,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
         GridBagConstraints ramConstraints = new GridBagConstraints();
-        ramConstraints.gridwidth = 1;
-        ramConstraints.gridheight = 1;
+        ramConstraints.weightx = 1d;
+        ramConstraints.weighty = 1d;
         ramConstraints.fill = GridBagConstraints.BOTH;
 
         memoryPanel.add(new ChartPanel(ramChart), ramConstraints);
@@ -87,7 +87,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         memoryPanelConstraints.gridheight = 1;
         memoryPanelConstraints.gridx = 1;
         memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        memoryPanel.setMinimumSize(new Dimension(1365, 455));
+        memoryPanel.setMinimumSize(new Dimension(800, 455));
         add(memoryPanel, memoryPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
