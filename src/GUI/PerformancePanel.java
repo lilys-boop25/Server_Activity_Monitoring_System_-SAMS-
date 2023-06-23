@@ -78,7 +78,7 @@ public class PerformancePanel extends OshiJPanel{
         for (int i = 0; i < hwDiskStore.size() ; i++)
         {
             HWDiskStore disk = hwDiskStore.get(i);
-            diskButton[i] = DiskPanel.createDiskButton(DiskPanel.updateDisk(disk, i, 0, 0), 'D', "Display Disk",Color.PINK.darker() , disk, i, displayPanel);
+            diskButton[i] = createButton(DiskPanel.updateDisk(disk, i, 0, 0), 'D', "Display Disk",Color.PINK.darker(), new DiskPanel(disk, i), displayPanel);
             GridBagConstraints diskC = (GridBagConstraints)cpuC.clone();
             diskC.gridy =  y;
             y++;
@@ -91,7 +91,7 @@ public class PerformancePanel extends OshiJPanel{
         for (int i = 0; i < networkIFs.size() ; i++)
         {
             NetworkIF net = networkIFs.get(i);
-            netButton[i] = NetworkPanel.createNetworkButton(NetworkPanel.updateNetwork(net, 0, 0), 'N', "Display Network",Color.CYAN.brighter() , net, displayPanel);
+            netButton[i] = createButton(NetworkPanel.updateNetwork(net, 0, 0), 'N', "Display Network",Color.CYAN.brighter() , new NetworkPanel(net, i), displayPanel);
             GridBagConstraints netC = (GridBagConstraints)cpuC.clone();
             netC.gridy =  y;
             y++;
@@ -99,7 +99,6 @@ public class PerformancePanel extends OshiJPanel{
         }
         NetworkPanel.updateNetWorkInfo(si.getHardware().getNetworkIFs(), netButton);
     
-
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
         perfMenuBarConstraints.gridx = 0;
         perfMenuBarConstraints.gridy = 0;

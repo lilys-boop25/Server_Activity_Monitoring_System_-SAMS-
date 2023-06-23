@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,10 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -27,13 +23,13 @@ import oshi.util.FormatUtil;
 
 public class NetworkPanel extends PerformancePanel{
 
-    public NetworkPanel(NetworkIF net, JButton button) {
+    public NetworkPanel(NetworkIF net, int index) {
         super();
-        initial(net, button);
+        initial(net, index);
     }
     
 
-    private void initial(NetworkIF net, JButton button) {
+    private void initial(NetworkIF net, int index) {
         GridBagConstraints netConstraints = new GridBagConstraints();
 
         netConstraints.weightx = 1d;
@@ -69,24 +65,15 @@ public class NetworkPanel extends PerformancePanel{
         Thread thread = new Thread(() -> {
             while(true)
             {
-                long timeNow = net.getTimeStamp();
-                long recvLast = net.getBytesRecv();
-                long sendLast = net.getBytesSent();
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
-                net.updateAttributes();
-                long recvNow = net.getBytesRecv();
-                long sendNow = net.getBytesSent();
                 int newest = networkData.getNewestIndex();
-                long sendSpeed = (sendNow - sendLast)*1000/(net.getTimeStamp()-timeNow);
-                long recvSpeed = (recvNow - recvLast)*1000/(net.getTimeStamp()-timeNow);
-                button.setText(updateNetwork(net, recvSpeed, sendSpeed));
                 networkData.advanceTime();
-                networkData.addValue(0, newest, (float)sendSpeed/1024);
-                networkData.addValue(1, newest, (float)recvSpeed/1024);
+                networkData.addValue(0, newest, (float)networkSentSpeed.get(index)/(float)1024);
+                networkData.addValue(1, newest, (float)networkRecvSpeed.get(index)/(float)1024);
             }
         });
         thread.start();
@@ -161,25 +148,4 @@ public class NetworkPanel extends PerformancePanel{
         String txt = name + "\n" + alias + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
         return PerformancePanel.buttonTextLines(txt);
     }
-
-    public static JGradientButton createNetworkButton(String title, char mnemonic, String toolTip, Color color, NetworkIF net, JPanel displayPanel)
-    {
-        JGradientButton button = new JGradientButton(title);
-        button.color = color;
-        button.setFont(button.getFont().deriveFont(16f));
-        button.setHorizontalTextPosition(JButton.LEFT);
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        OshiJPanel panel = new NetworkPanel(net, button);
-        // Set what to do when we push the button
-        button.addActionListener(e -> {
-            int nComponents = (int)displayPanel.getComponents().length;
-            if (nComponents <= (int)0 || displayPanel.getComponent(0) != panel) {
-                resetMainGui(displayPanel);
-                displayPanel.add(panel);
-                refreshMainGui(displayPanel);
-            }
-        });
-        return button;
-    }
-
 }

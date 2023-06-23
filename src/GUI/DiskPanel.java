@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,10 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -94,27 +90,6 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         
         return f;
     }
-
-    public static JGradientButton createDiskButton(String title, char mnemonic, String toolTip, Color color, HWDiskStore disk, int index, JPanel displayPanel)
-    {
-        JGradientButton button = new JGradientButton(title);
-        button.color = color;
-        button.setFont(button.getFont().deriveFont(16f));
-        button.setHorizontalTextPosition(JButton.LEFT);
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        OshiJPanel panel = new DiskPanel(disk, index);
-        // Set what to do when we push the button
-        button.addActionListener(e -> {
-            int nComponents = (int)displayPanel.getComponents().length;
-            if (nComponents <= (int)0 || displayPanel.getComponent(0) != panel) {
-                PerformancePanel.resetMainGui(displayPanel);
-                displayPanel.add(panel);
-                PerformancePanel.refreshMainGui(displayPanel);
-            }
-        });
-        return button;
-    }
-
 
     protected static List<Long> diskReadSpeed = new ArrayList<>(
     Collections.nCopies(100, (long)0));
