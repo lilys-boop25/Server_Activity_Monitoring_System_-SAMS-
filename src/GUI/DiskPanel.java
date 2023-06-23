@@ -1,16 +1,19 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.Timer;
+import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -18,10 +21,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
-import oshi.SystemInfo;
-import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.NetworkIF;
+import oshi.hardware.HWPartition;
 import oshi.util.FormatUtil;
 
 /**
@@ -29,11 +30,7 @@ import oshi.util.FormatUtil;
  */
 public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
-
     private static final long serialVersionUID = 1L;
-
-    private static final String PHYSICAL_MEMORY = "Physical Memory";
-    private static final String VIRTUAL_MEMORY = "Virtual Memory (Swap)";
 
     public DiskPanel(HWDiskStore disk, int index) {
         super();
@@ -78,8 +75,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
             {
                 int newest = diskData.getNewestIndex();
                 diskData.advanceTime();
-                diskData.addValue(0, newest, (float)PerformancePanel.diskReadSpeed.get(index)/1024);
-                diskData.addValue(1, newest, (float)PerformancePanel.diskWriteSpeed.get(index)/1024);
+                diskData.addValue(0, newest, (float)diskReadSpeed.get(index)/1024);
+                diskData.addValue(1, newest, (float)diskWriteSpeed.get(index)/1024);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
@@ -94,6 +91,98 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
         f[0] = (float) (d);
+        
         return f;
     }
+
+    public static JGradientButton createDiskButton(String title, char mnemonic, String toolTip, Color color, HWDiskStore disk, int index, JPanel displayPanel)
+    {
+        JGradientButton button = new JGradientButton(title);
+        button.color = color;
+        button.setFont(button.getFont().deriveFont(16f));
+        button.setHorizontalTextPosition(JButton.LEFT);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        OshiJPanel panel = new DiskPanel(disk, index);
+        // Set what to do when we push the button
+        button.addActionListener(e -> {
+            int nComponents = (int)displayPanel.getComponents().length;
+            if (nComponents <= (int)0 || displayPanel.getComponent(0) != panel) {
+                PerformancePanel.resetMainGui(displayPanel);
+                displayPanel.add(panel);
+                PerformancePanel.refreshMainGui(displayPanel);
+            }
+        });
+        return button;
+    }
+
+
+    protected static List<Long> diskReadSpeed = new ArrayList<>(
+    Collections.nCopies(100, (long)0));
+    protected static List<Long> diskWriteSpeed = new ArrayList<>(
+    Collections.nCopies(100, (long)0));
+    private static boolean run = false;
+    
+    protected static void updateDiskInfo(List<HWDiskStore> diskStores, JGradientButton[] diskButton)
+    {
+        if (run == true)
+        {
+            return;
+        }
+        run = true;
+        Thread thread = new Thread(() -> {
+            while(true)
+            {
+                long timeNow[] = new long[diskStores.size()];
+                long readLast[] = new long[diskStores.size()];
+                long writeLast[] = new long[diskStores.size()];
+                long readNow[] = new long[diskStores.size()];
+                long writeNow[] = new long[diskStores.size()];
+                for (int i = 0; i < diskStores.size() ; i++)
+                {
+                    HWDiskStore disk = diskStores.get(i);
+                    timeNow[i] = disk.getTimeStamp();
+                    readLast[i] = disk.getReadBytes();
+                    writeLast[i] = disk.getWriteBytes();
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                for (int i = 0; i < diskStores.size() ; i++)
+                {
+                    HWDiskStore disk = diskStores.get(i);
+                    disk.updateAttributes();
+                    readNow[i] = disk.getReadBytes();
+                    writeNow[i] = disk.getWriteBytes();
+                    diskReadSpeed.set(i, (readNow[i] - readLast[i])*1000/(disk.getTimeStamp()-timeNow[i]));
+                    diskWriteSpeed.set(i, (writeNow[i] - writeLast[i])*1000/(disk.getTimeStamp()-timeNow[i]));
+                    diskButton[i].setText(updateDisk(disk, i, diskReadSpeed.get(i), diskWriteSpeed.get(i)));
+                }
+            }
+        });
+        thread.start();
+    }
+
+    public static String updateDisk(HWDiskStore disk, int index, long recvSpeed, long sendSpeed)
+        {
+            StringBuffer nameBuffer = new StringBuffer();
+            nameBuffer.append("Disk " + String.valueOf(index) + " (");
+            for (HWPartition partition: disk.getPartitions())
+            {
+                nameBuffer.append(partition.getMountPoint() + " ");
+            }
+            nameBuffer.deleteCharAt(nameBuffer.length() - 1);
+            nameBuffer.append(")");
+            String name;
+            if (nameBuffer.length() > 30) {
+                name = nameBuffer.substring(0,30) + "...";
+            }
+            else{
+                name = nameBuffer.toString();
+            }
+            String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed) + '\n';
+            return PerformancePanel.buttonTextLines(txt);
+        }
+
 }

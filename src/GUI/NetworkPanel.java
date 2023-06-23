@@ -1,14 +1,19 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -17,6 +22,7 @@ import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
 import oshi.hardware.NetworkIF;
+import oshi.util.FormatUtil;
 
 
 public class NetworkPanel extends PerformancePanel{
@@ -84,13 +90,96 @@ public class NetworkPanel extends PerformancePanel{
             }
         });
         thread.start();
-
     }
 
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
         f[0] = (float) (d);
         return f;
+    }
+
+    protected static List<Long> networkSentSpeed = new ArrayList<>(
+    Collections.nCopies(100, (long)0));
+    protected static List<Long> networkRecvSpeed = new ArrayList<>(
+    Collections.nCopies(100, (long)0));
+    private static boolean run = false;
+
+
+    public static void updateNetWorkInfo(List<NetworkIF> networkIFs, JGradientButton[] netButton){
+        if (run==true)
+        {
+            return;
+        }
+        run = true;
+        Thread thread = new Thread(() -> {
+            while(true)
+            {
+                long timeNow[] = new long[networkIFs.size()];
+                long recvLast[] = new long[networkIFs.size()];
+                long sentLast[] = new long[networkIFs.size()];
+
+                for (int i = 0; i < networkIFs.size() ; i++)
+                {
+                    NetworkIF net = networkIFs.get(i);
+                    timeNow[i] = net.getTimeStamp();
+                    recvLast[i] = net.getBytesRecv();
+                    sentLast[i] = net.getBytesSent();
+                }
+                
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+
+                for (int i = 0; i < networkIFs.size() ; i++)
+                {
+                    NetworkIF net = networkIFs.get(i);
+                    net.updateAttributes();
+                    networkSentSpeed.set(i, (net.getBytesSent() - sentLast[i])*1000/(net.getTimeStamp()-timeNow[i]));
+                    networkRecvSpeed.set(i, (net.getBytesRecv() - recvLast[i])*1000/(net.getTimeStamp()-timeNow[i]));
+                    netButton[i].setText(updateNetwork(net, networkRecvSpeed.get(i), networkSentSpeed.get(i)));
+                }
+            }
+        });
+        thread.start();
+
+    }
+
+    public static String updateNetwork(NetworkIF net, long recvSpeed, long sendSpeed)
+    {
+        String name = net.getDisplayName();
+        if (name.length() > 30)
+        {
+            name = name.substring(0,30) + "...";
+        }
+        String alias = net.getIfAlias();
+        if (alias.length() > 30)
+        {
+            alias = alias.substring(0,30) + "...";
+        }
+        String txt = name + "\n" + alias + "\nSend: " + FormatUtil.formatBytes(sendSpeed) + "\nReceive: " + FormatUtil.formatBytes(recvSpeed);
+        return PerformancePanel.buttonTextLines(txt);
+    }
+
+    public static JGradientButton createNetworkButton(String title, char mnemonic, String toolTip, Color color, NetworkIF net, JPanel displayPanel)
+    {
+        JGradientButton button = new JGradientButton(title);
+        button.color = color;
+        button.setFont(button.getFont().deriveFont(16f));
+        button.setHorizontalTextPosition(JButton.LEFT);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        OshiJPanel panel = new NetworkPanel(net, button);
+        // Set what to do when we push the button
+        button.addActionListener(e -> {
+            int nComponents = (int)displayPanel.getComponents().length;
+            if (nComponents <= (int)0 || displayPanel.getComponent(0) != panel) {
+                resetMainGui(displayPanel);
+                displayPanel.add(panel);
+                refreshMainGui(displayPanel);
+            }
+        });
+        return button;
     }
 
 }
