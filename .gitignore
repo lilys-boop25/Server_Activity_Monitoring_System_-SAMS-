@@ -1,2 +1,4 @@
 .class
-bin/*
+*.class
+bin/
+*.class
