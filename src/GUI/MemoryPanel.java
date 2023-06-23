@@ -57,6 +57,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramConstraints.fill = GridBagConstraints.BOTH;
 
         memoryPanel.add(new ChartPanel(ramChart), ramConstraints);
+
         DynamicTimeSeriesCollection virtualMemData = new DynamicTimeSeriesCollection(1, 60, new Second());
         virtualMemData.setTimeBase(new Second(date));
         virtualMemData.addSeries(floatArrayPercent(getVirtualMemory(memory)), 0, "Used");
@@ -76,17 +77,19 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         GridBagConstraints textConstraints = new GridBagConstraints();
         textConstraints.gridy = 1;
         textConstraints.gridwidth = 2;
-        textConstraints.fill = GridBagConstraints.BOTH;
+        textConstraints.fill = GridBagConstraints.HORIZONTAL;
+        textConstraints.weightx = 1d;
         textArea.setText("Total RAM: " + FormatUtil.formatBytes(memory.getTotal()) + "\nTotal virtual memory: " + FormatUtil.formatBytes(memory.getVirtualMemory().getSwapTotal()));
         memoryPanel.add(textArea, textConstraints);
 
         GridBagConstraints memoryPanelConstraints = new GridBagConstraints();
-        memoryPanelConstraints.fill = GridBagConstraints.NONE;
-        memoryPanelConstraints.weightx = 3;
-        memoryPanelConstraints.weighty = 1;
+        memoryPanelConstraints.fill = GridBagConstraints.BOTH;
+        memoryPanelConstraints.weightx = 1d;
+        memoryPanelConstraints.weighty = 1d;
         memoryPanelConstraints.gridx = 1;
         memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        memoryPanel.setMinimumSize(new Dimension(1365, 455));
+        //memoryPanel.setMinimumSize(new Dimension(1365, 455));
+        memoryPanel.setMinimumSize(new Dimension(685, 455));
         add(memoryPanel, memoryPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
@@ -114,5 +117,33 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         float[] f = new float[1];
         f[0] = (float) (100d * d);
         return f;
+    }
+
+    private static boolean run = false;
+
+    public static void updateMemoryInfo(GlobalMemory mem, JGradientButton memButton)
+    {
+        if (run == true)
+        {
+            return;
+        }
+        run = true;
+        Thread thread = new Thread(() -> {
+            while(true)
+            {
+                double available = (double)mem.getAvailable()/(1024*1024*1024);
+                double total = (double)mem.getTotal()/(1024*1024*1024);
+                double used = total - available;
+                memButton.setText(PerformancePanel.buttonTextLines("\nMemory\n" + (String.format("%.2f/%.2f GB (%.0f", used, total, (used/total)*100) + "%)\n")));
+                memButton.color = PerformancePanel.getColorByPercent((used/total)*100);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+
     }
 }

@@ -45,7 +45,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         sysConstraints.weightx = 1d;
         sysConstraints.weighty = 1d;
-        sysConstraints.fill = GridBagConstraints.NONE;
+        sysConstraints.fill = GridBagConstraints.BOTH;
 
         GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
         procConstraints.gridx = 1;
@@ -77,11 +77,11 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         ChartPanel procCpuChartPanel = new ChartPanel(procCpuChart);
         cpuPanel.add(procCpuChartPanel, procConstraints);
 
-        //add(cpuPanel, BorderLayout.EAST);
         GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
         cpuPanelConstraints.fill = GridBagConstraints.NONE;
         cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        cpuPanel.setMinimumSize(new Dimension(1365,420));
+        //cpuPanel.setMinimumSize(new Dimension(1365,420));
+        cpuPanel.setMinimumSize(new Dimension(685,420));
         add(cpuPanel, cpuPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
@@ -97,7 +97,27 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    
+    private static boolean run = false;
+
+    static private double load = 0d;
+
+    public static void updateCPUInfo(CentralProcessor cen, JGradientButton memButton)
+    {
+        if (run == true)
+        {
+            return;
+        }
+        run = true;
+        Thread thread = new Thread(() -> {
+            while(true)
+            {
+                load = cen.getSystemCpuLoad(1000);
+                memButton.setText(PerformancePanel.buttonTextLines("\nCPU\n" + (String.format("%.2f",load*100)) + "%\n"));
+                memButton.color = PerformancePanel.getColorByPercent((int)((load)*100));
+            }
+        });
+        thread.start();
+    }
 
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
@@ -116,4 +136,6 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         oldProcTicks = proc.getProcessorCpuLoadTicks();
         return p;
     }
+
+    
 }
