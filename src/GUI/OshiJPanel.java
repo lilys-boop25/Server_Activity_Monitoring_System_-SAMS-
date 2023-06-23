@@ -55,7 +55,6 @@ public class OshiJPanel extends JPanel {
                 Color.WHITE, 
                 new Point(0, getHeight()), 
                 this.color));
-        //g2.setPaint(color);
         g2.fillRect(0, 0, getWidth(), getHeight());
         g2.dispose();
 
