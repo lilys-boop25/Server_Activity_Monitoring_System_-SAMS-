@@ -102,8 +102,8 @@ public class PerformancePanel extends OshiJPanel{
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
         perfMenuBarConstraints.gridx = 0;
         perfMenuBarConstraints.gridy = 0;
-        perfMenuBarConstraints.weightx = 1d;
-        perfMenuBarConstraints.weighty = 1d;
+        //perfMenuBarConstraints.gridwidth = 1d;
+        //perfMenuBarConstraints.gridheight = 1d;
         perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
@@ -114,6 +114,8 @@ public class PerformancePanel extends OshiJPanel{
         GridBagConstraints perfConstraints = new GridBagConstraints();
         perfConstraints.gridx = 0;
         perfConstraints.gridy = 0;
+        perfConstraints.gridwidth = 1;
+        perfConstraints.gridheight = 1;
         perfConstraints.weightx = 1d;
         perfConstraints.weighty = 1d;
         perfConstraints.anchor = GridBagConstraints.NORTHWEST;
@@ -134,8 +136,8 @@ public class PerformancePanel extends OshiJPanel{
         GridBagConstraints displayConstraints = new GridBagConstraints();
         displayConstraints.gridx = 1;
         displayConstraints.gridy = 0;
-        displayConstraints.weightx = 1;
-        displayConstraints.weighty = 1d;
+        displayConstraints.gridwidth = 1;
+        displayConstraints.gridheight = 1;
         displayConstraints.fill = GridBagConstraints.NONE;
         displayConstraints.anchor = GridBagConstraints.NORTHWEST;
 
