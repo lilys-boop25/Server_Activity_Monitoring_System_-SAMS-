@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
@@ -41,27 +40,23 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private void init(CentralProcessor processor) {
 
-        JPanel cpuPanel = new JPanel();
-        cpuPanel.setLayout(new GridBagLayout());
+        GridBagConstraints sysConstraints = new GridBagConstraints();
+
+        sysConstraints.weightx = 1d;
+        sysConstraints.weighty = 1d;
+        sysConstraints.fill = GridBagConstraints.NONE;
+
+        GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
+        procConstraints.gridx = 1;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection sysData = new DynamicTimeSeriesCollection(1, 60, new Second());
         sysData.setTimeBase(new Second(date));
         sysData.addSeries(floatArrayPercent(cpuData(processor)), 0, "All cpus");
-        
         JFreeChart systemCpuChart = ChartFactory.createTimeSeriesChart("System CPU Usage", "Time", "% CPU", sysData, true, true, false);
 
         systemCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
         systemCpuChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
-
-        GridBagConstraints sysConstraints = new GridBagConstraints();
-        sysConstraints.weightx = 1d;
-        sysConstraints.weighty = 1d;
-        sysConstraints.fill = GridBagConstraints.BOTH;
-
-        cpuPanel.add(new ChartPanel(systemCpuChart), sysConstraints);
-
-
 
         double[] procUsage = procData(processor);
         DynamicTimeSeriesCollection procData = new DynamicTimeSeriesCollection(procUsage.length, 60, new Second());
@@ -69,26 +64,23 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         for (int i = 0; i < procUsage.length; i++) {
             procData.addSeries(floatArrayPercent(procUsage[i]), i, "cpu" + i);
         }
-
         JFreeChart procCpuChart = ChartFactory.createTimeSeriesChart("Processor CPU Usage", "Time", "% CPU", procData, true, true, false);
 
         procCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
         procCpuChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
-        GridBagConstraints procConstraints = (GridBagConstraints)sysConstraints.clone();
-        procConstraints.gridx = 1;
-
+        JPanel cpuPanel = new JPanel();
+        cpuPanel.setLayout(new GridBagLayout());
+        ChartPanel systemCpuChartPanel = new ChartPanel(systemCpuChart);
+        cpuPanel.add(systemCpuChartPanel, sysConstraints);
         ChartPanel procCpuChartPanel = new ChartPanel(procCpuChart);
         cpuPanel.add(procCpuChartPanel, procConstraints);
 
         //add(cpuPanel, BorderLayout.EAST);
         GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
-        cpuPanelConstraints.fill = GridBagConstraints.NONE;
-        cpuPanelConstraints.weightx = 3;
-        cpuPanelConstraints.weighty = 1;
-        cpuPanelConstraints.gridx = 1;
+        cpuPanelConstraints.fill = GridBagConstraints.BOTH;
         cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        cpuPanel.setMinimumSize(new Dimension(1365, 455));
+        //cpuPanel.setMinimumSize(new Dimension(1365,420));
         add(cpuPanel, cpuPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
