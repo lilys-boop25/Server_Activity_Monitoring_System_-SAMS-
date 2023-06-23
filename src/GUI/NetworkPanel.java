@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -34,7 +35,7 @@ public class NetworkPanel extends PerformancePanel{
 
         netConstraints.weightx = 1d;
         netConstraints.weighty = 1d;
-        netConstraints.fill = GridBagConstraints.NONE;
+        netConstraints.fill = GridBagConstraints.BOTH;
         netConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
@@ -42,22 +43,22 @@ public class NetworkPanel extends PerformancePanel{
         networkData.setTimeBase(new Second(date));
         networkData.addSeries(floatArrayPercent(0d), 0, "Send");
         networkData.addSeries(floatArrayPercent(0d), 1, "Receive");
-        JFreeChart netChart = ChartFactory.createTimeSeriesChart("Throughput", "Time", "Kbps", networkData, true, true, false);
+        JFreeChart netChart = ChartFactory.createTimeSeriesChart(net.getDisplayName(), "Time", "Kbps", networkData, true, true, false);
 
         netChart.getXYPlot().getRangeAxis().setAutoRange(false);
         netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
 
         JPanel netPanel = new JPanel();
+
         netPanel.setLayout(new GridBagLayout());
         ChartPanel myChartPanel = new ChartPanel(netChart);
-        myChartPanel.setMinimumSize(new Dimension(700, 350));
+        //myChartPanel.setMinimumSize(new Dimension(700, 350));
         netPanel.add(myChartPanel, netConstraints);
-
+        
         GridBagConstraints netPanelConstraints = new GridBagConstraints();
-        netPanelConstraints.fill = GridBagConstraints.NONE;
-        netPanelConstraints.weightx = 3;
-        netPanelConstraints.weighty = 1;
-        netPanelConstraints.gridx = 1;
+        netPanelConstraints.fill = GridBagConstraints.BOTH;
+        netPanelConstraints.weightx = 1d;
+        netPanelConstraints.weighty = 1d;
         netPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
         netPanel.setMinimumSize(new Dimension(685, 420));
         add(netPanel, netPanelConstraints);
@@ -65,15 +66,16 @@ public class NetworkPanel extends PerformancePanel{
         Thread thread = new Thread(() -> {
             while(true)
             {
+                int newest = networkData.getNewestIndex();
+                networkData.advanceTime();
+                networkData.addValue(0, newest, (float)networkSentSpeed.get(index)/(float)1024);
+                networkData.addValue(1, newest, (float)networkRecvSpeed.get(index)/(float)1024);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
-                int newest = networkData.getNewestIndex();
-                networkData.advanceTime();
-                networkData.addValue(0, newest, (float)networkSentSpeed.get(index)/(float)1024);
-                networkData.addValue(1, newest, (float)networkRecvSpeed.get(index)/(float)1024);
+
             }
         });
         thread.start();

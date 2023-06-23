@@ -34,37 +34,36 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private void init(HWDiskStore disk, int index) {
-        GridBagConstraints netConstraints = new GridBagConstraints();
+        GridBagConstraints diskConstraints = new GridBagConstraints();
 
-        netConstraints.weightx = 1d;
-        netConstraints.weighty = 1d;
-        netConstraints.fill = GridBagConstraints.NONE;
-        netConstraints.anchor = GridBagConstraints.NORTHWEST;
+        diskConstraints.weightx = 1d;
+        diskConstraints.weighty = 1d;
+        diskConstraints.fill = GridBagConstraints.NONE;
+        //diskConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection diskData = new DynamicTimeSeriesCollection(2, 60, new Second());
         diskData.setTimeBase(new Second(date));
         diskData.addSeries(floatArrayPercent(0d), 0, "Read");
         diskData.addSeries(floatArrayPercent(0d), 1, "Write");
-        JFreeChart netChart = ChartFactory.createTimeSeriesChart(disk.getModel(), "Time", "Kbps", diskData, true, true, false);
+        JFreeChart diskChart = ChartFactory.createTimeSeriesChart(disk.getModel(), "Time", "Kbps", diskData, true, true, false);
 
-        netChart.getXYPlot().getRangeAxis().setAutoRange(false);
-        netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
+        diskChart.getXYPlot().getRangeAxis().setAutoRange(false);
+        diskChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
 
-        JPanel netPanel = new JPanel();
-        netPanel.setLayout(new GridBagLayout());
-        ChartPanel myChartPanel = new ChartPanel(netChart);
+        JPanel diskPanel = new JPanel();
+        diskPanel.setLayout(new GridBagLayout());
+        ChartPanel myChartPanel = new ChartPanel(diskChart);
         myChartPanel.setMinimumSize(new Dimension(700, 350));
-        netPanel.add(myChartPanel, netConstraints);
+        diskPanel.add(myChartPanel, diskConstraints);
 
-        GridBagConstraints netPanelConstraints = new GridBagConstraints();
-        netPanelConstraints.fill = GridBagConstraints.NONE;
-        netPanelConstraints.weightx = 3;
-        netPanelConstraints.weighty = 1;
-        netPanelConstraints.gridx = 1;
-        netPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        netPanel.setMinimumSize(new Dimension(685, 420));
-        add(netPanel, netPanelConstraints);
+        GridBagConstraints diskPanelConstraints = new GridBagConstraints();
+        diskPanelConstraints.fill = GridBagConstraints.BOTH;
+        diskPanelConstraints.weightx = 1d;
+        diskPanelConstraints.weighty = 1d;
+        diskPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        diskPanel.setMinimumSize(new Dimension(685, 420));
+        add(diskPanel, diskPanelConstraints);
 
         Thread thread = new Thread(() -> {
             while(true)
@@ -140,24 +139,24 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     public static String updateDisk(HWDiskStore disk, int index, long recvSpeed, long sendSpeed)
+    {
+        StringBuffer nameBuffer = new StringBuffer();
+        nameBuffer.append("Disk " + String.valueOf(index) + " (");
+        for (HWPartition partition: disk.getPartitions())
         {
-            StringBuffer nameBuffer = new StringBuffer();
-            nameBuffer.append("Disk " + String.valueOf(index) + " (");
-            for (HWPartition partition: disk.getPartitions())
-            {
-                nameBuffer.append(partition.getMountPoint() + " ");
-            }
-            nameBuffer.deleteCharAt(nameBuffer.length() - 1);
-            nameBuffer.append(")");
-            String name;
-            if (nameBuffer.length() > 30) {
-                name = nameBuffer.substring(0,30) + "...";
-            }
-            else{
-                name = nameBuffer.toString();
-            }
-            String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed) + '\n';
-            return PerformancePanel.buttonTextLines(txt);
+            nameBuffer.append(partition.getMountPoint() + " ");
         }
+        nameBuffer.deleteCharAt(nameBuffer.length() - 1);
+        nameBuffer.append(")");
+        String name;
+        if (nameBuffer.length() > 30) {
+            name = nameBuffer.substring(0,30) + "...";
+        }
+        else{
+            name = nameBuffer.toString();
+        }
+        String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed) + '\n';
+        return PerformancePanel.buttonTextLines(txt);
+    }
 
 }
