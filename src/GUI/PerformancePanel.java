@@ -49,7 +49,8 @@ public class PerformancePanel extends OshiJPanel{
 
     private void initial(SystemInfo si) {
         JPanel perfPanel = new JPanel();
-        perfPanel.setLayout(new GridBagLayout());
+        //perfPanel.setLayout(new GridBagLayout());
+        perfPanel.setLayout(null);
 
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new GridBagLayout());
@@ -111,8 +112,12 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.setMaximumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
         scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
+        //perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
+        scrollPerfPanel.setBounds(0, 0, 280, 535);
+        scrollPerfPanel.setBackground(Color.RED);
+        perfPanel.add(scrollPerfPanel);
+
         GridBagConstraints displayConstraints = new GridBagConstraints();
         displayConstraints.gridx = 1;
         displayConstraints.gridy = 0;
@@ -122,15 +127,18 @@ public class PerformancePanel extends OshiJPanel{
         displayConstraints.anchor = GridBagConstraints.NORTHWEST;
         displayConstraints.insets = new Insets(0, 50, 0, 0);
 
-        perfPanel.add(displayPanel, displayConstraints);
-
+        //perfPanel.add(displayPanel, displayConstraints);
+        
+        displayPanel.setBounds(300, 0, 800, 535);
+        displayPanel.setBackground(Color.RED);
+        perfPanel.add(displayPanel);
 
         GridBagConstraints perfConstraints = new GridBagConstraints();
         perfConstraints.gridx = 0;
         perfConstraints.gridy = 0;
         perfConstraints.weightx = 1d;
         perfConstraints.weighty = 1d;
-        perfConstraints.fill = GridBagConstraints.NONE;
+        perfConstraints.fill = GridBagConstraints.BOTH;
         perfConstraints.anchor = GridBagConstraints.NORTHWEST;
         add(perfPanel, perfConstraints);
 
