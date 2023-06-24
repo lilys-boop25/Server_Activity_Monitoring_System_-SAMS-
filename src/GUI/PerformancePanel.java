@@ -37,7 +37,6 @@ public class PerformancePanel extends OshiJPanel{
             ex.printStackTrace();
         }
         initial(si);
-        //fake_init(si);
     }
     
     class JVerticalMenuBar extends JMenuBar {
@@ -101,23 +100,24 @@ public class PerformancePanel extends OshiJPanel{
         GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
         perfMenuBarConstraints.gridx = 0;
         perfMenuBarConstraints.gridy = 0;
-        perfMenuBarConstraints.weightx = 0d;
-        perfMenuBarConstraints.weighty = 0d;
+        perfMenuBarConstraints.weightx = 1d;
+        perfMenuBarConstraints.weighty = 1d;
         perfMenuBarConstraints.fill = GridBagConstraints.HORIZONTAL;
         perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
         scrollPerfPanel.getVerticalScrollBar().setUnitIncrement(30);
-        scrollPerfPanel.setMinimumSize(new Dimension(290, Math.min(buttonC.gridy * 102, 535)));
-        //scrollPerfPanel.setMaximumSize(new Dimension(300, 950));
+        scrollPerfPanel.setMinimumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
+        scrollPerfPanel.setMaximumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
+        scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
         GridBagConstraints displayConstraints = new GridBagConstraints();
         displayConstraints.gridx = 1;
         displayConstraints.gridy = 0;
-        displayConstraints.weightx = 0d;
-        displayConstraints.weighty = 0d;
+        displayConstraints.weightx = 1d;
+        displayConstraints.weighty = 1d;
         displayConstraints.fill = GridBagConstraints.NONE;
         displayConstraints.anchor = GridBagConstraints.NORTHWEST;
         displayConstraints.insets = new Insets(0, 50, 0, 0);

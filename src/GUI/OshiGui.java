@@ -1,5 +1,7 @@
 package GUI;
 
+import GUI.*;
+
 import com.sun.jna.Platform;
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
