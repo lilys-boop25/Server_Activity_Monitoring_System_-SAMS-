@@ -3,7 +3,6 @@ package GUI;
 import javax.swing.*;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -16,14 +15,6 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 
 public class PerformancePanel extends OshiJPanel{
-
-    /*
-     * Create protected static attributes for CPU, RAM, Disk, Network.
-     * All subclass will inherit (extends) from this PerformancePanel class.
-     */
-
-    //protected static List<Long> diskReadSpeed = new ArrayList<Long>(100);
-    //protected static List<Long> diskWriteSpeed = new ArrayList<Long>(100);
   
     public PerformancePanel() {
         super();
@@ -37,7 +28,6 @@ public class PerformancePanel extends OshiJPanel{
             ex.printStackTrace();
         }
         initial(si);
-        //fake_init(si);
     }
     
     class JVerticalMenuBar extends JMenuBar {
@@ -50,7 +40,7 @@ public class PerformancePanel extends OshiJPanel{
 
     private void initial(SystemInfo si) {
         JPanel perfPanel = new JPanel();
-        perfPanel.setLayout(new GridBagLayout());
+        perfPanel.setLayout(null);
 
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new GridBagLayout());
@@ -88,6 +78,7 @@ public class PerformancePanel extends OshiJPanel{
         DiskPanel.updateDiskInfo(si.getHardware().getDiskStores(), diskButton);
         
         List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
+
         JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
         {
@@ -98,40 +89,26 @@ public class PerformancePanel extends OshiJPanel{
         }
         NetworkPanel.updateNetWorkInfo(networkIFs, netButton);
 
-        GridBagConstraints perfMenuBarConstraints = new GridBagConstraints();
-        perfMenuBarConstraints.gridx = 0;
-        perfMenuBarConstraints.gridy = 0;
-        perfMenuBarConstraints.weightx = 0d;
-        perfMenuBarConstraints.weighty = 0d;
-        perfMenuBarConstraints.fill = GridBagConstraints.HORIZONTAL;
-        perfMenuBarConstraints.anchor = GridBagConstraints.NORTHWEST;
-
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
         scrollPerfPanel.getVerticalScrollBar().setUnitIncrement(30);
-        scrollPerfPanel.setMinimumSize(new Dimension(290, Math.min(buttonC.gridy * 102, 535)));
-        //scrollPerfPanel.setMaximumSize(new Dimension(300, 950));
+        scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
-        GridBagConstraints displayConstraints = new GridBagConstraints();
-        displayConstraints.gridx = 1;
-        displayConstraints.gridy = 0;
-        displayConstraints.weightx = 0d;
-        displayConstraints.weighty = 0d;
-        displayConstraints.fill = GridBagConstraints.NONE;
-        displayConstraints.anchor = GridBagConstraints.NORTHWEST;
-        displayConstraints.insets = new Insets(0, 50, 0, 0);
+        scrollPerfPanel.setBounds(0, 0, 280, 530);
+        perfPanel.add(scrollPerfPanel);
 
-        perfPanel.add(displayPanel, displayConstraints);
-
+        displayPanel.setBounds(280, 0, 805, 535);
+        displayPanel.setBackground(Color.WHITE);
+        perfPanel.add(displayPanel);
 
         GridBagConstraints perfConstraints = new GridBagConstraints();
         perfConstraints.gridx = 0;
         perfConstraints.gridy = 0;
         perfConstraints.weightx = 1d;
         perfConstraints.weighty = 1d;
-        perfConstraints.fill = GridBagConstraints.NONE;
+        perfConstraints.fill = GridBagConstraints.BOTH;
         perfConstraints.anchor = GridBagConstraints.NORTHWEST;
+        perfPanel.setBackground(Color.WHITE);
         add(perfPanel, perfConstraints);
 
         cpuButton.doClick();

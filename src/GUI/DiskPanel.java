@@ -147,7 +147,9 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
             nameBuffer.append(partition.getMountPoint() + " ");
         }
         nameBuffer.deleteCharAt(nameBuffer.length() - 1);
-        nameBuffer.append(")");
+        if (disk.getPartitions().size() > 0){
+            nameBuffer.append(")");
+        }
         String name;
         if (nameBuffer.length() > 30) {
             name = nameBuffer.substring(0,30) + "...";
