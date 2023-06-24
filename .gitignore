@@ -1,2 +1,2 @@
-.class
-bin/
+/bin/GUI/*.class
+/bin/PrintTest/*.class
