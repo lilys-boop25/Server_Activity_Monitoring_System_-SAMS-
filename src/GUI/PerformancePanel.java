@@ -87,7 +87,7 @@ public class PerformancePanel extends OshiJPanel{
         }
         DiskPanel.updateDiskInfo(si.getHardware().getDiskStores(), diskButton);
         
-        List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
+        List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(true);
         JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
         {
@@ -108,13 +108,13 @@ public class PerformancePanel extends OshiJPanel{
 
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
         scrollPerfPanel.getVerticalScrollBar().setUnitIncrement(30);
-        scrollPerfPanel.setMinimumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
-        scrollPerfPanel.setMaximumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
+        //scrollPerfPanel.setMinimumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
+        //scrollPerfPanel.setMaximumSize(new Dimension(280, Math.min(buttonC.gridy * 102, 535)));
         scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         //perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
-        scrollPerfPanel.setBounds(0, 0, 280, 535);
+        scrollPerfPanel.setBounds(0, 0, 280, 528);
         //scrollPerfPanel.setBackground(Color.RED);
         perfPanel.add(scrollPerfPanel);
 
