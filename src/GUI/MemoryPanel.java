@@ -89,7 +89,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         memoryPanelConstraints.gridx = 1;
         memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
         //memoryPanel.setMinimumSize(new Dimension(1365, 455));
-        memoryPanel.setMinimumSize(new Dimension(685, 455));
+        memoryPanel.setMinimumSize(new Dimension(795,530));
         add(memoryPanel, memoryPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {

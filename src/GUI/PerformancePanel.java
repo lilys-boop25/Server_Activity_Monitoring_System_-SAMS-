@@ -115,7 +115,7 @@ public class PerformancePanel extends OshiJPanel{
         //perfPanel.add(scrollPerfPanel, perfMenuBarConstraints);
         
         scrollPerfPanel.setBounds(0, 0, 280, 535);
-        scrollPerfPanel.setBackground(Color.RED);
+        //scrollPerfPanel.setBackground(Color.RED);
         perfPanel.add(scrollPerfPanel);
 
         GridBagConstraints displayConstraints = new GridBagConstraints();
@@ -129,8 +129,8 @@ public class PerformancePanel extends OshiJPanel{
 
         //perfPanel.add(displayPanel, displayConstraints);
         
-        displayPanel.setBounds(300, 0, 800, 535);
-        displayPanel.setBackground(Color.RED);
+        displayPanel.setBounds(280, 0, 805, 535);
+        displayPanel.setBackground(Color.WHITE);
         perfPanel.add(displayPanel);
 
         GridBagConstraints perfConstraints = new GridBagConstraints();
@@ -140,6 +140,7 @@ public class PerformancePanel extends OshiJPanel{
         perfConstraints.weighty = 1d;
         perfConstraints.fill = GridBagConstraints.BOTH;
         perfConstraints.anchor = GridBagConstraints.NORTHWEST;
+        perfPanel.setBackground(Color.WHITE);
         add(perfPanel, perfConstraints);
 
         cpuButton.doClick();

@@ -59,7 +59,7 @@ public class NetworkPanel extends PerformancePanel{
         netPanelConstraints.weightx = 1d;
         netPanelConstraints.weighty = 1d;
         netPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        netPanel.setMinimumSize(new Dimension(685, 420));
+        netPanel.setMinimumSize(new Dimension(795,530));
         add(netPanel, netPanelConstraints);
 
         Thread thread = new Thread(() -> {

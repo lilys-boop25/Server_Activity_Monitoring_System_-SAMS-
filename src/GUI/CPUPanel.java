@@ -81,7 +81,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         cpuPanelConstraints.fill = GridBagConstraints.BOTH;
         cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
         //cpuPanel.setMinimumSize(new Dimension(1365,420));
-        cpuPanel.setMinimumSize(new Dimension(685,420));
+        cpuPanel.setMinimumSize(new Dimension(800,525));
         add(cpuPanel, cpuPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
