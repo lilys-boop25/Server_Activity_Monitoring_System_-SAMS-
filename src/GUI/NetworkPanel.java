@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -16,7 +15,6 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
@@ -50,23 +48,7 @@ public class NetworkPanel extends PerformancePanel{
         netChart.getXYPlot().getRangeAxis().setAutoRange(false);
         netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
         
-        XYAreaRenderer renderer = new XYAreaRenderer();
-        renderer.setSeriesPaint(0, new Color(255, 200, 0, 128));
-        renderer.setOutline(true);
-        renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
-        renderer.setSeriesOutlinePaint(0, Color.ORANGE.darker());
-        
-        renderer.setSeriesPaint(1, new Color(255, 225, 0, 128));
-        renderer.setOutline(true);
-        renderer.setSeriesOutlineStroke(1, new BasicStroke(1.0f));
-        renderer.setSeriesOutlinePaint(1, Color.YELLOW.darker());
-
-        netChart.getXYPlot().setRenderer(renderer);
-        netChart.getPlot().setBackgroundPaint( Color.WHITE );
-        netChart.getXYPlot().setDomainGridlinesVisible(true);
-        netChart.getXYPlot().setRangeGridlinesVisible(true);
-        netChart.getXYPlot().setRangeGridlinePaint(Color.black);
-        netChart.getXYPlot().setDomainGridlinePaint(Color.black);
+        PerformancePanel.setChartRenderer(netChart, Color.ORANGE, Color.YELLOW);
 
         JPanel netPanel = new JPanel();
 

@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -15,7 +14,6 @@ import javax.swing.Timer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
@@ -54,18 +52,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramChart.getXYPlot().getRangeAxis().setAutoRange(false);
         ramChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
-        XYAreaRenderer renderer = new XYAreaRenderer();
-        renderer.setSeriesPaint(0, new Color(255, 0, 255, 128));
-        renderer.setOutline(true);
-        renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
-        renderer.setSeriesOutlinePaint(0, Color.MAGENTA.darker());
-        
-        ramChart.getXYPlot().setRenderer(renderer);
-        ramChart.getPlot().setBackgroundPaint( Color.WHITE );
-        ramChart.getXYPlot().setDomainGridlinesVisible(true);
-        ramChart.getXYPlot().setRangeGridlinesVisible(true);
-        ramChart.getXYPlot().setRangeGridlinePaint(Color.black);
-        ramChart.getXYPlot().setDomainGridlinePaint(Color.black);
+        PerformancePanel.setChartRenderer(ramChart, Color.MAGENTA);
 
         GridBagConstraints ramConstraints = new GridBagConstraints();
         ramConstraints.weightx = 1d;
@@ -83,12 +70,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         virChart.getXYPlot().getRangeAxis().setAutoRange(false);
         virChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
-        virChart.getXYPlot().setRenderer(renderer);
-        virChart.getPlot().setBackgroundPaint( Color.WHITE );
-        virChart.getXYPlot().setDomainGridlinesVisible(true);
-        virChart.getXYPlot().setRangeGridlinesVisible(true);
-        virChart.getXYPlot().setRangeGridlinePaint(Color.black);
-        virChart.getXYPlot().setDomainGridlinePaint(Color.black);
+        PerformancePanel.setChartRenderer(virChart, Color.MAGENTA);
 
         GridBagConstraints virConstraints = (GridBagConstraints)ramConstraints.clone();
         virConstraints.gridx = 1;

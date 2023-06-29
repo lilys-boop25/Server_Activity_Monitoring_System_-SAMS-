@@ -2,6 +2,10 @@ package GUI;
 
 import javax.swing.*;
 
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.xy.XYAreaRenderer;
+
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,6 +40,41 @@ public class PerformancePanel extends OshiJPanel{
         }
     }
     
+    public static void setChartRenderer(JFreeChart chart, Color color){
+        XYAreaRenderer renderer = new XYAreaRenderer();
+        renderer.setSeriesPaint(0, new Color(color.getRed(), color.getGreen(), color.getBlue(), 128));
+        renderer.setOutline(true);
+        renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
+        renderer.setSeriesOutlinePaint(0, color.darker());
+        
+        chart.getXYPlot().setRenderer(renderer);
+        chart.getPlot().setBackgroundPaint( Color.WHITE );
+        chart.getXYPlot().setDomainGridlinesVisible(true);
+        chart.getXYPlot().setRangeGridlinesVisible(true);
+        chart.getXYPlot().setRangeGridlinePaint(Color.black);
+        chart.getXYPlot().setDomainGridlinePaint(Color.black);
+    }
+
+    public static void setChartRenderer(JFreeChart chart, Color color1, Color color2){
+        XYAreaRenderer renderer = new XYAreaRenderer();
+        renderer.setSeriesPaint(0, new Color(color1.getRed(), color1.getGreen(), color1.getBlue(), 128));
+        renderer.setOutline(true);
+        renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
+        renderer.setSeriesOutlinePaint(0, color1.darker());
+        
+        renderer.setSeriesPaint(1, new Color(color2.getRed(), color2.getGreen(), color2.getBlue(), 128));
+        renderer.setOutline(true);
+        renderer.setSeriesOutlineStroke(1, new BasicStroke(1.0f));
+        renderer.setSeriesOutlinePaint(1, color2.darker());
+
+        chart.getXYPlot().setRenderer(renderer);
+        chart.getPlot().setBackgroundPaint( Color.WHITE );
+        chart.getXYPlot().setDomainGridlinesVisible(true);
+        chart.getXYPlot().setRangeGridlinesVisible(true);
+        chart.getXYPlot().setRangeGridlinePaint(Color.black);
+        chart.getXYPlot().setDomainGridlinePaint(Color.black);
+    }
+
 
     private void initial(SystemInfo si) {
         JPanel perfPanel = new JPanel();
