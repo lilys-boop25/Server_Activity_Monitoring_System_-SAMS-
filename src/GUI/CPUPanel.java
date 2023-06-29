@@ -1,6 +1,9 @@
 package GUI;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.time.LocalDateTime;
@@ -13,6 +16,7 @@ import javax.swing.Timer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
@@ -58,6 +62,19 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         systemCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
         systemCpuChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
+        
+        XYAreaRenderer renderer = new XYAreaRenderer();
+        renderer.setSeriesPaint(0, new Color(0, 255, 255, 128));
+        renderer.setOutline(true);
+        renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
+        renderer.setSeriesOutlinePaint(0, Color.CYAN.darker());
+
+        systemCpuChart.getXYPlot().setRenderer(renderer);
+        systemCpuChart.getPlot().setBackgroundPaint( Color.WHITE );
+        systemCpuChart.getXYPlot().setDomainGridlinesVisible(true);
+        systemCpuChart.getXYPlot().setRangeGridlinesVisible(true);
+        systemCpuChart.getXYPlot().setRangeGridlinePaint(Color.black);
+        systemCpuChart.getXYPlot().setDomainGridlinePaint(Color.black);
 
         double[] procUsage = procData(processor);
         DynamicTimeSeriesCollection procData = new DynamicTimeSeriesCollection(procUsage.length, 60, new Second());
@@ -69,7 +86,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         procCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
         procCpuChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
-
+        
         JPanel cpuPanel = new JPanel();
         cpuPanel.setLayout(new GridBagLayout());
         ChartPanel systemCpuChartPanel = new ChartPanel(systemCpuChart);
