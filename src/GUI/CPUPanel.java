@@ -53,8 +53,8 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         CentralProcessor cpu = si.getHardware().getProcessor();
         oldTicks = new long[TickType.values().length];
         oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
-        init(cpu);
-        //initfake(cpu);
+        //init(cpu);
+        initfake(cpu);
     }
 
     private void initfake(CentralProcessor processor){

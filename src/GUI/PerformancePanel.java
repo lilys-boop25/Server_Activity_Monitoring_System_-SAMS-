@@ -84,23 +84,16 @@ public class PerformancePanel extends OshiJPanel{
         displayPanel.setLayout(new GridBagLayout());
 
         JPanel perfMenuBar = new JPanel();
-        perfMenuBar.setLayout(new GridBagLayout());
+        perfMenuBar.setLayout(new BoxLayout(perfMenuBar, BoxLayout.Y_AXIS));
 
         JGradientButton cpuButton = createButton("\nCPU\n0%\n", 'C', "Display CPU", Color.GREEN, new CPUPanel(si), displayPanel);
 
-        GridBagConstraints buttonC = new GridBagConstraints();
-        buttonC.fill = GridBagConstraints.HORIZONTAL;
-        buttonC.gridx = 0;
-        buttonC.gridy = -1;
-
-        buttonC.gridy++;
-        perfMenuBar.add(cpuButton, buttonC);
+        perfMenuBar.add(cpuButton);
         CPUPanel.updateCPUInfo(si.getHardware().getProcessor(), cpuButton, si.getOperatingSystem());
         
         JGradientButton memButton = createButton(PerformancePanel.buttonTextLines("\nMemory\n0/0 GB (0%)\n"), 'M', "Display Memory", Color.GREEN,new MemoryPanel(si), displayPanel);
 
-        buttonC.gridy++;
-        perfMenuBar.add(memButton, buttonC);
+        perfMenuBar.add(memButton);
 
         MemoryPanel.updateMemoryInfo(si.getHardware().getMemory(), memButton);
 
@@ -110,20 +103,18 @@ public class PerformancePanel extends OshiJPanel{
         {
             HWDiskStore disk = hwDiskStore.get(i);
             diskButton[i] = createButton(DiskPanel.updateDisk(disk, i, 0, 0), 'D', "Display Disk",Color.PINK.darker(), new DiskPanel(disk, i), displayPanel);
-            buttonC.gridy++;
-            perfMenuBar.add(diskButton[i], buttonC);
+            perfMenuBar.add(diskButton[i]);
         }
         DiskPanel.updateDiskInfo(si.getHardware().getDiskStores(), diskButton);
         
-        List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
+        List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(true);
 
         JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
         for (int i = 0; i < networkIFs.size() ; i++)
         {
             NetworkIF net = networkIFs.get(i);
             netButton[i] = createButton(NetworkPanel.updateNetwork(net, 0, 0), 'N', "Display Network",Color.CYAN.brighter() , new NetworkPanel(net, i), displayPanel);
-            buttonC.gridy++;
-            perfMenuBar.add(netButton[i], buttonC);
+            perfMenuBar.add(netButton[i]);
         }
         NetworkPanel.updateNetWorkInfo(networkIFs, netButton);
 
@@ -132,10 +123,10 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
-        scrollPerfPanel.setBounds(0, 0, 280, 730);
+        scrollPerfPanel.setBounds(0, 0, 295, 730);
         perfPanel.add(scrollPerfPanel);
 
-        displayPanel.setBounds(280, 0, 1105, 735);
+        displayPanel.setBounds(295, 0, 1105, 735);
         displayPanel.setBackground(Color.WHITE);
         perfPanel.add(displayPanel);
 
