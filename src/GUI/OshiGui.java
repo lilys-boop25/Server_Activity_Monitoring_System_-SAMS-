@@ -44,7 +44,9 @@ public class OshiGui {
         this.mainFrame = new JFrame("Operating System & Hardware Information");
         this.mainFrame.setSize(Config.GUI_WIDTH,Config.GUI_HEIGHT);
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.mainFrame.setResizable(false);
+        //this.mainFrame.setResizable(false);
+        this.mainFrame.setResizable(true);
+
         this.mainFrame.setLocationByPlatform(true);
         this.mainFrame.setLayout(new BorderLayout());
 

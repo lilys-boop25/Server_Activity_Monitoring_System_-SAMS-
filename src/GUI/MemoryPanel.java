@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -51,6 +52,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramChart.getXYPlot().getRangeAxis().setAutoRange(false);
         ramChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
+        PerformancePanel.setChartRenderer(ramChart, Color.MAGENTA);
+
         GridBagConstraints ramConstraints = new GridBagConstraints();
         ramConstraints.weightx = 1d;
         ramConstraints.weighty = 1d;
@@ -66,6 +69,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
         virChart.getXYPlot().getRangeAxis().setAutoRange(false);
         virChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
+
+        PerformancePanel.setChartRenderer(virChart, Color.MAGENTA);
 
         GridBagConstraints virConstraints = (GridBagConstraints)ramConstraints.clone();
         virConstraints.gridx = 1;

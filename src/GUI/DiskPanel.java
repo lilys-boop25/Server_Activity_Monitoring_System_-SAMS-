@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -50,6 +51,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
         diskChart.getXYPlot().getRangeAxis().setAutoRange(false);
         diskChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
+
+        PerformancePanel.setChartRenderer(diskChart, Color.CYAN, Color.GREEN);
 
         JPanel diskPanel = new JPanel();
         diskPanel.setLayout(new GridBagLayout());
