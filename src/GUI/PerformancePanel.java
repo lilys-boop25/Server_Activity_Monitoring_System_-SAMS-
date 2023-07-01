@@ -95,7 +95,7 @@ public class PerformancePanel extends OshiJPanel{
 
         buttonC.gridy++;
         perfMenuBar.add(cpuButton, buttonC);
-        CPUPanel.updateCPUInfo(si.getHardware().getProcessor(), cpuButton);
+        CPUPanel.updateCPUInfo(si.getHardware().getProcessor(), cpuButton, si.getOperatingSystem());
         
         JGradientButton memButton = createButton(PerformancePanel.buttonTextLines("\nMemory\n0/0 GB (0%)\n"), 'M', "Display Memory", Color.GREEN,new MemoryPanel(si), displayPanel);
 
@@ -132,10 +132,10 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
-        scrollPerfPanel.setBounds(0, 0, 280, 530);
+        scrollPerfPanel.setBounds(0, 0, 280, 730);
         perfPanel.add(scrollPerfPanel);
 
-        displayPanel.setBounds(280, 0, 805, 535);
+        displayPanel.setBounds(280, 0, 1005, 735);
         displayPanel.setBackground(Color.WHITE);
         perfPanel.add(displayPanel);
 
