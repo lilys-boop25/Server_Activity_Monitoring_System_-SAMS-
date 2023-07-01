@@ -135,7 +135,7 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.setBounds(0, 0, 280, 730);
         perfPanel.add(scrollPerfPanel);
 
-        displayPanel.setBounds(280, 0, 1005, 735);
+        displayPanel.setBounds(280, 0, 1105, 735);
         displayPanel.setBackground(Color.WHITE);
         perfPanel.add(displayPanel);
 
