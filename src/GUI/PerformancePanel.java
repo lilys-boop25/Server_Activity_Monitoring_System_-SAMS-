@@ -123,10 +123,10 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
-        scrollPerfPanel.setBounds(0, 0, 295, 730);
+        scrollPerfPanel.setBounds(0, 0, 295, 935);
         perfPanel.add(scrollPerfPanel);
 
-        displayPanel.setBounds(295, 0, 1105, 735);
+        displayPanel.setBounds(295, 0, 1205, 935);
         displayPanel.setBackground(Color.WHITE);
         perfPanel.add(displayPanel);
 

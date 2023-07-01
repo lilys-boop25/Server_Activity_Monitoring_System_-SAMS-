@@ -1,9 +1,12 @@
 package GUI;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -11,8 +14,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import org.jfree.chart.ChartFactory;
@@ -40,63 +46,91 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
 
-    private long[] oldTicks;
+    private static long[] oldTicks;
     private long[][] oldProcTicks;
 
     private static int nProcess = 0;
     private static int nThread = 0;
     private static long nHandle = 0;
-
+    private static double load = 0d;
 
     public CPUPanel(SystemInfo si) {
         super();
+
         CentralProcessor cpu = si.getHardware().getProcessor();
         oldTicks = new long[TickType.values().length];
         oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
-        //init(cpu);
-        initfake(cpu);
+        
+        JPanel displayPanel = new JPanel();
+        displayPanel.setLayout(new GridBagLayout());
+        displayPanel.setBackground(Color.WHITE);
+
+        JPanel cpuMenuBar = new JPanel();
+        cpuMenuBar.setLayout(new FlowLayout(FlowLayout.LEFT));
+        cpuMenuBar.setBackground(Color.WHITE);        
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 0;
+        buttonConstraints.gridy = 0;
+        buttonConstraints.weighty = 1d;
+        buttonConstraints.fill = GridBagConstraints.BOTH;
+        JButton overallButton = createButton("Overall Ultilization", initTotalCPU(cpu), displayPanel);
+        cpuMenuBar.add(overallButton);
+        buttonConstraints.gridx = 1;
+        cpuMenuBar.add(createButton("Logical Processors", initSingleCPU(cpu), displayPanel));
+
+        GridBagConstraints menubarConstraints = new GridBagConstraints();
+        menubarConstraints.gridx = 0;
+        menubarConstraints.gridy = 0;
+        menubarConstraints.weightx = 1d;
+        menubarConstraints.weighty = 1d;
+        menubarConstraints.fill = GridBagConstraints.HORIZONTAL;
+        cpuMenuBar.setPreferredSize(this.getMaximumSize());
+        add(cpuMenuBar, menubarConstraints);
+
+        GridBagConstraints perfConstraints = new GridBagConstraints();
+        perfConstraints.gridx = 0;
+        perfConstraints.gridy = 1;
+        perfConstraints.weightx = 1d;
+        perfConstraints.weighty = 1d;
+        perfConstraints.fill = GridBagConstraints.BOTH;
+        perfConstraints.anchor = GridBagConstraints.CENTER;
+        add(displayPanel, perfConstraints);
+    
+        overallButton.doClick();
+
     }
 
-    private void initfake(CentralProcessor processor){
+    private JButton createButton(String title, JPanel newPanel, JPanel displayPanel){
+        JButton button = new JButton(title);
+        // Set what to do when we push the button
+        button.addActionListener(e -> {
+            int nComponents = (int)displayPanel.getComponents().length;
+            if (nComponents <= (int)0 || displayPanel.getComponent(0) != newPanel) {
+                PerformancePanel.resetMainGui(displayPanel);
+                GridBagConstraints displayConstraints = new GridBagConstraints();
+                displayConstraints.weightx = 1d;
+                displayConstraints.weighty = 1d;
+                displayConstraints.fill = GridBagConstraints.BOTH;
+                displayConstraints.anchor = GridBagConstraints.CENTER;
+
+                displayPanel.add(newPanel, displayConstraints);
+                PerformancePanel.refreshMainGui(displayPanel);
+            }
+        });
+        return button;
+
+    }
+
+    private JPanel initSingleCPU(CentralProcessor processor){
 
         JPanel cpuPanel = new JPanel();
         cpuPanel.setLayout(new GridBagLayout());
         cpuPanel.setBackground(Color.WHITE);
-
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new GridBagLayout());
-        textPanel.setBackground(Color.WHITE);
-
-        GridBagConstraints sysCpuTextConstraints = new GridBagConstraints();
-        sysCpuTextConstraints.fill = GridBagConstraints.BOTH;
-        sysCpuTextConstraints.gridx = 0;
-        sysCpuTextConstraints.gridy = 0;
-        sysCpuTextConstraints.weightx = 2d;
-        sysCpuTextConstraints.gridheight = 2;
-        sysCpuTextConstraints.gridwidth = 1;
-
-        JEditorPane textCpuPane = new JEditorPane("text/html", "");
-        textCpuPane.setText("<b style = \"font-size:38; font-family:SansSerif\">CPU</b>");
-
-        textCpuPane.setEditable(false);
-        textPanel.add(textCpuPane, sysCpuTextConstraints);
-
-        JEditorPane textCpuNamePane = new JEditorPane("text/html", "");
-        textCpuNamePane.setText("<b style = \"font-size:16\">" + processor.getProcessorIdentifier().getName() + "</b>");
-        textCpuNamePane.setEditable(false);
-        
-        GridBagConstraints sysCpuNameConstraints = new GridBagConstraints();
-        sysCpuNameConstraints.gridx = 1;
-        sysCpuNameConstraints.gridy = 1;
-        sysCpuNameConstraints.gridheight = 1;
-        sysCpuNameConstraints.gridwidth = 1;
-        sysCpuNameConstraints.fill = GridBagConstraints.HORIZONTAL;
-        textPanel.add(textCpuNamePane, sysCpuNameConstraints);
         
         GridBagConstraints textPanelConstraints = new GridBagConstraints();
         textPanelConstraints.gridwidth = 4;
         textPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-        cpuPanel.add(textPanel, textPanelConstraints);
+        cpuPanel.add(createInfoPanel(processor), textPanelConstraints);
 
         JPanel chartPanel = new JPanel();
         chartPanel.setLayout(new GridBagLayout());
@@ -148,143 +182,50 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
             x++;
             chartPanel.add(procCpuChartPanel.get(i), singleProcConstraints);
         }
-        chartPanel.setMinimumSize(new Dimension(1100,715));
+        chartPanel.setMinimumSize(new Dimension(1100,615));
         GridBagConstraints chartPanelConstraints = new GridBagConstraints();
         chartPanelConstraints.gridy = 1;
         chartPanelConstraints.weighty = 1d;
         chartPanelConstraints.weightx = 1d;
-        chartPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+        chartPanelConstraints.fill = GridBagConstraints.BOTH;
         chartPanelConstraints.anchor = GridBagConstraints.CENTER;
+        //cpuPanel.setMinimumSize(new Dimension(1300,880));
         cpuPanel.add(chartPanel, chartPanelConstraints);
 
         GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
         cpuPanelConstraints.fill = GridBagConstraints.BOTH;
         cpuPanelConstraints.anchor = GridBagConstraints.CENTER;
         //cpuPanel.setMinimumSize(new Dimension(1365,420));
-        cpuPanel.setMinimumSize(new Dimension(1100,715));
-        add(cpuPanel, cpuPanelConstraints);
+        cpuPanel.setMinimumSize(new Dimension(1210,910));
+        //add(cpuPanel, cpuPanelConstraints);
 
-        GridBagConstraints sysCpuInfoConstraints = new GridBagConstraints();
-        sysCpuInfoConstraints.fill = GridBagConstraints.HORIZONTAL;
-        sysCpuInfoConstraints.gridx = 0;
-        sysCpuInfoConstraints.gridy = 0;
-        sysCpuInfoConstraints.ipadx = 20;
-
-        JPanel detaiPanel = new JPanel();
-        detaiPanel.setLayout(new GridBagLayout());
-        //detaiPanel.setMinimumSize(new Dimension(1000,715));
-
-        JEditorPane utilText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Utilization</p>");
-        utilText.setEditable(false);
-        detaiPanel.add(utilText, sysCpuInfoConstraints);
-
-        JEditorPane procText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Processes</p>");
-        procText.setEditable(false);
-        sysCpuInfoConstraints.gridx++;
-        detaiPanel.add(procText, sysCpuInfoConstraints);
-
-        JEditorPane threadText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Threads</p>");
-        threadText.setEditable(false);
-        sysCpuInfoConstraints.gridx++;
-        detaiPanel.add(threadText, sysCpuInfoConstraints);
-
-        sysCpuInfoConstraints.gridx = 0;
-        sysCpuInfoConstraints.gridy = 1;
-
-        JEditorPane utilValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",cpuData(processor)) + "%</p>");
-        utilText.setEditable(false);
-        detaiPanel.add(utilValueText, sysCpuInfoConstraints);
-
-        JEditorPane processesValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nProcess) + "%</p>");
-        processesValueText.setEditable(false);
-        sysCpuInfoConstraints.gridx++;
-        detaiPanel.add(processesValueText, sysCpuInfoConstraints);
-
-        JEditorPane threadValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nThread) + "</p>");
-        threadValueText.setEditable(false);
-        sysCpuInfoConstraints.gridx++;
-        detaiPanel.add(threadValueText, sysCpuInfoConstraints);
-
-        JEditorPane handleText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">                           </p>");
-        handleText.setEditable(false);
-        JEditorPane handleValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">                            </p>");
-        handleValueText.setEditable(false);
-
-        if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
-        {
-            handleText.setText("<p style = \"font-size:15; font-family:SansSerif; color:gray\">Handles</p>");
-            sysCpuInfoConstraints.gridy = 0;
-            sysCpuInfoConstraints.gridx = 3;
-            detaiPanel.add(handleText, sysCpuInfoConstraints);
-            sysCpuInfoConstraints.gridy = 1;
-            
-            handleValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nHandle) + "</p>");
-            detaiPanel.add(handleValueText, sysCpuInfoConstraints);
-        }
 
         GridBagConstraints detaiPanelConstraints = new GridBagConstraints();
         detaiPanelConstraints.gridy = x / 4 + 1;
-        cpuPanel.add(detaiPanel, detaiPanelConstraints);
+        cpuPanel.add(createDetailPanel(), detaiPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
-            double load = cpuData(processor);
             double[] procUsageData = procData(processor);
             for (int i = 0; i < procUsageData.length; i++) {
                 procData.get(i).advanceTime();
                 procData.get(i).appendData(floatArrayPercent(procUsageData[i]));
             }
-            if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
-            {
-                handleValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nHandle) + "</p>");
-            }
-            processesValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nProcess) + "</p>");
-            threadValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nThread) + "</p>");
-            utilValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",load * 100d) + "%</p>");
-
         });
         timer.start();
+
+        return cpuPanel;
     }
 
-    private void init(CentralProcessor processor) {
+    private JPanel initTotalCPU(CentralProcessor processor) {
         JPanel cpuPanel = new JPanel();
         cpuPanel.setLayout(new GridBagLayout());
         cpuPanel.setBackground(Color.WHITE);
 
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new GridBagLayout());
-        textPanel.setBackground(Color.WHITE);
-
-        GridBagConstraints sysCpuTextConstraints = new GridBagConstraints();
-        sysCpuTextConstraints.fill = GridBagConstraints.BOTH;
-        sysCpuTextConstraints.gridx = 0;
-        sysCpuTextConstraints.gridy = 0;
-        sysCpuTextConstraints.weightx = 2d;
-        sysCpuTextConstraints.gridheight = 2;
-        sysCpuTextConstraints.gridwidth = 1;
-
-        JEditorPane textCpuPane = new JEditorPane("text/html", "");
-        textCpuPane.setText("<b style = \"font-size:38; font-family:SansSerif\">CPU</b>");
-
-        textCpuPane.setEditable(false);
-        textPanel.add(textCpuPane, sysCpuTextConstraints);
-
-        JEditorPane textCpuNamePane = new JEditorPane("text/html", "");
-        textCpuNamePane.setText("<b style = \"font-size:16\">" + processor.getProcessorIdentifier().getName() + "</b>");
-        textCpuNamePane.setEditable(false);
-        
-        GridBagConstraints sysCpuNameConstraints = new GridBagConstraints();
-        sysCpuNameConstraints.gridx = 1;
-        sysCpuNameConstraints.gridy = 1;
-        sysCpuNameConstraints.gridheight = 1;
-        sysCpuNameConstraints.gridwidth = 1;
-        sysCpuNameConstraints.fill = GridBagConstraints.HORIZONTAL;
-        textPanel.add(textCpuNamePane, sysCpuNameConstraints);
         
         GridBagConstraints textPanelConstraints = new GridBagConstraints();
         textPanelConstraints.gridwidth = 4;
         textPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-        cpuPanel.add(textPanel, textPanelConstraints);
-
+        cpuPanel.add(createInfoPanel(processor), textPanelConstraints);
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection sysData = new DynamicTimeSeriesCollection(1, 60, new Second());
@@ -317,9 +258,37 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         sysCpuInfoConstraints.gridy = 0;
         sysCpuInfoConstraints.ipadx = 20;
 
+        GridBagConstraints detaiPanelConstraints = new GridBagConstraints();
+        detaiPanelConstraints.gridy = 3;
+        detaiPanelConstraints.gridwidth = 2;
+        cpuPanel.add(createDetailPanel(), detaiPanelConstraints);
+
+        GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
+        cpuPanelConstraints.fill = GridBagConstraints.BOTH;
+        cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        cpuPanel.setMinimumSize(new Dimension(1205,925));
+        //add(cpuPanel, cpuPanelConstraints);
+
+        Timer timer = new Timer(Config.REFRESH_FAST, e -> {
+            sysData.advanceTime();
+            sysData.appendData(floatArrayPercent(load));
+        });
+        timer.start();
+
+        return cpuPanel;
+    }
+
+    private static boolean run = false;
+
+    private JPanel createDetailPanel(){
         JPanel detaiPanel = new JPanel();
         detaiPanel.setLayout(new GridBagLayout());
-        detaiPanel.setMinimumSize(new Dimension(1000,715));
+        
+        GridBagConstraints sysCpuInfoConstraints = new GridBagConstraints();
+        sysCpuInfoConstraints.fill = GridBagConstraints.HORIZONTAL;
+        sysCpuInfoConstraints.gridx = 0;
+        sysCpuInfoConstraints.gridy = 0;
+        sysCpuInfoConstraints.ipadx = 20;
 
         JEditorPane utilText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Utilization</p>");
         utilText.setEditable(false);
@@ -338,7 +307,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         sysCpuInfoConstraints.gridx = 0;
         sysCpuInfoConstraints.gridy = 1;
 
-        JEditorPane utilValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",cpuData(processor)) + "%</p>");
+        JEditorPane utilValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",load) + "%</p>");
         utilText.setEditable(false);
         detaiPanel.add(utilValueText, sysCpuInfoConstraints);
 
@@ -367,23 +336,8 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
             
             handleValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nHandle) + "</p>");
             detaiPanel.add(handleValueText, sysCpuInfoConstraints);
-        }
-
-        GridBagConstraints detaiPanelConstraints = new GridBagConstraints();
-        detaiPanelConstraints.gridy = 3;
-        detaiPanelConstraints.gridwidth = 2;
-        cpuPanel.add(detaiPanel, detaiPanelConstraints);
-
-        GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
-        cpuPanelConstraints.fill = GridBagConstraints.BOTH;
-        cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        cpuPanel.setMinimumSize(new Dimension(1000,715));
-        add(cpuPanel, cpuPanelConstraints);
-
+        }            
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
-            double load = cpuData(processor);
-            sysData.advanceTime();
-            sysData.appendData(floatArrayPercent(load));
             if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
             {
                 handleValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nHandle) + "</p>");
@@ -391,14 +345,45 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
             processesValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nProcess) + "</p>");
             threadValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nThread) + "</p>");
             utilValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",load * 100d) + "%</p>");
-
         });
         timer.start();
+        return detaiPanel;
     }
 
-    private static boolean run = false;
+    private JPanel createInfoPanel(CentralProcessor processor){
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new GridBagLayout());
+        textPanel.setBackground(Color.WHITE);
 
-    static private double load = 0d;
+        GridBagConstraints sysCpuTextConstraints = new GridBagConstraints();
+        sysCpuTextConstraints.fill = GridBagConstraints.BOTH;
+        sysCpuTextConstraints.gridx = 0;
+        sysCpuTextConstraints.gridy = 0;
+        sysCpuTextConstraints.weightx = 2d;
+        sysCpuTextConstraints.gridheight = 2;
+        sysCpuTextConstraints.gridwidth = 1;
+
+        JEditorPane textCpuPane = new JEditorPane("text/html", "");
+        textCpuPane.setText("<b style = \"font-size:38; font-family:SansSerif\">CPU</b>");
+
+        textCpuPane.setEditable(false);
+        textPanel.add(textCpuPane, sysCpuTextConstraints);
+
+        JEditorPane textCpuNamePane = new JEditorPane("text/html", "");
+        textCpuNamePane.setText("<b style = \"font-size:16\">" + processor.getProcessorIdentifier().getName() + "</b>");
+        textCpuNamePane.setEditable(false);
+        
+        GridBagConstraints sysCpuNameConstraints = new GridBagConstraints();
+        sysCpuNameConstraints.gridx = 1;
+        sysCpuNameConstraints.gridy = 1;
+        sysCpuNameConstraints.gridheight = 1;
+        sysCpuNameConstraints.gridwidth = 1;
+        sysCpuNameConstraints.fill = GridBagConstraints.HORIZONTAL;
+        textPanel.add(textCpuNamePane, sysCpuNameConstraints);
+
+        return textPanel;
+    }
+
 
     public static void updateCPUInfo(CentralProcessor cen, JGradientButton memButton, OperatingSystem os)
     {
@@ -410,7 +395,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         Thread thread = new Thread(() -> {
             while(true)
             {
-                load = cen.getSystemCpuLoad(1000);
+                load = cpuData(cen);
                 memButton.setText(PerformancePanel.buttonTextLines("\nCPU\n" + (String.format("%.2f",load*100)) + "%\n"));
                 memButton.color = PerformancePanel.getColorByPercent((int)((load)*100));
                 nProcess = os.getProcessCount();
@@ -418,6 +403,11 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
                 if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS)){
                     Pair<List<String>, Map<HandleCountProperty, List<Long>>> hwdPair = oshi.driver.windows.perfmon.ProcessInformation.queryHandles();
                     nHandle = (long)((List<Long>)(hwdPair.getB().values().iterator().next())).get(0);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
                 }
             }
         });
@@ -430,7 +420,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         return f;
     }
 
-    private double cpuData(CentralProcessor proc) {
+    private static double cpuData(CentralProcessor proc) {
         double d = proc.getSystemCpuLoadBetweenTicks(oldTicks);
         oldTicks = proc.getSystemCpuLoadTicks();
         return d;
