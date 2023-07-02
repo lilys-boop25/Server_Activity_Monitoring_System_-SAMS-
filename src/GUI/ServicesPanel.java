@@ -50,7 +50,7 @@ public class ServicesPanel extends OshiJPanel {
 
         OperatingSystem os = si.getOperatingSystem();
 
-        TableModel model = new DefaultTableModel(parseServices(os.getServices(), si), COLUMNS);
+        TableModel model = new DefaultTableModel(parseServices(os.getServices()), COLUMNS);
         JTable serTable = new JTable(model);
         Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 12);
         serTable.setFont(sansSerifFont);
@@ -99,7 +99,7 @@ public class ServicesPanel extends OshiJPanel {
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) serTable.getModel();
-            Object[][] newData = parseServices(os.getServices(), si);
+            Object[][] newData = parseServices(os.getServices());
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
                 if (row < rowCount) {
@@ -121,7 +121,7 @@ public class ServicesPanel extends OshiJPanel {
         timer.start();
     }
 
-    private Object[][] parseServices(List<OSService> osServiceList, SystemInfo si){
+    private Object[][] parseServices(List<OSService> osServiceList){
         int i = osServiceList.size();
         Object[][] servicesArr = new Object[i][COLUMNS.length];
 
