@@ -101,7 +101,7 @@ public class OsHwPanel extends OshiJPanel {
         StringBuilder sb = new StringBuilder(OPERATING_SYSTEM);
 
         OperatingSystem os = si.getOperatingSystem();
-        sb.append(String.valueOf(os));
+        sb.append((os));
         sb.append("\n").append("Booted: "). append(Instant.ofEpochSecond(os.getSystemBootTime())).append("\n");
         sb.append("Uptime: ");
         return sb.toString();
