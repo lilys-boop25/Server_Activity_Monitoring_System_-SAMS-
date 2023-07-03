@@ -78,7 +78,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    e1.printStackTrace();
+                    System.out.println(e1.getMessage());
                 }
             }
         });
@@ -109,11 +109,11 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         Thread thread = new Thread(() -> {
             while(true)
             {
-                long timeNow[] = new long[diskStores.size()];
-                long readLast[] = new long[diskStores.size()];
-                long writeLast[] = new long[diskStores.size()];
-                long readNow[] = new long[diskStores.size()];
-                long writeNow[] = new long[diskStores.size()];
+                long[] timeNow = new long[diskStores.size()];
+                long[] readLast = new long[diskStores.size()];
+                long[] writeLast = new long[diskStores.size()];
+                long[] readNow = new long[diskStores.size()];
+                long[] writeNow = new long[diskStores.size()];
                 for (int i = 0; i < diskStores.size() ; i++)
                 {
                     HWDiskStore disk = diskStores.get(i);
@@ -125,7 +125,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    e1.printStackTrace();
+                    System.out.println(e1.getMessage());
                 }
                 for (int i = 0; i < diskStores.size() ; i++)
                 {

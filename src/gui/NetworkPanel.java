@@ -17,13 +17,15 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.hardware.NetworkIF;
 import oshi.util.FormatUtil;
 
 
 public class NetworkPanel extends PerformancePanel{
-
+    private static final Logger logger = LoggerFactory.getLogger(CPUPanel.class);
     public NetworkPanel(NetworkIF net, int index) {
         super();
         initial(net, index);
@@ -75,7 +77,7 @@ public class NetworkPanel extends PerformancePanel{
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    e1.printStackTrace();
+                    logger.error("Error occurred: ", e1);
                 }
             }
         });
@@ -104,9 +106,9 @@ public class NetworkPanel extends PerformancePanel{
         Thread thread = new Thread(() -> {
             while(true)
             {
-                long timeNow[] = new long[networkIFs.size()];
-                long recvLast[] = new long[networkIFs.size()];
-                long sentLast[] = new long[networkIFs.size()];
+                long[] timeNow = new long[networkIFs.size()];
+                long[] recvLast = new long[networkIFs.size()];
+                long[] sentLast = new long[networkIFs.size()];
 
                 for (int i = 0; i < networkIFs.size() ; i++)
                 {
@@ -120,7 +122,7 @@ public class NetworkPanel extends PerformancePanel{
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    e1.printStackTrace();
+                    logger.error("Error occurred: ", e1);
                 }
 
                 for (int i = 0; i < networkIFs.size() ; i++)
