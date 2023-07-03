@@ -1,5 +1,8 @@
 package gui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -40,6 +43,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
     static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
 
+    private static final Logger logger = LoggerFactory.getLogger(CPUPanel.class);
     private static final long serialVersionUID = 1L;
 
     private String type = "text/html";
@@ -400,7 +404,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    e1.printStackTrace();
+                    logger.error("Error occurred: ", e1);
                 }
             }
         });
