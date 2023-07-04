@@ -3,6 +3,7 @@ package gui;
 
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FormatUtil;
 
@@ -14,14 +15,16 @@ import java.util.List;
 
 public class FileSystemPanel extends OshiJPanel{
     private static final String[] COLUMNS = {"Device", "Type", "Total", "Available", "Used", "Diagram"};
-    private static final double[] COLUMN_WIDTH_PERCENT = {0.03, 0.01, 0.01, 0.01, 0.01, 2};
+    private static final double[] COLUMN_WIDTH_PERCENT = {0.1, 0.01, 0.01, 0.01, 0.01, 1.2};
+
+    private JProgressBar[] progressBars;
 
     private static long parseSize(String sizeString) {
         String[] parts = sizeString.split(" ");
         float value = Float.parseFloat(parts[0]);
         String unit = parts[1];
         switch (unit) {
-            case "B":
+            case "bytes":
                 return (long) value;
             case "KiB":
                 return (long) (value * 1024);
@@ -34,7 +37,7 @@ public class FileSystemPanel extends OshiJPanel{
         }
     }
 
-    private static class NumericComparator implements Comparator<String> {
+    private static class SizeComparator implements Comparator<String> {
         @Override
         public int compare(String o1, String o2) {
             long size1 = parseSize(o1);
@@ -49,11 +52,12 @@ public class FileSystemPanel extends OshiJPanel{
     }
 
     private void init(SystemInfo si){
-        oshi.software.os.FileSystem fs = si.getOperatingSystem().getFileSystem();
+        FileSystem fs = si.getOperatingSystem().getFileSystem();
         List<OSFileStore> fileStores = fs.getFileStores();
+        progressBars = new JProgressBar[fileStores.size()];
 
         TableModel model;
-        model = new DefaultTableModel(parseFileSystem(fileStores,si), COLUMNS) {
+        model = new DefaultTableModel(parseFileSystem(fileStores), COLUMNS) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 if (columnIndex == 5) {
@@ -74,9 +78,9 @@ public class FileSystemPanel extends OshiJPanel{
 
         // make sorter for Table
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(systemTable.getModel());
-        sorter.setComparator(2, new NumericComparator());
-        sorter.setComparator(3, new NumericComparator());
-        sorter.setComparator(4, new NumericComparator());
+        sorter.setComparator(2, new SizeComparator());
+        sorter.setComparator(3, new SizeComparator());
+        sorter.setComparator(4, new SizeComparator());
         sorter.setSortable(5,false);
         systemTable.setRowSorter(sorter);
 
@@ -97,7 +101,7 @@ public class FileSystemPanel extends OshiJPanel{
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) systemTable.getModel();
-            Object[][] newData = parseFileSystem(si.getOperatingSystem().getFileSystem().getFileStores(), si);
+            Object[][] newData = parseFileSystem(si.getOperatingSystem().getFileSystem().getFileStores());
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
                 if (row < rowCount) {
@@ -119,9 +123,9 @@ public class FileSystemPanel extends OshiJPanel{
             TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) systemTable.getRowSorter();
             List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
             re_sorter.setModel(tableModel);
-            re_sorter.setComparator(2, new NumericComparator());
-            re_sorter.setComparator(3, new NumericComparator());
-            re_sorter.setComparator(4, new NumericComparator());
+            re_sorter.setComparator(2, new SizeComparator());
+            re_sorter.setComparator(3, new SizeComparator());
+            re_sorter.setComparator(4, new SizeComparator());
             re_sorter.setSortable(5,false);
 
             re_sorter.setSortKeys(sortKeys);
@@ -131,7 +135,7 @@ public class FileSystemPanel extends OshiJPanel{
         timer.start();
     }
 
-    private Object[][] parseFileSystem(List<OSFileStore> fileStores, SystemInfo si) {
+    private Object[][] parseFileSystem(List<OSFileStore> fileStores) {
 
         Object[][] systemArr = new Object[fileStores.size()][COLUMNS.length];
 
@@ -139,16 +143,18 @@ public class FileSystemPanel extends OshiJPanel{
 
         // These are in descending CPU order
         for (OSFileStore fileStore : fileStores) {
+            int used = 0;
             if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)){
-                systemArr[i][0] = fileStore.getName();
+                systemArr[i][0] = fileStore.getName();systemArr[i][2] = FormatUtil.formatBytes(fileStore.getTotalSpace());
+
             } else if(SystemInfo.getCurrentPlatform().equals(PlatformEnum.LINUX)){
                 systemArr[i][0] = fileStore.getVolume();
             }
             systemArr[i][1] = fileStore.getType();
             systemArr[i][2] = FormatUtil.formatBytes(fileStore.getTotalSpace());
             systemArr[i][3] = FormatUtil.formatBytes(fileStore.getUsableSpace());
-            systemArr[i][4] = FormatUtil.formatBytes(fileStore.getTotalSpace()- fileStore.getUsableSpace());
-            int used = (int) ((fileStore.getTotalSpace() - fileStore.getUsableSpace()) *100 / fileStore.getTotalSpace());
+            systemArr[i][4] = FormatUtil.formatBytes(fileStore.getTotalSpace()- fileStore.getFreeSpace());
+            used = (int) ((fileStore.getTotalSpace() - fileStore.getFreeSpace()) *100 / fileStore.getTotalSpace());
             systemArr[i][5] = used;
             i++;
         }
@@ -167,7 +173,7 @@ public class FileSystemPanel extends OshiJPanel{
         }
     }
 
-    private static class ProgressRenderer extends DefaultTableCellRenderer {
+    private static class ProgressRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
         private final JProgressBar progressBar = new JProgressBar();
 
         public ProgressRenderer() {

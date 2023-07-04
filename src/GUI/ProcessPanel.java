@@ -20,24 +20,10 @@ public class ProcessPanel extends OshiJPanel {
             "Process Name"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35};
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
-    private transient ButtonGroup cpuOption = new ButtonGroup();
-    private transient JRadioButton perProc = new JRadioButton("of one Processor");
-    private transient JRadioButton perSystem = new JRadioButton("of System");
-
-
 
     public ProcessPanel(SystemInfo si) {
         super();
         init(si);
-    }
-
-    private static class NumericComparator implements Comparator<Object> {
-        @Override
-        public int compare(Object o1, Object o2) {
-            float i1 = Float.parseFloat(o1.toString());
-            float i2 = Float.parseFloat(o2.toString());
-            return Float.compare(i1,i2);
-        }
     }
 
     private void init(SystemInfo si) {
@@ -50,7 +36,6 @@ public class ProcessPanel extends OshiJPanel {
         processPanel.setLayout(new GridBagLayout());
         GridBagConstraints nameConstraints = new GridBagConstraints();
         nameConstraints.anchor = GridBagConstraints.CENTER;
-//        nameConstraints.fill = GridBagConstraints.BOTH;
         nameConstraints.insets = new Insets(10, 10, 10, 10);
         procLabel.setMinimumSize(new Dimension(0,0));
         procLabel.setMaximumSize(new Dimension(50,50));
@@ -60,16 +45,8 @@ public class ProcessPanel extends OshiJPanel {
         JLabel cpuChoice = new JLabel("          % CPU:");
         settings.add(cpuChoice);
 
-        cpuOption.add(perProc);
-        settings.add(perProc);
-        cpuOption.add(perSystem);
-        settings.add(perSystem);
 
-        if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) { // in Windows
-            perSystem.setSelected(true);
-        } else { // in Linux
-            perProc.setSelected(true);
-        }
+
 
         TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);
         JTable proccessTable = new JTable(model);
@@ -102,14 +79,14 @@ public class ProcessPanel extends OshiJPanel {
 
         // make sorter for Table
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(proccessTable.getModel());
-        sorter.setComparator(0, new NumericComparator());
-        sorter.setComparator(1, new NumericComparator());
-        sorter.setComparator(4, new NumericComparator());
-        sorter.setComparator(5, new NumericComparator());
-        sorter.setComparator(6, new NumericComparator());
-        sorter.setComparator(9, new NumericComparator());
-        sorter.setSortable(7,false);
-        sorter.setSortable(8,false);
+        sorter.setComparator(0, new SizeComparator());
+        sorter.setComparator(1, new SizeComparator());
+        sorter.setComparator(4, new SizeComparator());
+        sorter.setComparator(5, new SizeComparator());
+        sorter.setComparator(6, new SizeComparator());
+        sorter.setComparator(7, new SizeComparator());
+        sorter.setComparator(8, new SizeComparator());
+        sorter.setComparator(9, new SizeComparator());
         sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(9, SortOrder.DESCENDING)));
 
         proccessTable.setRowSorter(sorter);
@@ -135,7 +112,6 @@ public class ProcessPanel extends OshiJPanel {
 
         settingsConstraints.anchor = GridBagConstraints.NORTHWEST;
         settingsConstraints.fill = GridBagConstraints.BOTH;
-        add(settings, settingsConstraints);
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) proccessTable.getModel();
@@ -161,14 +137,14 @@ public class ProcessPanel extends OshiJPanel {
             TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) proccessTable.getRowSorter();
             List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
             re_sorter.setModel(tableModel);
-            re_sorter.setComparator(0, new NumericComparator());
-            re_sorter.setComparator(1, new NumericComparator());
-            re_sorter.setComparator(4, new NumericComparator());
-            re_sorter.setComparator(5, new NumericComparator());
-            re_sorter.setComparator(6, new NumericComparator());
-            re_sorter.setSortable(7,false);
-            re_sorter.setSortable(8,false);
-            re_sorter.setComparator(9, new NumericComparator());
+            sorter.setComparator(0, new SizeComparator());
+            sorter.setComparator(1, new SizeComparator());
+            sorter.setComparator(4, new SizeComparator());
+            sorter.setComparator(5, new SizeComparator());
+            sorter.setComparator(6, new SizeComparator());
+            sorter.setComparator(7, new SizeComparator());
+            sorter.setComparator(8, new SizeComparator());
+            sorter.setComparator(9, new SizeComparator());
             re_sorter.setSortKeys(sortKeys);
             re_sorter.sort();
         });
@@ -178,7 +154,6 @@ public class ProcessPanel extends OshiJPanel {
 
     private Object[][] parseProcesses(List<OSProcess> list, SystemInfo si) {
         long totalMem = si.getHardware().getMemory().getTotal();
-        int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
 
         List<OSProcess> procList = new ArrayList<>();
         for (OSProcess p : list) {
@@ -192,7 +167,6 @@ public class ProcessPanel extends OshiJPanel {
         }
 
         Object[][] procArr = new Object[procList.size()][COLUMNS.length];
-
         for (int i = 0; i < procList.size(); i++) {
             OSProcess p = procList.get(i);
             int pid = p.getProcessID();
@@ -203,24 +177,14 @@ public class ProcessPanel extends OshiJPanel {
                 procArr[i][3] = p.getUser();
             }
             procArr[i][4] = p.getThreadCount();
-            if (perProc.isSelected()) {
-                procArr[i][5] = String.format("%.1f",
-                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
-                procArr[i][6] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative() * cpuCount);
-            } else {
-                procArr[i][5] = String.format("%.1f",
+            procArr[i][5] = String.format("%.1f",
                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
-                procArr[i][6] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
-            }
-
-//            procArr[i][7] = String.format("%.1f MB", (float)(p.getVirtualSize())/(1024*1024));
-//            procArr[i][8] = String.format("%.1f MB", (float)(p.getResidentSetSize())/(1024*1024));
+            procArr[i][6] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
             procArr[i][7] = FormatUtil.formatBytes(p.getVirtualSize());
             procArr[i][8] = FormatUtil.formatBytes(p.getResidentSetSize());
             procArr[i][9] = String.format("%.1f", 100d * p.getResidentSetSize() / totalMem);
             procArr[i][10] = p.getName();
         }
-
         // Re-populate snapshot map
         priorSnapshotMap.clear();
         for (OSProcess p : list) {
@@ -236,6 +200,38 @@ public class ProcessPanel extends OshiJPanel {
             column = tableColumnModel.getColumn(i);
             int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
             column.setPreferredWidth(pWidth);
+        }
+    }
+
+    private static float parseSize(String sizeString) {
+        String[] parts = sizeString.split(" ");
+        float value = Float.parseFloat(parts[0]);
+        if(parts.length == 1){
+            return value;
+        }
+        else{
+            String unit = parts[1];
+            switch (unit) {
+                case "bytes":
+                    return value;
+                case "KiB":
+                    return (value * 1024);
+                case "MiB":
+                    return (value * 1024 * 1024);
+                case "GiB":
+                    return (value * 1024 * 1024 * 1024);
+                default:
+                    throw new IllegalArgumentException("Unknown size unit: " + unit);
+            }
+        }
+    }
+
+    private static class SizeComparator implements Comparator<Object> {
+        @Override
+        public int compare(Object o1, Object o2) {
+            float size1 = parseSize(o1.toString());
+            float size2 = parseSize(o2.toString());
+            return Float.compare(size1,size2);
         }
     }
 }
