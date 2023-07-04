@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,8 +39,6 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
         diskConstraints.weightx = 1d;
         diskConstraints.weighty = 1d;
-        diskConstraints.fill = GridBagConstraints.NONE;
-        //diskConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection diskData = new DynamicTimeSeriesCollection(2, 60, new Second());
@@ -78,7 +76,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
             }
         });
@@ -101,7 +100,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     
     protected static void updateDiskInfo(List<HWDiskStore> diskStores, JGradientButton[] diskButton)
     {
-        if (run == true)
+        if (run)
         {
             return;
         }
@@ -109,11 +108,11 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         Thread thread = new Thread(() -> {
             while(true)
             {
-                long timeNow[] = new long[diskStores.size()];
-                long readLast[] = new long[diskStores.size()];
-                long writeLast[] = new long[diskStores.size()];
-                long readNow[] = new long[diskStores.size()];
-                long writeNow[] = new long[diskStores.size()];
+                long[] timeNow = new long[diskStores.size()];
+                long[] readLast = new long[diskStores.size()];
+                long[] writeLast = new long[diskStores.size()];
+                long[] readNow = new long[diskStores.size()];
+                long[] writeNow = new long[diskStores.size()];
                 for (int i = 0; i < diskStores.size() ; i++)
                 {
                     HWDiskStore disk = diskStores.get(i);
@@ -124,7 +123,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
                 for (int i = 0; i < diskStores.size() ; i++)
                 {
@@ -143,14 +143,14 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
     public static String updateDisk(HWDiskStore disk, int index, long recvSpeed, long sendSpeed)
     {
-        StringBuffer nameBuffer = new StringBuffer();
-        nameBuffer.append("Disk " + String.valueOf(index) + " (");
+        StringBuilder nameBuffer = new StringBuilder();
+        nameBuffer.append("Disk " + index + " (");
         for (HWPartition partition: disk.getPartitions())
         {
             nameBuffer.append(partition.getMountPoint() + " ");
         }
         nameBuffer.deleteCharAt(nameBuffer.length() - 1);
-        if (disk.getPartitions().size() > 0){
+        if (!disk.getPartitions().isEmpty()){
             nameBuffer.append(")");
         }
         String name;

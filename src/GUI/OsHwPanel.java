@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;

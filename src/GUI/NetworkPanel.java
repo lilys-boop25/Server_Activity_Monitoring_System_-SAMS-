@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -54,7 +54,6 @@ public class NetworkPanel extends PerformancePanel{
 
         netPanel.setLayout(new GridBagLayout());
         ChartPanel myChartPanel = new ChartPanel(netChart);
-        //myChartPanel.setMinimumSize(new Dimension(700, 350));
         netPanel.add(myChartPanel, netConstraints);
         
         GridBagConstraints netPanelConstraints = new GridBagConstraints();
@@ -75,7 +74,8 @@ public class NetworkPanel extends PerformancePanel{
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
 
             }
@@ -97,7 +97,7 @@ public class NetworkPanel extends PerformancePanel{
 
 
     public static void updateNetWorkInfo(List<NetworkIF> networkIFs, JGradientButton[] netButton){
-        if (run==true)
+        if (run)
         {
             return;
         }
@@ -105,9 +105,9 @@ public class NetworkPanel extends PerformancePanel{
         Thread thread = new Thread(() -> {
             while(true)
             {
-                long timeNow[] = new long[networkIFs.size()];
-                long recvLast[] = new long[networkIFs.size()];
-                long sentLast[] = new long[networkIFs.size()];
+                long[] timeNow = new long[networkIFs.size()];
+                long[] recvLast = new long[networkIFs.size()];
+                long[] sentLast = new long[networkIFs.size()];
 
                 for (int i = 0; i < networkIFs.size() ; i++)
                 {
@@ -120,7 +120,8 @@ public class NetworkPanel extends PerformancePanel{
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
 
                 for (int i = 0; i < networkIFs.size() ; i++)

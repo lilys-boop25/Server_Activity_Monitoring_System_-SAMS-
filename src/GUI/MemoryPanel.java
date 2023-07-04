@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -93,7 +93,6 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         memoryPanelConstraints.weighty = 1d;
         memoryPanelConstraints.gridx = 1;
         memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        //memoryPanel.setMinimumSize(new Dimension(1365, 455));
         memoryPanel.setMinimumSize(new Dimension(795,515));
         add(memoryPanel, memoryPanelConstraints);
 
@@ -128,7 +127,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     public static void updateMemoryInfo(GlobalMemory mem, JGradientButton memButton)
     {
-        if (run == true)
+        if (run)
         {
             return;
         }
@@ -144,7 +143,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
             }
         });

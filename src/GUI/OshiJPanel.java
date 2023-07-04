@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -29,14 +29,6 @@ public class OshiJPanel extends JPanel {
             setSize(maxSize);
         }
         setLayout(new GridBagLayout());
-    }
-
-    public static void print(Object... content)
-    {
-        for (Object object: content)
-        {
-            System.out.println(object);
-        }
     }
 
     public static final class JGradientButton extends JButton{

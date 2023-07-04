@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
@@ -20,7 +20,6 @@ public class ProcessPanel extends OshiJPanel {
             "Process Name"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35};
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
-
 
     public ProcessPanel(SystemInfo si) {
         super();
