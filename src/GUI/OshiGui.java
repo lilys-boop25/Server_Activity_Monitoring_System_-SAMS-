@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import com.sun.jna.Platform;
 import oshi.PlatformEnum;
@@ -19,7 +19,7 @@ public class OshiGui {
     private final Color COLOR_DEFAULT = new Color(238,238,238);
 
     public OshiGui(){
-
+      // TODO document why this constructor is empty
     }
 
     public static void main(String[] args){
@@ -33,7 +33,7 @@ public class OshiGui {
     }
 
     private void setVisible(){
-        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainFrame.setLocation(0, 0);
         this.mainFrame.setVisible(true);
         this.jMenu.setBackground(new Color(179, 177, 178));
@@ -43,7 +43,7 @@ public class OshiGui {
     private void init(){
         this.mainFrame = new JFrame("Operating System & Hardware Information");
         this.mainFrame.setSize(Config.GUI_WIDTH,Config.GUI_HEIGHT);
-        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //this.mainFrame.setResizable(false);
         this.mainFrame.setResizable(true);
 
@@ -78,6 +78,7 @@ public class OshiGui {
         button.setBackground(COLOR_DEFAULT);
 
         button.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 setSelectedButton(button);
             }

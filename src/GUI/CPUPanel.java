@@ -1,12 +1,10 @@
-package GUI;
+package gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -14,11 +12,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import org.jfree.chart.ChartFactory;
@@ -42,11 +38,14 @@ import oshi.util.tuples.Pair;
  */
 public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
+    private static final String VALUE_HTML_HEAD = "<p style = \"font-size:23; font-family:SansSerif; color:black\">";
+    private static final String VALUE_HTML_TAIL = "</p>";
+    private static final String JEDITOR_TYPE = "text/html";
     static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
 
     private static final long serialVersionUID = 1L;
 
-    private static long[] oldTicks;
+    private static long[] oldTicks = new long[TickType.values().length];
     private long[][] oldProcTicks;
 
     private static int nProcess = 0;
@@ -57,10 +56,11 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
     public CPUPanel(SystemInfo si) {
         super();
 
+
         CentralProcessor cpu = si.getHardware().getProcessor();
-        oldTicks = new long[TickType.values().length];
-        oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
         
+        oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
+
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new GridBagLayout());
         displayPanel.setBackground(Color.WHITE);
@@ -104,8 +104,8 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         JButton button = new JButton(title);
         // Set what to do when we push the button
         button.addActionListener(e -> {
-            int nComponents = (int)displayPanel.getComponents().length;
-            if (nComponents <= (int)0 || displayPanel.getComponent(0) != newPanel) {
+            int nComponents = displayPanel.getComponents().length;
+            if (nComponents <= 0 || displayPanel.getComponent(0) != newPanel) {
                 PerformancePanel.resetMainGui(displayPanel);
                 GridBagConstraints displayConstraints = new GridBagConstraints();
                 displayConstraints.weightx = 1d;
@@ -140,9 +140,9 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         double[] procUsage = procData(processor);
 
-        ArrayList<DynamicTimeSeriesCollection> procData = new ArrayList<DynamicTimeSeriesCollection>();
-        ArrayList<JFreeChart> procCpuChart = new ArrayList<JFreeChart>();
-        ArrayList<ChartPanel> procCpuChartPanel = new ArrayList<ChartPanel>();
+        ArrayList<DynamicTimeSeriesCollection> procData = new ArrayList<>();
+        ArrayList<JFreeChart> procCpuChart = new ArrayList<>();
+        ArrayList<ChartPanel> procCpuChartPanel = new ArrayList<>();
         for (int i = 0; i < procUsage.length; i++) {
             DynamicTimeSeriesCollection timeSeriesData = new DynamicTimeSeriesCollection(1, 60, new Second());
             timeSeriesData.setTimeBase(new Second(date));
@@ -189,15 +189,12 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         chartPanelConstraints.weightx = 1d;
         chartPanelConstraints.fill = GridBagConstraints.BOTH;
         chartPanelConstraints.anchor = GridBagConstraints.CENTER;
-        //cpuPanel.setMinimumSize(new Dimension(1300,880));
         cpuPanel.add(chartPanel, chartPanelConstraints);
 
         GridBagConstraints cpuPanelConstraints = new GridBagConstraints();
         cpuPanelConstraints.fill = GridBagConstraints.BOTH;
         cpuPanelConstraints.anchor = GridBagConstraints.CENTER;
-        //cpuPanel.setMinimumSize(new Dimension(1365,420));
         cpuPanel.setMinimumSize(new Dimension(1210,910));
-        //add(cpuPanel, cpuPanelConstraints);
 
 
         GridBagConstraints detaiPanelConstraints = new GridBagConstraints();
@@ -236,8 +233,6 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         systemCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
         systemCpuChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
         
-        //systemCpuChart.getXYPlot().getDomainAxis().setVisible(false);
-        //systemCpuChart.getXYPlot().getRangeAxis().setVisible(false);
         systemCpuChart.getXYPlot().getDomainAxis().setLowerMargin(0);
         systemCpuChart.getXYPlot().getDomainAxis().setUpperMargin(0);
 
@@ -267,7 +262,6 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         cpuPanelConstraints.fill = GridBagConstraints.BOTH;
         cpuPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
         cpuPanel.setMinimumSize(new Dimension(1205,925));
-        //add(cpuPanel, cpuPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             sysData.advanceTime();
@@ -290,16 +284,16 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         sysCpuInfoConstraints.gridy = 0;
         sysCpuInfoConstraints.ipadx = 20;
 
-        JEditorPane utilText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Utilization</p>");
+        JEditorPane utilText = new JEditorPane(JEDITOR_TYPE, "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Utilization</p>");
         utilText.setEditable(false);
         detaiPanel.add(utilText, sysCpuInfoConstraints);
 
-        JEditorPane procText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Processes</p>");
+        JEditorPane procText = new JEditorPane(JEDITOR_TYPE, "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Processes</p>");
         procText.setEditable(false);
         sysCpuInfoConstraints.gridx++;
         detaiPanel.add(procText, sysCpuInfoConstraints);
 
-        JEditorPane threadText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Threads</p>");
+        JEditorPane threadText = new JEditorPane(JEDITOR_TYPE, "<p style = \"font-size:15; font-family:SansSerif; color:gray\">Threads</p>");
         threadText.setEditable(false);
         sysCpuInfoConstraints.gridx++;
         detaiPanel.add(threadText, sysCpuInfoConstraints);
@@ -307,23 +301,24 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         sysCpuInfoConstraints.gridx = 0;
         sysCpuInfoConstraints.gridy = 1;
 
-        JEditorPane utilValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",load) + "%</p>");
+
+        JEditorPane utilValueText = new JEditorPane(JEDITOR_TYPE, VALUE_HTML_HEAD + String.format("%.2f",load) + "%" + VALUE_HTML_TAIL);
         utilText.setEditable(false);
         detaiPanel.add(utilValueText, sysCpuInfoConstraints);
 
-        JEditorPane processesValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nProcess) + "%</p>");
+        JEditorPane processesValueText = new JEditorPane(JEDITOR_TYPE, VALUE_HTML_HEAD + nProcess + VALUE_HTML_TAIL);
         processesValueText.setEditable(false);
         sysCpuInfoConstraints.gridx++;
         detaiPanel.add(processesValueText, sysCpuInfoConstraints);
 
-        JEditorPane threadValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nThread) + "</p>");
+        JEditorPane threadValueText = new JEditorPane(JEDITOR_TYPE, VALUE_HTML_HEAD + nThread + VALUE_HTML_TAIL);
         threadValueText.setEditable(false);
         sysCpuInfoConstraints.gridx++;
         detaiPanel.add(threadValueText, sysCpuInfoConstraints);
 
-        JEditorPane handleText = new JEditorPane("text/html", "<p style = \"font-size:15; font-family:SansSerif; color:gray\">                           </p>");
+        JEditorPane handleText = new JEditorPane(JEDITOR_TYPE, "<p style = \"font-size:15; font-family:SansSerif; color:gray\">                           </p>");
         handleText.setEditable(false);
-        JEditorPane handleValueText = new JEditorPane("text/html", "<p style = \"font-size:23; font-family:SansSerif; color:black\">                            </p>");
+        JEditorPane handleValueText = new JEditorPane(JEDITOR_TYPE, "<p style = \"font-size:23; font-family:SansSerif; color:black\">                            </p>");
         handleValueText.setEditable(false);
 
         if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
@@ -334,17 +329,17 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
             detaiPanel.add(handleText, sysCpuInfoConstraints);
             sysCpuInfoConstraints.gridy = 1;
             
-            handleValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nHandle) + "</p>");
+            handleValueText.setText(VALUE_HTML_HEAD + nHandle + VALUE_HTML_TAIL);
             detaiPanel.add(handleValueText, sysCpuInfoConstraints);
         }            
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
             {
-                handleValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nHandle) + "</p>");
+                handleValueText.setText(VALUE_HTML_HEAD + nHandle + VALUE_HTML_TAIL);
             }
-            processesValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nProcess) + "</p>");
-            threadValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.valueOf(nThread) + "</p>");
-            utilValueText.setText("<p style = \"font-size:23; font-family:SansSerif; color:black\">" + String.format("%.2f",load * 100d) + "%</p>");
+            processesValueText.setText(VALUE_HTML_HEAD + nProcess + VALUE_HTML_TAIL);
+            threadValueText.setText(VALUE_HTML_HEAD + nThread + VALUE_HTML_TAIL);
+            utilValueText.setText(VALUE_HTML_HEAD + String.format("%.2f",load * 100d) + "%</p>");
         });
         timer.start();
         return detaiPanel;
@@ -363,13 +358,13 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         sysCpuTextConstraints.gridheight = 2;
         sysCpuTextConstraints.gridwidth = 1;
 
-        JEditorPane textCpuPane = new JEditorPane("text/html", "");
+        JEditorPane textCpuPane = new JEditorPane(JEDITOR_TYPE, "");
         textCpuPane.setText("<b style = \"font-size:38; font-family:SansSerif\">CPU</b>");
 
         textCpuPane.setEditable(false);
         textPanel.add(textCpuPane, sysCpuTextConstraints);
 
-        JEditorPane textCpuNamePane = new JEditorPane("text/html", "");
+        JEditorPane textCpuNamePane = new JEditorPane(JEDITOR_TYPE, "");
         textCpuNamePane.setText("<b style = \"font-size:16\">" + processor.getProcessorIdentifier().getName() + "</b>");
         textCpuNamePane.setEditable(false);
         
@@ -387,7 +382,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
     public static void updateCPUInfo(CentralProcessor cen, JGradientButton memButton, OperatingSystem os)
     {
-        if (run == true)
+        if (run)
         {
             return;
         }
@@ -402,12 +397,13 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
                 nThread = os.getThreadCount();
                 if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS)){
                     Pair<List<String>, Map<HandleCountProperty, List<Long>>> hwdPair = oshi.driver.windows.perfmon.ProcessInformation.queryHandles();
-                    nHandle = (long)((List<Long>)(hwdPair.getB().values().iterator().next())).get(0);
+                    nHandle = hwdPair.getB().values().iterator().next().get(0);
                 }
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
             }
         });
