@@ -9,16 +9,16 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 
 public class PerformancePanel extends OshiJPanel{
-
+    private static final Logger logger = LoggerFactory.getLogger(PerformancePanel.class);
     public PerformancePanel() {
         super();
     }
@@ -28,16 +28,9 @@ public class PerformancePanel extends OshiJPanel{
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Error occurred: ", ex);
         }
         initial(si);
-    }
-
-    class JVerticalMenuBar extends JMenuBar {
-        private static final LayoutManager grid = new GridLayout(0,1);
-        public JVerticalMenuBar() {
-            setLayout(grid);
-        }
     }
 
     public static void setChartRenderer(JFreeChart chart, Color color){
