@@ -17,26 +17,25 @@ public class FileSystemPanel extends OshiJPanel{
     private static final String[] COLUMNS = {"Device", "Type", "Total", "Available", "Used", "Diagram"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.1, 0.01, 0.01, 0.01, 0.01, 1.2};
 
-
-    private static long parseSize(String sizeString) {
-        String[] parts = sizeString.split(" ");
-        float value = Float.parseFloat(parts[0]);
-        String unit = parts[1];
-        switch (unit) {
-            case "bytes":
-                return (long) value;
-            case "KiB":
-                return (long) (value * 1024);
-            case "MiB":
-                return (long) (value * 1024 * 1024);
-            case "GiB":
-                return (long) (value * 1024 * 1024 * 1024);
-            default:
-                throw new IllegalArgumentException("Unknown size unit: " + unit);
-        }
-    }
-
     private static class SizeComparator implements Comparator<String> {
+        private static long parseSize(String sizeString) {
+            String[] parts = sizeString.split(" ");
+            float value = Float.parseFloat(parts[0]);
+            String unit = parts[1];
+            switch (unit) {
+                case "bytes":
+                    return (long) value;
+                case "KiB":
+                    return (long) (value * 1024);
+                case "MiB":
+                    return (long) (value * 1024 * 1024);
+                case "GiB":
+                    return (long) (value * 1024 * 1024 * 1024);
+                default:
+                    throw new IllegalArgumentException("Unknown size unit: " + unit);
+            }
+        }
+
         @Override
         public int compare(String o1, String o2) {
             long size1 = parseSize(o1);
@@ -141,7 +140,7 @@ public class FileSystemPanel extends OshiJPanel{
 
         // These are in descending CPU order
         for (OSFileStore fileStore : fileStores) {
-            int used = 0;
+            int used;
             if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)){
                 systemArr[i][0] = fileStore.getName();systemArr[i][2] = FormatUtil.formatBytes(fileStore.getTotalSpace());
 
@@ -173,7 +172,6 @@ public class FileSystemPanel extends OshiJPanel{
 
     private static class ProgressRenderer extends DefaultTableCellRenderer {
         private final JProgressBar progressBar = new JProgressBar();
-
         public ProgressRenderer() {
             super();
             setOpaque(true);

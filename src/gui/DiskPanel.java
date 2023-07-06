@@ -17,6 +17,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -28,6 +30,7 @@ import oshi.util.FormatUtil;
 public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(DiskPanel.class);
 
     public DiskPanel(HWDiskStore disk, int index) {
         super();
@@ -78,7 +81,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    System.out.println(e1.getMessage());
+                    logger.error("Error occurred: ", e1);
                 }
             }
         });
@@ -89,16 +92,16 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
         f[0] = (float) (d);
-        
+
         return f;
     }
 
     protected static List<Long> diskReadSpeed = new ArrayList<>(
-    Collections.nCopies(100, (long)0));
+            Collections.nCopies(100, (long)0));
     protected static List<Long> diskWriteSpeed = new ArrayList<>(
-    Collections.nCopies(100, (long)0));
+            Collections.nCopies(100, (long)0));
     private static boolean run = false;
-    
+
     protected static void updateDiskInfo(List<HWDiskStore> diskStores, JGradientButton[] diskButton)
     {
         if (run)
@@ -125,7 +128,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    System.out.println(e1.getMessage());
+                    logger.error("Error occurred: ", e1);
+
                 }
                 for (int i = 0; i < diskStores.size() ; i++)
                 {
@@ -151,7 +155,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
             nameBuffer.append(partition.getMountPoint() + " ");
         }
         nameBuffer.deleteCharAt(nameBuffer.length() - 1);
-        if (disk.getPartitions().size() > 0){
+        if (!disk.getPartitions().isEmpty()){
             nameBuffer.append(")");
         }
         String name;

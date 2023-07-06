@@ -25,12 +25,12 @@ import oshi.util.FormatUtil;
 
 
 public class NetworkPanel extends PerformancePanel{
-    private static final Logger logger = LoggerFactory.getLogger(CPUPanel.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkPanel.class);
     public NetworkPanel(NetworkIF net, int index) {
         super();
         initial(net, index);
     }
-    
+
 
     private void initial(NetworkIF net, int index) {
         GridBagConstraints netConstraints = new GridBagConstraints();
@@ -49,7 +49,7 @@ public class NetworkPanel extends PerformancePanel{
 
         netChart.getXYPlot().getRangeAxis().setAutoRange(false);
         netChart.getXYPlot().getRangeAxis().setRange(0d, 1000d);
-        
+
         PerformancePanel.setChartRenderer(netChart, Color.ORANGE, Color.YELLOW);
 
         JPanel netPanel = new JPanel();
@@ -57,7 +57,7 @@ public class NetworkPanel extends PerformancePanel{
         netPanel.setLayout(new GridBagLayout());
         ChartPanel myChartPanel = new ChartPanel(netChart);
         netPanel.add(myChartPanel, netConstraints);
-        
+
         GridBagConstraints netPanelConstraints = new GridBagConstraints();
         netPanelConstraints.fill = GridBagConstraints.BOTH;
         netPanelConstraints.weightx = 1d;
@@ -91,9 +91,9 @@ public class NetworkPanel extends PerformancePanel{
     }
 
     protected static List<Long> networkSentSpeed = new ArrayList<>(
-    Collections.nCopies(100, (long)0));
+            Collections.nCopies(100, (long)0));
     protected static List<Long> networkRecvSpeed = new ArrayList<>(
-    Collections.nCopies(100, (long)0));
+            Collections.nCopies(100, (long)0));
     private static boolean run = false;
 
 
@@ -117,7 +117,7 @@ public class NetworkPanel extends PerformancePanel{
                     recvLast[i] = net.getBytesRecv();
                     sentLast[i] = net.getBytesSent();
                 }
-                
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {

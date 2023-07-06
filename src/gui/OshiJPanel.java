@@ -32,26 +32,26 @@ public class OshiJPanel extends JPanel {
     }
 
     public static final class JGradientButton extends JButton{
-    public JGradientButton(String text){
-        super(text);
-        setContentAreaFilled(false);
-    }
-    
-    public Color color;
+        public JGradientButton(String text){
+            super(text);
+            setContentAreaFilled(false);
+        }
 
-    @Override
-    protected void paintComponent(Graphics g){
-        Graphics2D g2 = (Graphics2D)g.create();
-        g2.setPaint(new GradientPaint(
-                new Point(0, 0), 
-                Color.WHITE, 
-                new Point(0, getHeight()), 
-                this.color));
-        g2.fillRect(0, 0, getWidth(), getHeight());
-        g2.dispose();
+        public Color color;
 
-        super.paintComponent(g);
+        @Override
+        protected void paintComponent(Graphics g){
+            Graphics2D g2 = (Graphics2D)g.create();
+            g2.setPaint(new GradientPaint(
+                    new Point(0, 0),
+                    Color.WHITE,
+                    new Point(0, getHeight()),
+                    this.color));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
     }
-}
 
 }
