@@ -18,10 +18,6 @@ public class OshiGui {
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
     private final Color COLOR_DEFAULT = new Color(238,238,238);
 
-    public OshiGui(){
-      // TODO document why this constructor is empty
-    }
-
     public static void main(String[] args){
         if (!CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS) && !CURRENT_PLATFORM.equals(PlatformEnum.LINUX))
         {
@@ -44,7 +40,6 @@ public class OshiGui {
         this.mainFrame = new JFrame("Operating System & Hardware Information");
         this.mainFrame.setSize(Config.GUI_WIDTH,Config.GUI_HEIGHT);
         this.mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //this.mainFrame.setResizable(false);
         this.mainFrame.setResizable(true);
 
         this.mainFrame.setLocationByPlatform(true);
@@ -84,7 +79,7 @@ public class OshiGui {
             }
         });
 
-        button.addActionListener((e) -> {
+        button.addActionListener(e -> {
             Container contentPane = this.mainFrame.getContentPane();
             int nComponents = contentPane.getComponents().length;
             if (nComponents <= 0 || contentPane.getComponent(0) != panel) {
