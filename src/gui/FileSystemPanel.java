@@ -117,16 +117,15 @@ public class FileSystemPanel extends OshiJPanel{
             }
 
             // Reset row sorter and maintain current sorting
-            TableRowSorter<TableModel> reSorter = (TableRowSorter<TableModel>) systemTable.getRowSorter();
-            List<? extends RowSorter.SortKey> sortKeys = reSorter.getSortKeys();
-            reSorter.setModel(tableModel);
-            reSorter.setComparator(2, new SizeComparator());
-            reSorter.setComparator(3, new SizeComparator());
-            reSorter.setComparator(4, new SizeComparator());
-            reSorter.setSortable(5,false);
+            List<? extends RowSorter.SortKey> sortKeys = sorter.getSortKeys();
+            sorter.setModel(tableModel);
+            sorter.setComparator(2, new SizeComparator());
+            sorter.setComparator(3, new SizeComparator());
+            sorter.setComparator(4, new SizeComparator());
+            sorter.setSortable(5,false);
 
-            reSorter.setSortKeys(sortKeys);
-            reSorter.sort();
+            sorter.setSortKeys(sortKeys);
+            sorter.sort();
         });
 
         timer.start();

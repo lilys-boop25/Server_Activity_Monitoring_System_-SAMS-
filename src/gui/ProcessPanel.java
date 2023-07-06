@@ -115,10 +115,10 @@ public class ProcessPanel extends OshiJPanel {
                 tableModel.removeRow(row);
             }
 
+
             // Reset row sorter and maintain current sorting
-            TableRowSorter<DefaultTableModel> reSorter = (TableRowSorter<DefaultTableModel>) processTable.getRowSorter();
-            List<? extends RowSorter.SortKey> sortKeys = reSorter.getSortKeys();
-            reSorter.setModel(tableModel);
+            List<? extends RowSorter.SortKey> sortKeys = sorter.getSortKeys();
+            sorter.setModel(tableModel);
             sorter.setComparator(0, new SizeComparator());
             sorter.setComparator(1, new SizeComparator());
             sorter.setComparator(4, new SizeComparator());
@@ -127,8 +127,8 @@ public class ProcessPanel extends OshiJPanel {
             sorter.setComparator(7, new SizeComparator());
             sorter.setComparator(8, new SizeComparator());
             sorter.setComparator(9, new SizeComparator());
-            reSorter.setSortKeys(sortKeys);
-            reSorter.sort();
+            sorter.setSortKeys(sortKeys);
+            sorter.sort();
 
         });
         timer.start();

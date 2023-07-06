@@ -30,7 +30,7 @@ public class OshiGui {
 
     private void setVisible(){
         this.mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.mainFrame.setLocation(0, 0);
+        mainFrame.setLocation(0, 0);
         this.mainFrame.setVisible(true);
         this.jMenu.setBackground(new Color(179, 177, 178));
         this.jMenu.doClick();
@@ -39,7 +39,7 @@ public class OshiGui {
     private void init(){
         this.mainFrame = new JFrame("Operating System & Hardware Information");
         this.mainFrame.setSize(Config.GUI_WIDTH,Config.GUI_HEIGHT);
-        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.mainFrame.setResizable(true);
 
         this.mainFrame.setLocationByPlatform(true);
