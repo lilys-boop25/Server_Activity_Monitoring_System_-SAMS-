@@ -17,27 +17,25 @@ public class FileSystemPanel extends OshiJPanel{
     private static final String[] COLUMNS = {"Device", "Type", "Total", "Available", "Used", "Diagram"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.1, 0.01, 0.01, 0.01, 0.01, 1.2};
 
-    private JProgressBar[] progressBars;
-
-    private static long parseSize(String sizeString) {
-        String[] parts = sizeString.split(" ");
-        float value = Float.parseFloat(parts[0]);
-        String unit = parts[1];
-        switch (unit) {
-            case "bytes":
-                return (long) value;
-            case "KiB":
-                return (long) (value * 1024);
-            case "MiB":
-                return (long) (value * 1024 * 1024);
-            case "GiB":
-                return (long) (value * 1024 * 1024 * 1024);
-            default:
-                throw new IllegalArgumentException("Unknown size unit: " + unit);
-        }
-    }
-
     private static class SizeComparator implements Comparator<String> {
+        private static long parseSize(String sizeString) {
+            String[] parts = sizeString.split(" ");
+            float value = Float.parseFloat(parts[0]);
+            String unit = parts[1];
+            switch (unit) {
+                case "bytes":
+                    return (long) value;
+                case "KiB":
+                    return (long) (value * 1024);
+                case "MiB":
+                    return (long) (value * 1024 * 1024);
+                case "GiB":
+                    return (long) (value * 1024 * 1024 * 1024);
+                default:
+                    throw new IllegalArgumentException("Unknown size unit: " + unit);
+            }
+        }
+
         @Override
         public int compare(String o1, String o2) {
             long size1 = parseSize(o1);
@@ -54,7 +52,6 @@ public class FileSystemPanel extends OshiJPanel{
     private void init(SystemInfo si){
         FileSystem fs = si.getOperatingSystem().getFileSystem();
         List<OSFileStore> fileStores = fs.getFileStores();
-        progressBars = new JProgressBar[fileStores.size()];
 
         TableModel model;
         model = new DefaultTableModel(parseFileSystem(fileStores), COLUMNS) {
@@ -120,16 +117,16 @@ public class FileSystemPanel extends OshiJPanel{
             }
 
             // Reset row sorter and maintain current sorting
-            TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) systemTable.getRowSorter();
-            List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
-            re_sorter.setModel(tableModel);
-            re_sorter.setComparator(2, new SizeComparator());
-            re_sorter.setComparator(3, new SizeComparator());
-            re_sorter.setComparator(4, new SizeComparator());
-            re_sorter.setSortable(5,false);
+            TableRowSorter<TableModel> reSorter = (TableRowSorter<TableModel>) systemTable.getRowSorter();
+            List<? extends RowSorter.SortKey> sortKeys = reSorter.getSortKeys();
+            reSorter.setModel(tableModel);
+            reSorter.setComparator(2, new SizeComparator());
+            reSorter.setComparator(3, new SizeComparator());
+            reSorter.setComparator(4, new SizeComparator());
+            reSorter.setSortable(5,false);
 
-            re_sorter.setSortKeys(sortKeys);
-            re_sorter.sort();
+            reSorter.setSortKeys(sortKeys);
+            reSorter.sort();
         });
 
         timer.start();
@@ -143,7 +140,7 @@ public class FileSystemPanel extends OshiJPanel{
 
         // These are in descending CPU order
         for (OSFileStore fileStore : fileStores) {
-            int used = 0;
+            int used;
             if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)){
                 systemArr[i][0] = fileStore.getName();systemArr[i][2] = FormatUtil.formatBytes(fileStore.getTotalSpace());
 
@@ -173,15 +170,15 @@ public class FileSystemPanel extends OshiJPanel{
         }
     }
 
-    private static class ProgressRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
+    private static class ProgressRenderer extends DefaultTableCellRenderer {
         private final JProgressBar progressBar = new JProgressBar();
-
         public ProgressRenderer() {
             super();
             setOpaque(true);
             progressBar.setStringPainted(true);
         }
 
+        @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
 

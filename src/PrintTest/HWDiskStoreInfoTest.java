@@ -3,6 +3,10 @@ package PrintTest;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gui.CPUPanel;
 import oshi.*;
 import oshi.hardware.HardwareAbstractionLayer;
 
@@ -11,7 +15,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 
 public class HWDiskStoreInfoTest {
-
+    private static final Logger logger = LoggerFactory.getLogger(CPUPanel.class);
     public static void main(String[] args) throws IOException {
 
         SystemInfo si = new SystemInfo();
@@ -27,8 +31,9 @@ public class HWDiskStoreInfoTest {
             long prevWriteBytes = disk.getWriteBytes();
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException e1) {
+                Thread.currentThread().interrupt();
+                logger.error("Error occurred: ", e1);
             }
             disk.updateAttributes();
             print("Read speed in the last second: " + FormatUtil.formatBytes(disk.getReadBytes() - prevReadBytes));

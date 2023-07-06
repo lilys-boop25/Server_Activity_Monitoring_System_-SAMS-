@@ -5,12 +5,12 @@ import javax.swing.*;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.util.List;
 
 import oshi.SystemInfo;
@@ -18,7 +18,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 
 public class PerformancePanel extends OshiJPanel{
-  
+    private static final Logger logger = LoggerFactory.getLogger(PerformancePanel.class);
     public PerformancePanel() {
         super();
     }
@@ -28,25 +28,18 @@ public class PerformancePanel extends OshiJPanel{
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Error occurred: ", ex);
         }
         initial(si);
     }
-    
-    class JVerticalMenuBar extends JMenuBar {
-        private static final LayoutManager grid = new GridLayout(0,1);
-        public JVerticalMenuBar() {
-            setLayout(grid);
-        }
-    }
-    
+
     public static void setChartRenderer(JFreeChart chart, Color color){
         XYAreaRenderer renderer = new XYAreaRenderer();
         renderer.setSeriesPaint(0, new Color(color.getRed(), color.getGreen(), color.getBlue(), 128));
         renderer.setOutline(true);
         renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
         renderer.setSeriesOutlinePaint(0, color.darker());
-        
+
         chart.getXYPlot().setRenderer(renderer);
         chart.getPlot().setBackgroundPaint( Color.WHITE );
         chart.getXYPlot().setDomainGridlinesVisible(true);
@@ -61,7 +54,7 @@ public class PerformancePanel extends OshiJPanel{
         renderer.setOutline(true);
         renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
         renderer.setSeriesOutlinePaint(0, color1.darker());
-        
+
         renderer.setSeriesPaint(1, new Color(color2.getRed(), color2.getGreen(), color2.getBlue(), 128));
         renderer.setOutline(true);
         renderer.setSeriesOutlineStroke(1, new BasicStroke(1.0f));
@@ -90,7 +83,7 @@ public class PerformancePanel extends OshiJPanel{
 
         perfMenuBar.add(cpuButton);
         CPUPanel.updateCPUInfo(si.getHardware().getProcessor(), cpuButton, si.getOperatingSystem());
-        
+
         JGradientButton memButton = createButton(PerformancePanel.buttonTextLines("\nMemory\n0/0 GB (0%)\n"), Color.GREEN,new MemoryPanel(si), displayPanel);
 
         perfMenuBar.add(memButton);
@@ -106,7 +99,7 @@ public class PerformancePanel extends OshiJPanel{
             perfMenuBar.add(diskButton[i]);
         }
         DiskPanel.updateDiskInfo(si.getHardware().getDiskStores(), diskButton);
-        
+
         List<NetworkIF> networkIFs = si.getHardware().getNetworkIFs(false);
 
         JGradientButton[] netButton = new JGradientButton[networkIFs.size()];
@@ -122,7 +115,7 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.getVerticalScrollBar().setUnitIncrement(30);
         scrollPerfPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        
+
         scrollPerfPanel.setBounds(0, 0, 295, 935);
         perfPanel.add(scrollPerfPanel);
 
@@ -177,7 +170,7 @@ public class PerformancePanel extends OshiJPanel{
         });
         return button;
     }
-    
+
     public static void resetMainGui(JPanel displayPanel) {
         displayPanel.removeAll();
     }

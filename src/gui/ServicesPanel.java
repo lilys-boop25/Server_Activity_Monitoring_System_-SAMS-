@@ -64,20 +64,15 @@ public class ServicesPanel extends OshiJPanel {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 // Set font color for "Running" in status column
-                if (column == 2) {
-                    if(value != null) {
-                        String status = value.toString();
-                        if(status.equalsIgnoreCase("running")){
-                            c.setForeground(Color.RED);
-                        } else{
-                            c.setForeground(Color.BLACK);
-                        }
-                    }
+                if (column == 2 && value != null) {
+                    String status = value.toString();
+                    c.setForeground(status.equalsIgnoreCase("running") ? Color.RED : Color.BLACK);
                 }
                 return c;
             }
         };
         serTable.getColumnModel().getColumn(2).setCellRenderer(renderer);
+
         // make sorter for Table
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(serTable.getModel());
         sorter.setComparator(1, new NumericComparator());

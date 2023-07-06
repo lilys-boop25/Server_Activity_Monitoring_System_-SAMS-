@@ -28,32 +28,25 @@ public class ProcessPanel extends OshiJPanel {
 
     private void init(SystemInfo si) {
         OperatingSystem os = si.getOperatingSystem();
-        JLabel procLabel = new JLabel(PROCESSES);
+        JLabel processLabel = new JLabel(PROCESSES);
         Font arialFont = new Font("Arial", Font.BOLD, 18);
-        procLabel.setFont(arialFont);
+        processLabel.setFont(arialFont);
 
         JPanel processPanel = new JPanel();
         processPanel.setLayout(new GridBagLayout());
         GridBagConstraints nameConstraints = new GridBagConstraints();
         nameConstraints.anchor = GridBagConstraints.CENTER;
         nameConstraints.insets = new Insets(10, 10, 10, 10);
-        procLabel.setMinimumSize(new Dimension(0,0));
-        procLabel.setMaximumSize(new Dimension(50,50));
-        add(procLabel, nameConstraints);
-
-        JPanel settings = new JPanel();
-        JLabel cpuChoice = new JLabel("          % CPU:");
-        settings.add(cpuChoice);
-
-
-
+        processLabel.setMinimumSize(new Dimension(0,0));
+        processLabel.setMaximumSize(new Dimension(50,50));
+        add(processLabel, nameConstraints);
 
         TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);
-        JTable proccessTable = new JTable(model);
+        JTable processTable = new JTable(model);
 
         Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 12);
-        proccessTable.setFont(sansSerifFont);
-        proccessTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
+        processTable.setFont(sansSerifFont);
+        processTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
@@ -62,23 +55,17 @@ public class ProcessPanel extends OshiJPanel {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 // Set font color for "Running" in status column
-                if (column == 2) {
-                    if(value != null) {
-                        String status = value.toString();
-                        if(status.equalsIgnoreCase("running")){
-                            c.setForeground(Color.RED);
-                        } else{
-                            c.setForeground(Color.BLACK);
-                        }
-                    }
+                if (column == 2 && value != null) {
+                    String status = value.toString();
+                    c.setForeground(status.equalsIgnoreCase("running") ? Color.RED : Color.BLACK);
                 }
                 return c;
             }
         };
-        proccessTable.getColumnModel().getColumn(2).setCellRenderer(renderer);
+        processTable.getColumnModel().getColumn(2).setCellRenderer(renderer);
 
         // make sorter for Table
-        TableRowSorter<TableModel> sorter = new TableRowSorter<>(proccessTable.getModel());
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(processTable.getModel());
         sorter.setComparator(0, new SizeComparator());
         sorter.setComparator(1, new SizeComparator());
         sorter.setComparator(4, new SizeComparator());
@@ -89,12 +76,12 @@ public class ProcessPanel extends OshiJPanel {
         sorter.setComparator(9, new SizeComparator());
         sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(9, SortOrder.DESCENDING)));
 
-        proccessTable.setRowSorter(sorter);
+        processTable.setRowSorter(sorter);
 
 
-        JScrollPane scroll = new JScrollPane(proccessTable);
+        JScrollPane scroll = new JScrollPane(processTable);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        resizeColumns(proccessTable.getColumnModel());
+        resizeColumns(processTable.getColumnModel());
 
         GridBagConstraints processConstraints = new GridBagConstraints();
         processConstraints.gridx = 0;
@@ -106,15 +93,9 @@ public class ProcessPanel extends OshiJPanel {
         processConstraints.insets = new Insets(10, 10, 10, 10);
 
         add(scroll, processConstraints);
-        GridBagConstraints settingsConstraints = new GridBagConstraints();
-        settingsConstraints.gridx = 0;
-        settingsConstraints.gridy = 2;
-
-        settingsConstraints.anchor = GridBagConstraints.NORTHWEST;
-        settingsConstraints.fill = GridBagConstraints.BOTH;
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
-            DefaultTableModel tableModel = (DefaultTableModel) proccessTable.getModel();
+            DefaultTableModel tableModel = (DefaultTableModel) processTable.getModel();
             Object[][] newData = parseProcesses(os.getProcesses(null, null, 0), si);
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
@@ -134,9 +115,9 @@ public class ProcessPanel extends OshiJPanel {
             }
 
             // Reset row sorter and maintain current sorting
-            TableRowSorter<TableModel> re_sorter = (TableRowSorter<TableModel>) proccessTable.getRowSorter();
-            List<RowSorter.SortKey> sortKeys = (List<RowSorter.SortKey>) re_sorter.getSortKeys();
-            re_sorter.setModel(tableModel);
+            TableRowSorter<DefaultTableModel> reSorter = (TableRowSorter<DefaultTableModel>) processTable.getRowSorter();
+            List<? extends RowSorter.SortKey> sortKeys = reSorter.getSortKeys();
+            reSorter.setModel(tableModel);
             sorter.setComparator(0, new SizeComparator());
             sorter.setComparator(1, new SizeComparator());
             sorter.setComparator(4, new SizeComparator());
@@ -145,10 +126,10 @@ public class ProcessPanel extends OshiJPanel {
             sorter.setComparator(7, new SizeComparator());
             sorter.setComparator(8, new SizeComparator());
             sorter.setComparator(9, new SizeComparator());
-            re_sorter.setSortKeys(sortKeys);
-            re_sorter.sort();
-        });
+            reSorter.setSortKeys(sortKeys);
+            reSorter.sort();
 
+        });
         timer.start();
     }
 
@@ -178,7 +159,7 @@ public class ProcessPanel extends OshiJPanel {
             }
             procArr[i][4] = p.getThreadCount();
             procArr[i][5] = String.format("%.1f",
-                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
+                    100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
             procArr[i][6] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
             procArr[i][7] = FormatUtil.formatBytes(p.getVirtualSize());
             procArr[i][8] = FormatUtil.formatBytes(p.getResidentSetSize());
@@ -203,30 +184,32 @@ public class ProcessPanel extends OshiJPanel {
         }
     }
 
-    private static float parseSize(String sizeString) {
-        String[] parts = sizeString.split(" ");
-        float value = Float.parseFloat(parts[0]);
-        if(parts.length == 1){
-            return value;
-        }
-        else{
-            String unit = parts[1];
-            switch (unit) {
-                case "bytes":
-                    return value;
-                case "KiB":
-                    return (value * 1024);
-                case "MiB":
-                    return (value * 1024 * 1024);
-                case "GiB":
-                    return (value * 1024 * 1024 * 1024);
-                default:
-                    throw new IllegalArgumentException("Unknown size unit: " + unit);
-            }
-        }
-    }
 
     private static class SizeComparator implements Comparator<Object> {
+
+        private static float parseSize(String sizeString) {
+            String[] parts = sizeString.split(" ");
+            float value = Float.parseFloat(parts[0]);
+            if(parts.length == 1){
+                return value;
+            }
+            else{
+                String unit = parts[1];
+                switch (unit) {
+                    case "bytes":
+                        return value;
+                    case "KiB":
+                        return (value * 1024);
+                    case "MiB":
+                        return (value * 1024 * 1024);
+                    case "GiB":
+                        return (value * 1024 * 1024 * 1024);
+                    default:
+                        throw new IllegalArgumentException("Unknown size unit: " + unit);
+                }
+            }
+        }
+
         @Override
         public int compare(Object o1, Object o2) {
             float size1 = parseSize(o1.toString());
