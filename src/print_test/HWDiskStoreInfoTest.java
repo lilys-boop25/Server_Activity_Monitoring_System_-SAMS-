@@ -1,12 +1,10 @@
-package PrintTest;
+package print_test;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gui.CPUPanel;
 import oshi.*;
 import oshi.hardware.HardwareAbstractionLayer;
 
@@ -15,14 +13,14 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 
 public class HWDiskStoreInfoTest {
-    private static final Logger logger = LoggerFactory.getLogger(CPUPanel.class);
-    public static void main(String[] args) throws IOException {
+    private static final Logger logger = LoggerFactory.getLogger(HWDiskStoreInfoTest.class);
+    public static void main(String[] args) {
 
         SystemInfo si = new SystemInfo();
         
         HardwareAbstractionLayer hal = si.getHardware();
-        List<HWDiskStore> HWDiskStoreList = hal.getDiskStores();
-        for (HWDiskStore disk: HWDiskStoreList)
+        List<HWDiskStore> hwDiskStoreList = hal.getDiskStores();
+        for (HWDiskStore disk: hwDiskStoreList)
         {
             print("Disk name: " + disk.getName());
             print("Model: " + disk.getModel());

@@ -1,4 +1,4 @@
-package PrintTest;
+package print_test;
 
 import oshi.*;
 
@@ -24,7 +24,7 @@ public class OSServiceInfoTest { // NOSONAR squid:S5786
         {
             print("Service name: " + osService.getName());
             int pid = osService.getProcessID();
-            print(space(4) + "Process ID: " + String.valueOf(pid));
+            print(space(4) + "Process ID: " + (pid));
             print(space(4) + "Status: " + osService.getState().toString());
         }
     }
@@ -32,7 +32,7 @@ public class OSServiceInfoTest { // NOSONAR squid:S5786
     /**
      * Print anything.
      */
-    public final static void print(Object... content)
+    public static final void print(Object... content)
     {
         for(Object element: content)
         {
@@ -40,7 +40,7 @@ public class OSServiceInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    public final static String space(int cnt)
+    public static final String space(int cnt)
     {
         return " ".repeat(cnt);
     }

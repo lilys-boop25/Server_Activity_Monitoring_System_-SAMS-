@@ -1,4 +1,4 @@
-package PrintTest;
+package print_test;
 
 import oshi.*;
 
@@ -29,7 +29,6 @@ public class NetworkInfoTest { // NOSONAR squid:S5786
         print(CURRENT_PLATFORM.name());
 
         print("\nChecking Network interfaces...");
-        //List<NetworkIF> networkIFs = hal.getNetworkIFs(true);
 
         List<NetworkIF> networkIFs = hal.getNetworkIFs();
 

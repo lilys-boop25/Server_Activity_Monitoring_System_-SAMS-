@@ -1,4 +1,4 @@
-package PrintTest;
+package print_test;
 
 import oshi.*;
 import oshi.hardware.CentralProcessor;
@@ -7,7 +7,6 @@ import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 
 import com.sun.jna.Platform;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
 public class CPUInfoTest {
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         SystemInfo si = new SystemInfo();
         
@@ -33,22 +32,22 @@ public class CPUInfoTest {
         ProcessorIdentifier pIden = cProcessor.getProcessorIdentifier();
         print("CPU Name: " + pIden.getName());
         print("Base speed: " + FormatUtil.formatHertz(pIden.getVendorFreq()));
-        print(space(4) + "Sockets:            " + String.valueOf(cProcessor.getPhysicalPackageCount()));
-        print(space(4) + "Cores:              " + String.valueOf(cProcessor.getPhysicalProcessorCount()));
-        print(space(4) + "Logical processors: " + String.valueOf(cProcessor.getLogicalProcessorCount()));
+        print(space(4) + "Sockets:            " + (cProcessor.getPhysicalPackageCount()));
+        print(space(4) + "Cores:              " + (cProcessor.getPhysicalProcessorCount()));
+        print(space(4) + "Logical processors: " + (cProcessor.getLogicalProcessorCount()));
         
-        print("Processes: " + String.valueOf(os.getProcessCount()));
-        print("Threads:   " + String.valueOf(os.getThreadCount()));
+        print("Processes: " + (os.getProcessCount()));
+        print("Threads:   " + (os.getThreadCount()));
 
         if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
         {
             Pair<List<String>, Map<HandleCountProperty, List<Long>>> hwdPair = oshi.driver.windows.perfmon.ProcessInformation.queryHandles();
-            long handleCount = (long)((List<Long>)(hwdPair.getB().values().iterator().next())).get(0);
+            long handleCount = (hwdPair.getB().values().iterator().next()).get(0);
             print("Handles:   " + handleCount);
         }
 
         print("CPU usage in % in the last second: " + String.format("%.2f",cProcessor.getSystemCpuLoad(1000)*100) + "%");
-        List<Double> pCpuLoads = new ArrayList<Double>();
+        List<Double> pCpuLoads = new ArrayList<>();
         for (double pCpuLoad: cProcessor.getProcessorCpuLoad(1000))
         {
             pCpuLoads.add(pCpuLoad);
@@ -56,14 +55,14 @@ public class CPUInfoTest {
         print("CPU usage in % of each processor in the last second:");
         for (int i = 0; i < pCpuLoads.size(); i++)
         {
-            print(space(4) + "CPU " + String.valueOf(i) + ": " + String.format("%.2f",pCpuLoads.get(i)*100) + "%");
+            print(space(4) + "CPU " + (i) + ": " + String.format("%.2f",pCpuLoads.get(i)*100) + "%");
         }
     }
 
     /**
      * Print anything.
      */
-    public final static void print(Object... content)
+    public static final void print(Object... content)
     {
         for(Object element: content)
         {
@@ -71,7 +70,7 @@ public class CPUInfoTest {
         }
     }
 
-    public final static String space(int cnt)
+    public static final String space(int cnt)
     {
         return " ".repeat(cnt);
     }

@@ -1,4 +1,4 @@
-package PrintTest;
+package print_test;
 
 import com.sun.jna.Platform;
 

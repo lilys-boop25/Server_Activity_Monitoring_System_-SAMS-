@@ -1,4 +1,4 @@
-package PrintTest;
+package print_test;
 
 import oshi.*;
 
@@ -38,7 +38,7 @@ public class ProcessesInfoTest {
                 print("Command Line: " + process.getCommandLine());
             if (!process.getPath().isEmpty())
                 print("Filesystem path: " + process.getPath());
-            print("Archietexture: " + String.valueOf(process.getBitness()) + " bits");
+            print("Archietexture: " + (process.getBitness()) + " bits");
             print("");
         }
     }
@@ -46,7 +46,7 @@ public class ProcessesInfoTest {
     /**
      * Print anything.
      */
-    public final static void print(Object... content)
+    public static final void print(Object... content)
     {
         for(Object element: content)
         {
@@ -54,7 +54,7 @@ public class ProcessesInfoTest {
         }
     }
 
-    public final static String space(int cnt)
+    public static final String space(int cnt)
     {
         return " ".repeat(cnt);
     }

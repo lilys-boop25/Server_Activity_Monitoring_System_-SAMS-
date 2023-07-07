@@ -1,4 +1,4 @@
-package PrintTest;
+package print_test;
 import oshi.*;
 
 import com.sun.jna.Platform;
@@ -25,9 +25,9 @@ public class FileSystemInfoTest {
             else print("Device: " + osFileStore.getName());
             print("Directory: " + osFileStore.getMount());
             print(space(4) + "Type: " + osFileStore.getType());
-            print(space(4) + "Total:     " + String.valueOf((double)osFileStore.getTotalSpace()/(1000*1000)) + " Mb.");
-            print(space(4) + "Available: " + String.valueOf((double)osFileStore.getUsableSpace()/(1000*1000)) + " Mb.");
-            print(space(4) + "Used:      " + String.valueOf((double)osFileStore.getTotalSpace()/(1000*1000)- (double)osFileStore.getFreeSpace()/(1000*1000)) + " Mb.");
+            print(space(4) + "Total:     " + ((double)osFileStore.getTotalSpace()/(1000*1000)) + " Mb.");
+            print(space(4) + "Available: " + ((double)osFileStore.getUsableSpace()/(1000*1000)) + " Mb.");
+            print(space(4) + "Used:      " + ((double)osFileStore.getTotalSpace()/(1000*1000)- (double)osFileStore.getFreeSpace()/(1000*1000)) + " Mb.");
         }
     }
 
