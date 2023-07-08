@@ -58,7 +58,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
 
         CentralProcessor cpu = si.getHardware().getProcessor();
-        
+
         oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
 
         JPanel displayPanel = new JPanel();
@@ -67,7 +67,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         JPanel cpuMenuBar = new JPanel();
         cpuMenuBar.setLayout(new FlowLayout(FlowLayout.LEFT));
-        cpuMenuBar.setBackground(Color.WHITE);        
+        cpuMenuBar.setBackground(Color.WHITE);
         GridBagConstraints buttonConstraints = new GridBagConstraints();
         buttonConstraints.gridx = 0;
         buttonConstraints.gridy = 0;
@@ -95,7 +95,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         perfConstraints.fill = GridBagConstraints.BOTH;
         perfConstraints.anchor = GridBagConstraints.CENTER;
         add(displayPanel, perfConstraints);
-    
+
         overallButton.doClick();
 
     }
@@ -126,7 +126,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         JPanel cpuPanel = new JPanel();
         cpuPanel.setLayout(new GridBagLayout());
         cpuPanel.setBackground(Color.WHITE);
-        
+
         GridBagConstraints textPanelConstraints = new GridBagConstraints();
         textPanelConstraints.gridwidth = 4;
         textPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -157,14 +157,14 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
             procChart.getXYPlot().getDomainAxis().setUpperMargin(0);
 
             procChart.removeLegend();
-            
+
             PerformancePanel.setChartRenderer(procChart, Color.CYAN);
 
             procData.add(timeSeriesData);
             procCpuChart.add(i, procChart);
             procCpuChartPanel.add(new ChartPanel(procChart));
         }
-                
+
         GridBagConstraints procConstraints = new GridBagConstraints();
         procConstraints.weightx = 1d;
         procConstraints.weighty = 1d;
@@ -218,7 +218,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         cpuPanel.setLayout(new GridBagLayout());
         cpuPanel.setBackground(Color.WHITE);
 
-        
+
         GridBagConstraints textPanelConstraints = new GridBagConstraints();
         textPanelConstraints.gridwidth = 4;
         textPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -232,7 +232,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
         systemCpuChart.getXYPlot().getRangeAxis().setAutoRange(false);
         systemCpuChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
-        
+
         systemCpuChart.getXYPlot().getDomainAxis().setLowerMargin(0);
         systemCpuChart.getXYPlot().getDomainAxis().setUpperMargin(0);
 
@@ -277,7 +277,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
     private JPanel createDetailPanel(){
         JPanel detaiPanel = new JPanel();
         detaiPanel.setLayout(new GridBagLayout());
-        
+
         GridBagConstraints sysCpuInfoConstraints = new GridBagConstraints();
         sysCpuInfoConstraints.fill = GridBagConstraints.HORIZONTAL;
         sysCpuInfoConstraints.gridx = 0;
@@ -328,10 +328,10 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
             sysCpuInfoConstraints.gridx = 3;
             detaiPanel.add(handleText, sysCpuInfoConstraints);
             sysCpuInfoConstraints.gridy = 1;
-            
+
             handleValueText.setText(VALUE_HTML_HEAD + nHandle + VALUE_HTML_TAIL);
             detaiPanel.add(handleValueText, sysCpuInfoConstraints);
-        }            
+        }
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
             if (CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS))
             {
@@ -367,7 +367,7 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         JEditorPane textCpuNamePane = new JEditorPane(JEDITOR_TYPE, "");
         textCpuNamePane.setText("<b style = \"font-size:16\">" + processor.getProcessorIdentifier().getName() + "</b>");
         textCpuNamePane.setEditable(false);
-        
+
         GridBagConstraints sysCpuNameConstraints = new GridBagConstraints();
         sysCpuNameConstraints.gridx = 1;
         sysCpuNameConstraints.gridy = 1;
@@ -427,5 +427,4 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
         oldProcTicks = proc.getProcessorCpuLoadTicks();
         return p;
     }
-    
 }

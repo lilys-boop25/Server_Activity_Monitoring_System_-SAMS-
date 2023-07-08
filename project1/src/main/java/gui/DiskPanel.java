@@ -17,6 +17,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -28,6 +30,7 @@ import oshi.util.FormatUtil;
 public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(DiskPanel.class);
 
     public DiskPanel(HWDiskStore disk, int index) {
         super();
@@ -39,6 +42,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
         diskConstraints.weightx = 1d;
         diskConstraints.weighty = 1d;
+        diskConstraints.fill = GridBagConstraints.NONE;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection diskData = new DynamicTimeSeriesCollection(2, 60, new Second());
@@ -76,8 +80,8 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    // Restore interrupted state...
                     Thread.currentThread().interrupt();
+                    logger.error("Error occurred: ", e1);
                 }
             }
         });
@@ -88,16 +92,16 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
         f[0] = (float) (d);
-        
+
         return f;
     }
 
     protected static List<Long> diskReadSpeed = new ArrayList<>(
-    Collections.nCopies(100, (long)0));
+            Collections.nCopies(100, (long)0));
     protected static List<Long> diskWriteSpeed = new ArrayList<>(
-    Collections.nCopies(100, (long)0));
+            Collections.nCopies(100, (long)0));
     private static boolean run = false;
-    
+
     protected static void updateDiskInfo(List<HWDiskStore> diskStores, JGradientButton[] diskButton)
     {
         if (run)
@@ -123,8 +127,9 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    // Restore interrupted state...
                     Thread.currentThread().interrupt();
+                    logger.error("Error occurred: ", e1);
+
                 }
                 for (int i = 0; i < diskStores.size() ; i++)
                 {
@@ -163,5 +168,4 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         String txt = name + "\nRead: " + FormatUtil.formatBytes(sendSpeed) + "\nWrite: " + FormatUtil.formatBytes(recvSpeed) + '\n';
         return PerformancePanel.buttonTextLines(txt);
     }
-
 }

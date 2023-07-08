@@ -36,8 +36,8 @@ public class HWDiskStoreInfoTest {
             disk.updateAttributes();
             print("Read speed in the last second: " + FormatUtil.formatBytes(disk.getReadBytes() - prevReadBytes));
             print("Write speed in the last second: " + FormatUtil.formatBytes(disk.getWriteBytes() - prevWriteBytes));
-            List<HWPartition> HWPartitionList = disk.getPartitions();
-            for (HWPartition partition: HWPartitionList)
+            List<HWPartition> hwPartitionList = disk.getPartitions();
+            for (HWPartition partition: hwPartitionList)
             {
                 print("");
                 print(space(4) + "Directory: " + partition.getMountPoint());

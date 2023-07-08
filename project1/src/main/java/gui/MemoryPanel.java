@@ -16,6 +16,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -28,6 +30,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
 
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(MemoryPanel.class);
 
     private static final String PHYSICAL_MEMORY = "Physical Memory";
     private static final String VIRTUAL_MEMORY = "Virtual Memory (Swap)";
@@ -48,7 +51,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         ramData.addSeries(floatArrayPercent(getRAM(memory)), 0, "Used");
 
         JFreeChart ramChart = ChartFactory.createTimeSeriesChart(PHYSICAL_MEMORY, "", "% Memory", ramData, true, true, false);
-        
+
         ramChart.getXYPlot().getRangeAxis().setAutoRange(false);
         ramChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
@@ -145,10 +148,10 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
                 } catch (InterruptedException e1) {
                     // Restore interrupted state...
                     Thread.currentThread().interrupt();
+                    logger.error("Error occurred: ", e1);
                 }
             }
         });
         thread.start();
-
     }
 }
