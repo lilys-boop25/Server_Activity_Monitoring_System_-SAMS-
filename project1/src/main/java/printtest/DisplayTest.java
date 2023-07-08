@@ -1,5 +1,5 @@
 
-package print_test;
+package printtest;
 import java.util.List;
 
 import com.sun.jna.Platform;

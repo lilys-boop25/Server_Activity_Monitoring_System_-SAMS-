@@ -1,4 +1,4 @@
-package print_test;
+package printtest;
 
 import oshi.*;
 
