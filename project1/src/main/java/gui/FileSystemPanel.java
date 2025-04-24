@@ -150,7 +150,11 @@ public class FileSystemPanel extends OshiJPanel{
             systemArr[i][2] = FormatUtil.formatBytes(fileStore.getTotalSpace());
             systemArr[i][3] = FormatUtil.formatBytes(fileStore.getUsableSpace());
             systemArr[i][4] = FormatUtil.formatBytes(fileStore.getTotalSpace()- fileStore.getFreeSpace());
-            used = (int) ((fileStore.getTotalSpace() - fileStore.getFreeSpace()) *100 / fileStore.getTotalSpace());
+            if (fileStore.getTotalSpace() != 0) {
+                used = (int) ((fileStore.getTotalSpace() - fileStore.getFreeSpace()) * 100 / fileStore.getTotalSpace());
+            } else {
+                used = 0;
+            }
             systemArr[i][5] = used;
             i++;
         }
