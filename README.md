@@ -1,22 +1,22 @@
-## Project 1 - Group 2 - Collect host monitoring data
+## Project 1 - Collect host monitoring data
 
-This is a project for the subject Project I at Hanoi University of Science and Technology by Nguyen Trong Hieu and Vu Ngoc Quyen.
+This is a project for the subject Project I at Hanoi University of Science and Technology by Nguyễn Khánh Ly and Nguyễn Viết Quý Anh.
 
 # Topic detail
 Build a simple program to collect OS monitoring data from Windows and Linux.
 
 # Students infomation
-Nguyễn Trọng Hiếu: 20210330
+Nguyễn Khánh Ly: 20235600
 
-Email: hieu.nt210330@sis.hust.edu.vn
+Email: Ly.NK235600@sis.hust.edu.vn
 
-Vũ Ngọc Quyền: 20214971
+Nguyễn Viết Quý Anh: 20214947
 
-Email: quyen.vn214971@sis.hust.edu.vn
+Email: Anh.NVQ214947@sis.hust.edu.vn
 
 ## API
 All API functions used in our project are in: 
-https://docs.google.com/spreadsheets/d/1bJRMyA5_oJdwGnzOhpqaaDpMviiOqHGiiGjhLIlxcmg/edit#gid=0
+https://husteduvn-my.sharepoint.com/:x:/g/personal/anh_nvq214947_sis_hust_edu_vn/ERFJoT4Qy5lHj1IP-atgYI8BqzjSWslOTzoJMPKHWF-GwQ?e=YRvvxv
 
 ## GUI App design
 https://balsamiq.cloud/sub69in/pno587s/r5009
