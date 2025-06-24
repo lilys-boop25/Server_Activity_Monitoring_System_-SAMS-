@@ -264,4 +264,73 @@ public class ProcessPanel extends OshiJPanel {
             }
         }
     }
+    public static class ProcessDataExtractor {
+        private final SystemInfo systemInfo;
+        private static final String[] COLUMNS = {"Name", "CPU", "Memory", "Disk", "Network",
+            "PPID", "Status", "User", "Threads", "Cumulative", "VSZ", "RSS", "PID"};
+        public ProcessDataExtractor(SystemInfo systemInfo) {
+            this.systemInfo = systemInfo;
+        }
+        public Object[][] parseProcesses() {
+            OperatingSystem os = systemInfo.getOperatingSystem();
+            return parseProcesses(os.getProcesses(null, null, 0), systemInfo);
+        }
+            
+        private Object[][] parseProcesses(List<OSProcess> list, SystemInfo si) {
+            long totalMem = si.getHardware().getMemory().getTotal();
+            List<OSProcess> procList = new ArrayList<>();
+            for (OSProcess p : list) {
+                // Ignore the Idle process on Windows
+                if (p.getProcessID() == 0 && SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
+                    continue;
+                }
+                procList.add(p);
+            }
+            Object[][] procArr = new Object[procList.size()][COLUMNS.length];
+            for (int i = 0; i < procList.size(); i++) {
+                OSProcess p = procList.get(i);
+                procArr[i][0] = p.getName();
+                procArr[i][1] = String.format("%.1f%%", 100d * p.getProcessCpuLoadBetweenTicks(null));
+                procArr[i][2] = FormatUtil.formatBytes(p.getResidentSetSize()) + " (" + String.format("%.1f%%", 100d * p.getResidentSetSize() / totalMem) + ")";
+                // Disk I/O via PowerShell (non-blocking fallback handled)
+                String diskIo = "N/A";
+                try {
+                    String diskIoCommand = String.format("powershell \"(Get-Counter -Counter '\\Process(%s)\\IO Data Bytes/sec' -ErrorAction SilentlyContinue).CounterSamples[0].CookedValue\"", 
+                    p.getName().replace("'", "''"));
+                    diskIo = executeCommand(diskIoCommand);
+                    double diskBytesPerSec = Double.parseDouble(diskIo.trim());
+                    diskIo = String.format("%.1f MB/s", diskBytesPerSec / 1024.0 / 1024.0);
+                } catch (Exception ignored) {   
+                }
+                procArr[i][3] = diskIo;
+                procArr[i][4] = String.format("%.1f Mbps", p.getSoftOpenFileLimit() / 125000.0); // Approximate network usage
+                procArr[i][5] = p.getParentProcessID();
+                procArr[i][6] = p.getState().toString();
+                procArr[i][7] = p.getUser().equals("unknown") ? "N/A" : p.getUser();
+                procArr[i][8] = p.getThreadCount();
+                procArr[i][9] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
+                procArr[i][10] = FormatUtil.formatBytes(p.getVirtualSize());
+                procArr[i][11] = FormatUtil.formatBytes(p.getResidentSetSize());
+                procArr[i][12] = p.getProcessID();
+            }
+            return procArr;
+        }
+        private String executeCommand(String command) throws Exception {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                processBuilder.command("cmd.exe", "/c", command);
+            } else {
+                processBuilder.command("sh", "-c", command);
+            }
+            Process process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            process.waitFor();
+            return output.toString();
+        }
+    }
 }
