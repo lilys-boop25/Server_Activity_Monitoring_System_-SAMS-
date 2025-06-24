@@ -49,9 +49,9 @@ public class OshiGui {
         this.mainFrame.setJMenuBar(menuBar);
 
         menuBar.add(jMenu);
-        menuBar.add(this.getJMenu("File Systems", "File Systems", new FileSystemPanel(this.si)));
         menuBar.add(this.getJMenu("Processes","Processes", new ProcessPanel(this.si)));
         menuBar.add(this.getJMenu("Services", "Services", new ServicesPanel(this.si)));
+        menuBar.add(this.getJMenu("Startup apps", "Startup apps", new StartupAppPanel()));
         menuBar.add(this.getJMenu("OS & HW Info", "Hardware & OS Summary", new OsHwPanel(this.si)));
     }
 

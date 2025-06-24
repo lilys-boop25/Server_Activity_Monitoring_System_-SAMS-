@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="448.0" prefWidth="747.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <HBox prefHeight="57.0" prefWidth="603.0" style="-fx-background-color: FFFFFF;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Processes">
+               <HBox.margin>
+                  <Insets bottom="15.0" left="15.0" right="15.0" top="20.0" />
+               </HBox.margin>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Region prefHeight="59.0" prefWidth="309.0" />
+            <Label text="Run new task">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <image>
+                        <Image url="@../../../../../../icon_SAMS/Four%20Squares.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <HBox.margin>
+                  <Insets top="20.0" />
+               </HBox.margin>
+            </Label>
+            <Line endX="-85.4951171875" endY="18.0" startX="-85.4951171875" startY="55.19603729248047" stroke="#b7a1a1">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </HBox.margin>
+            </Line>
+            <Label text="End task">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <image>
+                        <Image url="@../../../../../../icon_SAMS/Unavailable.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <HBox.margin>
+                  <Insets top="20.0" />
+               </HBox.margin>
+            </Label>
+            <Label text="Eficiency mode">
+               <graphic>
+                  <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../Downloads/icons8-leaf-50.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <HBox.margin>
+                  <Insets left="10.0" right="10.0" top="20.0" />
+               </HBox.margin>
+            </Label>
+            <ImageView fitHeight="20.0" fitWidth="20.0">
+               <image>
+                  <Image url="@../../../../../../icon_SAMS/Menu%20Vertical.png" />
+               </image>
+               <HBox.margin>
+                  <Insets left="10.0" right="10.0" top="20.0" />
+               </HBox.margin>
+            </ImageView>
+         </children>
+      </HBox>
+   </top>
+   <center>
+      <TreeTableView fx:id="processTable" blendMode="SRC_ATOP" cache="true" onScroll="#setOnScrollProcess" prefHeight="375.0" prefWidth="619.0" BorderPane.alignment="CENTER">
+         <columns>
+            <TreeTableColumn fx:id="nameCol" prefWidth="141.33333456516266" text="Name" />
+            <TreeTableColumn fx:id="cpuCol" prefWidth="137.9999885559082" text="CPU" />
+            <TreeTableColumn fx:id="memoryCol" maxWidth="257.99998474121094" minWidth="-1.0" prefWidth="158.66665649414062" text="Memory" />
+            <TreeTableColumn fx:id="diskCol" maxWidth="463.33335876464844" minWidth="-1.0" prefWidth="166.66665649414062" text="Disk" />
+            <TreeTableColumn fx:id="networkCol" prefWidth="131.99993896484375" text="Network" />
+         </columns>
+      </TreeTableView>
+   </center>
+   <bottom>
+      <ScrollBar BorderPane.alignment="CENTER" />
+   </bottom>
+   <right>
+      <ScrollBar orientation="VERTICAL" BorderPane.alignment="CENTER" />
+   </right>
+</BorderPane>

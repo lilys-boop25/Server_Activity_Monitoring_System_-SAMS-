@@ -59,7 +59,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         JPanel diskPanel = new JPanel();
         diskPanel.setLayout(new GridBagLayout());
         ChartPanel myChartPanel = new ChartPanel(diskChart);
-        myChartPanel.setMinimumSize(new Dimension(700, 350));
+        myChartPanel.setMinimumSize(new Dimension(500, 200));
         diskPanel.add(myChartPanel, diskConstraints);
 
         GridBagConstraints diskPanelConstraints = new GridBagConstraints();
@@ -67,7 +67,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
         diskPanelConstraints.weightx = 1d;
         diskPanelConstraints.weighty = 1d;
         diskPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        diskPanel.setMinimumSize(new Dimension(685, 420));
+        diskPanel.setMinimumSize(new Dimension(500, 200));
         add(diskPanel, diskPanelConstraints);
 
         Thread thread = new Thread(() -> {

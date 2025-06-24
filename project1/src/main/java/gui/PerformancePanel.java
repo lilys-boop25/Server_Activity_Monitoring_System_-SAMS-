@@ -64,8 +64,8 @@ public class PerformancePanel extends OshiJPanel{
         chart.getPlot().setBackgroundPaint( Color.WHITE );
         chart.getXYPlot().setDomainGridlinesVisible(true);
         chart.getXYPlot().setRangeGridlinesVisible(true);
-        chart.getXYPlot().setRangeGridlinePaint(Color.black);
-        chart.getXYPlot().setDomainGridlinePaint(Color.black);
+        chart.getXYPlot().setRangeGridlinePaint(Color.gray);
+        chart.getXYPlot().setDomainGridlinePaint(Color.gray);
     }
 
 
@@ -95,7 +95,7 @@ public class PerformancePanel extends OshiJPanel{
         for (int i = 0; i < hwDiskStore.size() ; i++)
         {
             HWDiskStore disk = hwDiskStore.get(i);
-            diskButton[i] = createButton(DiskPanel.updateDisk(disk, i, 0, 0), Color.PINK.darker(), new DiskPanel(disk, i), displayPanel);
+            diskButton[i] = createButton(DiskPanel.updateDisk(disk, i, 0, 0), Color.PINK, new DiskPanel(disk, i), displayPanel);
             perfMenuBar.add(diskButton[i]);
         }
         DiskPanel.updateDiskInfo(si.getHardware().getDiskStores(), diskButton);
@@ -114,7 +114,7 @@ public class PerformancePanel extends OshiJPanel{
         JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
         scrollPerfPanel.getVerticalScrollBar().setUnitIncrement(30);
         scrollPerfPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         scrollPerfPanel.setBounds(0, 0, 295, 935);
         perfPanel.add(scrollPerfPanel);

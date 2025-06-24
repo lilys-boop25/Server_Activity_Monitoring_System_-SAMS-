@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox accessibleRole="TAB_PANE" prefHeight="443.0" prefWidth="698.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox prefHeight="61.0" prefWidth="698.0">
+         <children>
+            <Label prefHeight="37.0" prefWidth="161.0" text="Wi-Fi">
+               <font>
+                  <Font size="24.0" />
+               </font>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </Label>
+            <Region prefHeight="49.0" prefWidth="344.0" />
+            <Label fx:id="getWifiName" prefHeight="37.0" prefWidth="211.0" text="Intel(R) Wi-Fi 6 AX201 160MHz" textAlignment="JUSTIFY">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+      <LineChart prefHeight="228.0" prefWidth="698.0">
+         <xAxis>
+            <CategoryAxis fx:id="getChart1" side="BOTTOM" />
+         </xAxis>
+         <yAxis>
+            <NumberAxis fx:id="getReceive1" side="LEFT" />
+         </yAxis>
+      </LineChart>
+      <HBox prefHeight="177.0" prefWidth="698.0">
+         <children>
+            <VBox prefHeight="170.0" prefWidth="103.0">
+               <children>
+                  <GridPane fx:id="getTime" alignment="CENTER_LEFT" prefHeight="123.0" prefWidth="238.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane fx:id="getSendandRec" prefHeight="124.0" prefWidth="238.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </GridPane>
+               </children>
+            </VBox>
+            <GridPane fx:id="getWifiInfo" alignment="CENTER_LEFT" prefHeight="170.0" prefWidth="277.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+            </GridPane>
+            <Region prefHeight="170.0" prefWidth="337.0" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
