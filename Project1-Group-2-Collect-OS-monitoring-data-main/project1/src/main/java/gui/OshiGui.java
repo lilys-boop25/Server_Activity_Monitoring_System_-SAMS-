@@ -1,5 +1,16 @@
 package gui;
 import gui.ProcessPanel;
+import gui.StartupAppPanel;
+import gui.StartupPanelSecure;
+import gui.PerformancePanel;
+import gui.ServicesPanel;
+import gui.OsHwPanel;
+import gui.CPUPanel;
+import gui.MemoryPanel;
+import gui.DiskPanel;
+import gui.NetworkPanel;
+import gui.FileSystemPanel;
+import gui.SignatureChecker;
 
 import com.sun.jna.Platform;
 import oshi.PlatformEnum;
@@ -15,12 +26,16 @@ public class OshiGui {
 
     private JFrame mainFrame;
     private SystemInfo si = new SystemInfo();
-    private JButton jMenu = this.getJMenu("Performance", "Performance", new PerformancePanel(this.si));
+
+    private JButton performanceButton = this.getJMenu("Performance", "Performance", new PerformancePanel(this.si));
     private JButton processButton = this.getJMenu("Processes", "Processes", new ProcessPanel(this.si));
     private JButton startupButton = this.getJMenu("Startup Apps", "Startup Apps", new StartupAppPanel());
     private JButton startupPanelButton = this.getJMenu("Startup (All)", "Startup Panel", new StartupPanelSecure());
+    private JButton servicesButton = this.getJMenu("Services", "Services", new ServicesPanel(this.si));
+    private JButton osHwButton = this.getJMenu("OS/HW Info", "OS/HW Info", new OsHwPanel(this.si));
+    private JButton fsButton = this.getJMenu("File System", "File System", new FileSystemPanel(this.si));
 
-    JButton selectedButton = jMenu;
+    JButton selectedButton = performanceButton;
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
     private final Color COLOR_DEFAULT = new Color(238, 238, 238);
 
@@ -40,18 +55,22 @@ public class OshiGui {
 
     private void init() {
         this.mainFrame = new JFrame("System Monitor");
-        this.mainFrame.setSize(900, 600);
+        this.mainFrame.setSize(1000, 700);
         this.mainFrame.setLocationRelativeTo(null);
         this.mainFrame.setLayout(new BorderLayout());
 
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.setPreferredSize(new Dimension(150, 600));
-        menuPanel.add(jMenu);
+        menuPanel.setPreferredSize(new Dimension(180, 700));
+
+        // Add all menu buttons
+        menuPanel.add(performanceButton);
+        menuPanel.add(fsButton);
         menuPanel.add(startupButton);
         menuPanel.add(startupPanelButton);
         menuPanel.add(processButton);
-        
+        menuPanel.add(servicesButton);
+        menuPanel.add(osHwButton);
 
         this.mainFrame.add(menuPanel, BorderLayout.WEST);
         this.mainFrame.add(new PerformancePanel(this.si), BorderLayout.CENTER);
@@ -61,8 +80,8 @@ public class OshiGui {
         JButton button = new JButton(text);
         button.setFocusPainted(false);
         button.setBackground(COLOR_DEFAULT);
-        button.setPreferredSize(new Dimension(150, 50));
-        button.setMaximumSize(new Dimension(150, 50));
+        button.setPreferredSize(new Dimension(180, 50));
+        button.setMaximumSize(new Dimension(180, 50));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.addMouseListener(new MouseAdapter() {
             @Override
