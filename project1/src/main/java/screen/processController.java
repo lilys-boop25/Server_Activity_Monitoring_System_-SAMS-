@@ -4,8 +4,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+// import javafx.collections.FXCollections;
+// import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,8 +24,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-public class ProcessController implements Initializable {
+public class processController implements Initializable {
 
     @FXML
     private TreeTableView<ProcessInfo> processTable;
@@ -48,14 +49,17 @@ public class ProcessController implements Initializable {
     private SystemInfo systemInfo;
     private Timeline refreshTimeline;
     private ExecutorService executorService;
-    private ObservableList<ProcessInfo> processData;
+    private List<ProcessInfo> allProcesses; // Lưu tất cả processes
+    private List<ProcessInfo> filteredProcesses; // Lưu processes đã filter
     private TreeItem<ProcessInfo> rootItem;
+    private String currentSearchFilter = ""; // Current search filter
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         systemInfo = new SystemInfo();
         executorService = Executors.newFixedThreadPool(2);
-        processData = FXCollections.observableArrayList();
+        allProcesses = new ArrayList<>();
+        filteredProcesses = new ArrayList<>();
         
         initializeTable();
         loadProcessData();
@@ -93,6 +97,9 @@ public class ProcessController implements Initializable {
         memoryCol.setComparator(this::compareMemory);
         diskCol.setComparator(this::compareSize);
         networkCol.setComparator(this::compareSize);
+
+        // Thiết lập selection mode
+        processTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 
     private void loadProcessData() {
@@ -105,7 +112,10 @@ public class ProcessController implements Initializable {
             @Override
             protected void succeeded() {
                 List<ProcessInfo> processes = getValue();
-                Platform.runLater(() -> updateProcessTable(processes));
+                Platform.runLater(() -> {
+                    allProcesses = processes;
+                    applyCurrentFilter();
+                });
             }
 
             @Override
@@ -153,14 +163,56 @@ public class ProcessController implements Initializable {
             processInfo.setNetworkUsage(getNetworkUsage(process));
             
             // Thông tin bổ sung
-            processInfo.setStatus(process.getState().name());
-            processInfo.setUser(process.getUser());
-            processInfo.setThreadCount(process.getThreadCount());
-
             processes.add(processInfo);
         }
         
         return processes;
+    }
+
+    /**
+     * Filter processes based on search criteria
+     * @param searchText text to search for (name, PID, user)
+     */
+    public void filterProcesses(String searchText) {
+        currentSearchFilter = searchText != null ? searchText.toLowerCase().trim() : "";
+        applyCurrentFilter();
+    }
+
+    /**
+     * Apply the current filter to the process list
+     */
+    private void applyCurrentFilter() {
+        if (currentSearchFilter.isEmpty()) {
+            filteredProcesses = new ArrayList<>(allProcesses);
+        } else {
+            filteredProcesses = allProcesses.stream()
+                .filter(this::matchesSearchCriteria)
+                .collect(Collectors.toList());
+        }
+        updateProcessTable(filteredProcesses);
+    }
+
+    /**
+     * Check if a process matches the search criteria
+     */
+    private boolean matchesSearchCriteria(ProcessInfo process) {
+        if (currentSearchFilter.isEmpty()) {
+            return true;
+        }
+
+        String filter = currentSearchFilter;
+        
+        // Search by name
+        if (process.getName().toLowerCase().contains(filter)) {
+            return true;
+        }
+        
+        // Search by PID
+        if (String.valueOf(process.getPid()).contains(filter)) {
+            return true;
+        }
+        
+        return false;
     }
 
     private String getDiskUsage(OSProcess process) {
@@ -186,7 +238,7 @@ public class ProcessController implements Initializable {
     private String getNetworkUsage(OSProcess process) {
         // Ước tính network usage (có thể cải thiện bằng cách sử dụng native commands)
         try {
-            long openFiles = process.getOpenFiles().size();
+            long openFiles = process.getOpenFiles();
             return String.format("%.1f KB/s", openFiles * 0.1);
         } catch (Exception e) {
             return "N/A";
@@ -215,16 +267,23 @@ public class ProcessController implements Initializable {
     }
 
     private void updateProcessTable(List<ProcessInfo> processes) {
-        // Lưu trạng thái mở rộng và selection hiện tại
-        Set<Integer> expandedPids = new HashSet<>();
+        // Lưu trạng thái selection hiện tại
         ProcessInfo selectedProcess = null;
-        
         if (processTable.getSelectionModel().getSelectedItem() != null) {
             selectedProcess = processTable.getSelectionModel().getSelectedItem().getValue();
         }
 
         // Xóa dữ liệu cũ
         rootItem.getChildren().clear();
+
+        if (processes.isEmpty()) {
+            // Hiển thị thông báo không có kết quả
+            TreeItem<ProcessInfo> noResultItem = new TreeItem<>(
+                createNoResultProcess("No processes found matching the search criteria")
+            );
+            rootItem.getChildren().add(noResultItem);
+            return;
+        }
 
         // Tạo map để tìm parent-child relationships
         Map<Integer, List<ProcessInfo>> childrenMap = new HashMap<>();
@@ -256,6 +315,18 @@ public class ProcessController implements Initializable {
         if (selectedProcess != null) {
             restoreSelection(selectedProcess);
         }
+    }
+
+    private ProcessInfo createNoResultProcess(String message) {
+        ProcessInfo noResult = new ProcessInfo();
+        noResult.setName(message);
+        noResult.setPid(-1);
+        noResult.setParentPid(-1);
+        noResult.setCpuUsage("");
+        noResult.setMemoryUsage("");
+        noResult.setDiskUsage("");
+        noResult.setNetworkUsage("");
+        return noResult;
     }
 
     private TreeItem<ProcessInfo> createTreeItem(ProcessInfo process, 
@@ -383,6 +454,35 @@ public class ProcessController implements Initializable {
         }
     }
 
+    /**
+     * Get currently selected process
+     */
+    public ProcessInfo getSelectedProcess() {
+        TreeItem<ProcessInfo> selected = processTable.getSelectionModel().getSelectedItem();
+        return selected != null ? selected.getValue() : null;
+    }
+
+    /**
+     * Get current search filter
+     */
+    public String getCurrentFilter() {
+        return currentSearchFilter;
+    }
+
+    /**
+     * Get total number of processes
+     */
+    public int getTotalProcessCount() {
+        return allProcesses.size();
+    }
+
+    /**
+     * Get number of filtered processes
+     */
+    public int getFilteredProcessCount() {
+        return filteredProcesses.size();
+    }
+
     // Inner class to hold process information
     public static class ProcessInfo {
         private String name;
@@ -390,6 +490,8 @@ public class ProcessController implements Initializable {
         private String memoryUsage;
         private String diskUsage;
         private String networkUsage;
+        private int pid;
+        private int parentPid;
 
         // Constructors
         public ProcessInfo() {}
@@ -409,5 +511,16 @@ public class ProcessController implements Initializable {
 
         public String getNetworkUsage() { return networkUsage; }
         public void setNetworkUsage(String networkUsage) { this.networkUsage = networkUsage; }
+
+        public int getPid() { return pid; }
+        public void setPid(int pid) { this.pid = pid; }
+
+        public int getParentPid() { return parentPid; }
+        public void setParentPid(int parentPid) { this.parentPid = parentPid; }
+
+        @Override
+        public String toString() {
+            return name + " (PID: " + pid + ")";
+        }
     }
 }
