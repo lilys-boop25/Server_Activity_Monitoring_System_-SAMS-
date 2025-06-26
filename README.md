@@ -17,7 +17,6 @@ Email: Anh.NVQ214947@sis.hust.edu.vn
 ## API
 All API functions used in our project are in: 
 https://husteduvn-my.sharepoint.com/:x:/g/personal/anh_nvq214947_sis_hust_edu_vn/ERFJoT4Qy5lHj1IP-atgYI8BqzjSWslOTzoJMPKHWF-GwQ?e=YRvvxv
-
 ## GUI App design
 https://balsamiq.cloud/sub69in/pno587s/r5009
 
