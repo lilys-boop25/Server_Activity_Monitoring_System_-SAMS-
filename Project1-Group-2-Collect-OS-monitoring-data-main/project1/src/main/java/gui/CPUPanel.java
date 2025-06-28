@@ -55,7 +55,6 @@ public class CPUPanel extends OshiJPanel { // NOSONAR squid:S110
 
     public CPUPanel(SystemInfo si) {
         super();
-        
         CentralProcessor cpu = si.getHardware().getProcessor();
         oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
 

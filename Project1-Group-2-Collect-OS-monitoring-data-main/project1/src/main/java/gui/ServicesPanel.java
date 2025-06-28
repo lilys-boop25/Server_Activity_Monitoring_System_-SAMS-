@@ -111,8 +111,8 @@ public class ServicesPanel extends OshiJPanel {
         servicesConstraints.gridy = 1;
         servicesConstraints.weightx = 1d;
         servicesConstraints.weighty = 1d;
-        // servicesConstraints.color = Color.WHITE; // Removed invalid field assignment
         servicesConstraints.anchor = GridBagConstraints.NORTHWEST;
+        
         scroll.getViewport().setBackground(Color.WHITE);
         servicesConstraints.fill = GridBagConstraints.BOTH;
         add(scroll, servicesConstraints);
