@@ -47,8 +47,8 @@ public class PerformancePanel extends OshiJPanel{
         chart.getPlot().setBackgroundPaint( Color.WHITE );
         chart.getXYPlot().setDomainGridlinesVisible(true);
         chart.getXYPlot().setRangeGridlinesVisible(true);
-        chart.getXYPlot().setRangeGridlinePaint(Color.gray);
-        chart.getXYPlot().setDomainGridlinePaint(Color.gray);
+        chart.getXYPlot().setRangeGridlinePaint(new Color(230, 230, 230));
+        chart.getXYPlot().setDomainGridlinePaint(new Color(230, 230, 230));
     }
 
     public static void setChartRenderer(JFreeChart chart, Color color1, Color color2){
@@ -67,8 +67,8 @@ public class PerformancePanel extends OshiJPanel{
         chart.getPlot().setBackgroundPaint( Color.WHITE );
         chart.getXYPlot().setDomainGridlinesVisible(true);
         chart.getXYPlot().setRangeGridlinesVisible(true);
-        chart.getXYPlot().setRangeGridlinePaint(Color.black);
-        chart.getXYPlot().setDomainGridlinePaint(Color.black);
+        chart.getXYPlot().setRangeGridlinePaint(new Color(230, 230, 230));
+        chart.getXYPlot().setDomainGridlinePaint(new Color(230, 230, 230));
     }
 
 
@@ -78,9 +78,9 @@ public class PerformancePanel extends OshiJPanel{
         
         // Create Performance header label
         JLabel performanceLabel = new JLabel("Performance");
-        performanceLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        performanceLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
         performanceLabel.setForeground(Color.BLACK);
-        performanceLabel.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 0));
+        performanceLabel.setBorder(BorderFactory.createEmptyBorder(15, 2, 10, 0));
         
         // Create header panel
         JPanel headerPanel = new JPanel(new BorderLayout());

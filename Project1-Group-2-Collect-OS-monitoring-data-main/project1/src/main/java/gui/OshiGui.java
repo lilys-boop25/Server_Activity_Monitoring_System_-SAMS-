@@ -30,17 +30,17 @@ public class OshiGui {
     private JFrame mainFrame;
     private SystemInfo si = new SystemInfo();
 
-    private JButton performanceButton = getJMenu("Performance", "Performance", new PerformancePanel(si), "/icons/performance.png");
-    private JButton processButton = getJMenu("Processes", "Processes", new ProcessPanel(si), "/icons/Process.png");
-    private JButton startupButton = getJMenu("Startup Apps", "Startup Apps", new StartupAppPanel(), "/icons/startup.png");
-    private JButton startupPanelButton = getJMenu("Startup (All)", "Startup Panel", new StartupPanelSecure(), "/icons/startup_all.png");
-    private JButton servicesButton = getJMenu("Services", "Services", new ServicesPanel(si), "/icons/services.png");
-    private JButton osHwButton = getJMenu("OS/HW Info", "OS/HW Info", new OsHwPanel(si), "/icons/info.png");
-    private JButton fsButton = getJMenu("File System", "File System", new FileSystemPanel(si), "/icons/Folder.png");
+    private JButton performanceButton = getJMenu("Performance", "Performance", "Performance", wrapInRoundedPanel(new PerformancePanel(si)), "/icons/performance.png");
+    private JButton processButton = getJMenu("Processes", "Processes", "Processes", wrapInRoundedPanel(new ProcessPanel(si)), "/icons/Process.png");
+    private JButton startupButton = getJMenu("Startup Apps", "Startup Apps", "Startup Apps", wrapInRoundedPanel(new StartupAppPanel()), "/icons/startup.png");
+    private JButton startupPanelButton = getJMenu("Startup (All)", "Startup (All)", "Startup Panel", wrapInRoundedPanel(new StartupPanelSecure()), "/icons/startup_all.png");
+    private JButton servicesButton = getJMenu("Services", "Services", "Services", wrapInRoundedPanel(new ServicesPanel(si)), "/icons/services.png");
+    private JButton osHwButton = getJMenu("OS/HW Info", "OS/HW Info", "OS/HW Info", wrapInRoundedPanel(new OsHwPanel(si)), "/icons/info.png");
+    private JButton fsButton = getJMenu("File System", "File System", "File System", wrapInRoundedPanel(new FileSystemPanel(si)), "/icons/Folder.png");
 
     JButton selectedButton = performanceButton;
     private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
-    private final Color COLOR_DEFAULT = new Color(238, 238, 238);
+    private final Color COLOR_DEFAULT = new Color(245, 242, 239);
 
     public static void main(String[] args) {
         if (!CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS) && !CURRENT_PLATFORM.equals(PlatformEnum.LINUX)) {
@@ -59,14 +59,26 @@ public class OshiGui {
     private void init() {
         // Thiết lập giao diện chính
         this.mainFrame = new JFrame("System Monitor");
-        this.mainFrame.setSize(1000, 700);
+        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.mainFrame.setResizable(true);  // Cho phép thay đổi kích thước 
+        this.mainFrame.setMinimumSize(new Dimension(800, 600)); // Kích thước tối thiểu
+        this.mainFrame.setPreferredSize(new Dimension(800, 600)); // Kích thước ưu tiên
+        this.mainFrame.setLocationByPlatform(true); // Đặt vị trí theo nền tảng
+        this.mainFrame.setTitle("System Monitor - " + CURRENT_PLATFORM.getName());
+        // Thiết lập kích thước và nền cho frame
+        this.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Mở rộng
+        this.mainFrame.setUndecorated(false); // Hiển thị thanh tiêu đề
+        this.mainFrame.setResizable(true); // Cho phép thay đổi kích thước  
+        this.mainFrame.setSize(800, 600);
+        this.mainFrame.setBackground(COLOR_DEFAULT);
         this.mainFrame.setLocationRelativeTo(null);
         this.mainFrame.setLayout(new BorderLayout());
 
         java.net.URL logoURL = getClass().getResource("/icons/logo.png");
         if (logoURL != null) {
             ImageIcon logoIcon = new ImageIcon(logoURL);
-            mainFrame.setIconImage(logoIcon.getImage());
+            Image scaledLogo = logoIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+            mainFrame.setIconImage(scaledLogo);
         } else {
             System.err.println("⚠ Không tìm thấy logo: /icons/logo.png");
         }
@@ -80,25 +92,26 @@ public class OshiGui {
         menuPanel.add(getToggleMenuButton());
 
         // Add all menu buttons
+        menuPanel.add(processButton);
         menuPanel.add(performanceButton);
         menuPanel.add(fsButton);
         menuPanel.add(startupButton);
         menuPanel.add(startupPanelButton);
-        menuPanel.add(processButton);
         menuPanel.add(servicesButton);
         menuPanel.add(osHwButton);
 
         this.mainFrame.add(menuPanel, BorderLayout.WEST);
-        this.mainFrame.add(new PerformancePanel(this.si), BorderLayout.CENTER);
+        this.mainFrame.add(wrapInRoundedPanel(new ProcessPanel(this.si)), BorderLayout.CENTER);
     }
     private JButton getToggleMenuButton() {
-        String iconPath = "/icons/menu.png"; // Giả sử ảnh nằm trong src/main/resources/icons/menu.png
+        String iconPath = "/icons/menu.png";
         java.net.URL iconURL = getClass().getResource(iconPath);
         JButton button;
     
         if (iconURL != null) {
-            ImageIcon originalIcon = new ImageIcon(iconURL);           
-            button = new JButton(new ImageIcon(originalIcon.getImage()));
+            ImageIcon originalIcon = new ImageIcon(iconURL);       
+            Image scaledImage = originalIcon.getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH);      
+            button = new JButton(new ImageIcon(scaledImage));
         } else {
             // fallback nếu không có icon
             System.err.println("⚠ Không tìm thấy icon: " + iconPath);    
@@ -110,7 +123,7 @@ public class OshiGui {
         button.setPreferredSize(new Dimension(180, 50));
         button.setMaximumSize(new Dimension(180, 50));
         button.setBorderPainted(false);
-        button.setToolTipText("Expand/Collapse menu");
+        button.setToolTipText("Open Navigation");
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -145,9 +158,28 @@ public class OshiGui {
         button.setHorizontalAlignment(showText ? SwingConstants.LEFT : SwingConstants.CENTER);
     }
 
-    private JButton getJMenu(String text, String panelName, JPanel panel, String iconPath) {
+        private JPanel wrapInRoundedPanel(JPanel innerPanel) {
+        JPanel wrapper = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
+                g2.dispose();
+            }
+        };
+        wrapper.setOpaque(false);
+        wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        wrapper.add(innerPanel, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private JButton getJMenu(String text,String setToolTipText, String panelName, JPanel panel, String iconPath) {
         JButton button = new JButton(text);
         button.setFocusPainted(false);
+        button.setToolTipText(setToolTipText);
         button.setBackground(COLOR_DEFAULT);
         button.setPreferredSize(new Dimension(180, 50));
         button.setMaximumSize(new Dimension(180, 50));
@@ -159,7 +191,7 @@ public class OshiGui {
             java.net.URL iconURL = getClass().getResource(iconPath);       
             if (iconURL != null) {          
                 ImageIcon originalIcon = new ImageIcon(iconURL);            
-                Image scaledImage = originalIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);           
+                Image scaledImage = originalIcon.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);           
                 button.setIcon(new ImageIcon(scaledImage));       
             } else {           
                 System.err.println("⚠️ Không tìm thấy icon: " + iconPath);   

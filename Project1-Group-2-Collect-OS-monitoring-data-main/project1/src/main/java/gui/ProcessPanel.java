@@ -32,9 +32,9 @@ public class ProcessPanel extends OshiJPanel {
 
         // Create Processes header label
         JLabel processLabel = new JLabel(PROCESSES);
-        processLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        processLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
         processLabel.setForeground(Color.BLACK);
-        processLabel.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 0));
+        processLabel.setBorder(BorderFactory.createEmptyBorder(15, 2, 10, 0));
 
         // Create header panel
         JPanel headerPanel = new JPanel(new BorderLayout());
@@ -51,12 +51,13 @@ public class ProcessPanel extends OshiJPanel {
 
         TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);
         JTable processTable = new JTable(model);
-        processTable.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        processTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        processTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        processTable.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
         processTable.setRowHeight(24);
-        processTable.setGridColor(Color.LIGHT_GRAY);
-        processTable.setShowVerticalLines(false);
-        processTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        processTable.setGridColor(new Color(230, 230, 230));
+        processTable.setShowVerticalLines(true);
+        processTable.setShowHorizontalLines(false);
+        processTable.setBorder(BorderFactory.createEmptyBorder());
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
@@ -82,6 +83,8 @@ public class ProcessPanel extends OshiJPanel {
         processTable.setRowSorter(sorter);
 
         JScrollPane scroll = new JScrollPane(processTable);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         resizeColumns(processTable.getColumnModel());
         add(scroll, BorderLayout.CENTER);

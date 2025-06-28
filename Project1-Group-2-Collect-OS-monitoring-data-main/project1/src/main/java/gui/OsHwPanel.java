@@ -26,7 +26,7 @@ public class OsHwPanel extends OshiJPanel {
 
     private void init(SystemInfo si){
         osPrefix = getOsPrefix(si);
-
+        // Set layout for main panel
         GridBagConstraints osLabel = new GridBagConstraints();
         GridBagConstraints osConstraints = new GridBagConstraints();
         osConstraints.gridy = 1;
@@ -42,7 +42,7 @@ public class OsHwPanel extends OshiJPanel {
         displayLabel.gridy = 4;
         GridBagConstraints displayConstraints = (GridBagConstraints) osConstraints.clone();
         displayConstraints.gridy = 5;
-        displayConstraints.insets = new Insets(0, 0, 0, 25);
+
 
         GridBagConstraints csLabel = (GridBagConstraints) osLabel.clone();
         csLabel.gridx = 1;
@@ -51,42 +51,48 @@ public class OsHwPanel extends OshiJPanel {
         csConstraints.gridheight = 6;
         csConstraints.fill = GridBagConstraints.BOTH;
 
-        Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 16);
-        Font arialFont = new Font("Arial", Font.BOLD, 18);
+        Font SeFontBig = new Font("SansSerif", Font.PLAIN, 16);
+        Font SeFontSmall = new Font("SansSerif", Font.BOLD, 18);
 
         JPanel oshwPanel = new JPanel();
-        oshwPanel.setFont(sansSerifFont);
+        oshwPanel.setFont(SeFontBig);
+        oshwPanel.setBackground(Color.WHITE);
+        oshwPanel.setBorder(BorderFactory.createEmptyBorder());
         oshwPanel.setLayout(new GridBagLayout());
 
         JTextArea osArea = new JTextArea(0, 0);
+        osArea.setBackground(Color.white);
         osArea.setText(updateOsData(si));
-        osArea.setFont(sansSerifFont);
+        osArea.setFont(SeFontBig);
         JLabel operatingTitle = new JLabel(OPERATING_SYSTEM);
-        operatingTitle.setFont(arialFont);
+        operatingTitle.setFont(SeFontSmall);
         oshwPanel.add(operatingTitle, osLabel);
         oshwPanel.add(osArea, osConstraints);
 
         JTextArea procArea = new JTextArea(0, 0);
         procArea.setText(getProcessor(si));
-        procArea.setFont(sansSerifFont);
+        procArea.setFont(SeFontBig);
+        procArea.setBackground(Color.WHITE);
         JLabel processorTitle = new JLabel(PROCESSOR);
-        processorTitle.setFont(arialFont);
+        processorTitle.setFont(SeFontSmall);
         oshwPanel.add(processorTitle, procLabel);
         oshwPanel.add(procArea, procConstraints);
 
         JTextArea displayArea = new JTextArea(0, 0);
         displayArea.setText(getDisplay(si));
-        displayArea.setFont(sansSerifFont);
+        displayArea.setFont(SeFontBig);
+        displayArea.setBackground(Color.white);
         JLabel displayTitle = new JLabel(DISPLAYS);
-        displayTitle.setFont(arialFont);
+        displayTitle.setFont(SeFontSmall);
         oshwPanel.add(displayTitle, displayLabel);
         oshwPanel.add(displayArea, displayConstraints);
 
         JTextArea csArea = new JTextArea(0, 0);
         csArea.setText(getHw(si));
-        csArea.setFont(sansSerifFont);
+        csArea.setFont(SeFontBig);
+        csArea.setBackground(Color.white);
         JLabel hardwareTitle = new JLabel(HARDWARE_INFORMATION);
-        hardwareTitle.setFont(arialFont);
+        hardwareTitle.setFont(SeFontSmall);
         oshwPanel.add(hardwareTitle, csLabel);
         oshwPanel.add(csArea, csConstraints);
 

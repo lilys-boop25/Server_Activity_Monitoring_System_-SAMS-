@@ -1,63 +1,35 @@
 package gui;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
 import java.util.List;
 
-public class StartupPanelSecure extends JPanel {
+public class StartupPanelSecure extends OshiJPanel {
 
     private final DefaultTableModel tableModel;
 
     public StartupPanelSecure() {
-        setLayout(new BorderLayout());
+        super();
+        this.setLayout(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Startup (All)");
-
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-
+        JLabel titleLabel = new JLabel("Details Startup", JLabel.LEFT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
         titleLabel.setOpaque(true);
-
-        titleLabel.setBackground(new Color(70, 130, 180)); // SteelBlue
-
-        titleLabel.setForeground(Color.WHITE);
-
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-
-        // Tạo panel chứa title và refresh button:
+        titleLabel.setBackground(Color.WHITE);
+        titleLabel.setForeground(Color.BLACK);
+        titleLabel.setBorder(new EmptyBorder(15, 2, 10, 0)); 
 
         String[] columns = {"Source", "App Name", "Executable", "Signature", "Trust", "Detail"};
         tableModel = new DefaultTableModel(columns, 0);
-
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(titleLabel, BorderLayout.NORTH);
-        
-        JButton refreshBtn = new JButton("Refresh Startup Entries");
-        refreshBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        refreshBtn.addActionListener(e -> {
-            tableModel.setRowCount(0);
-            List<String> entries = StartupScanner.collectStartupEntries();
-            for (String line : entries) {
-                if (line.startsWith(">>") || line.trim().isEmpty()) continue;
-                String source = detectSource(line);
-                String exePath = extractExePath(line);        
-                String appName = extractAppName(exePath, line);    
-                String signature = exePath.isEmpty() ? "N/A" : SignatureChecker.getSignatureStatus(exePath);   
-                String trust = classifyTrust(exePath, signature, line);
-                tableModel.addRow(new Object[]{source, appName, exePath, signature, trust, line});
-            }
-        });
-        topPanel.add(refreshBtn, BorderLayout.SOUTH);
-        add(topPanel, BorderLayout.NORTH);
-
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setRowHeight(24);
         table.setFont(new Font("Consolas", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
 
         // Highlight trust level
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -74,6 +46,57 @@ public class StartupPanelSecure extends JPanel {
                 return c;
             }
         });
+
+        JButton refreshBtn = new JButton("Refresh Startup Entries");
+        refreshBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        refreshBtn.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        refreshBtn.setBackground(Color.WHITE);
+        refreshBtn.addActionListener(e -> {
+            tableModel.setRowCount(0);
+            List<String> entries = StartupScanner.collectStartupEntries();
+            for (String line : entries) {
+                if (line.startsWith(">>") || line.trim().isEmpty()) continue;
+
+                String source = detectSource(line);
+                String exePath = extractExePath(line);
+                String appName = extractAppName(exePath, line);
+                String signature = exePath.isEmpty() ? "N/A" : SignatureChecker.getSignatureStatus(exePath);
+                String trust = classifyTrust(exePath, signature, line);
+
+                tableModel.addRow(new Object[]{source, appName, exePath, signature, trust, line});
+            }
+        });
+
+        java.net.URL logoURL = getClass().getResource("/icons/Refresh.png");
+        if (logoURL != null) {
+            ImageIcon logoIcon = new ImageIcon(logoURL);
+            Image scaledLogo = logoIcon.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
+            refreshBtn = new JButton(new ImageIcon(scaledLogo));
+        } else {
+            System.err.println("⚠ Không tìm thấy logo: /icons/Refresh.png");
+        }
+
+        // Create header panel
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setBackground(Color.WHITE);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
+        topPanel.add(titleLabel, BorderLayout.WEST);
+        topPanel.add(refreshBtn, BorderLayout.EAST);
+        headerPanel.add(topPanel);
+        
+        // Add separator line
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setForeground(new Color(230, 230, 230));
+        separator.setBackground(new Color(230, 230, 230));
+        headerPanel.add(separator, BorderLayout.SOUTH);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        add(headerPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private String detectSource(String line) {
@@ -173,8 +196,7 @@ public class StartupPanelSecure extends JPanel {
     private String resolveShortcut(String shortcutPath) {
         try {
             String powershellCmd = "powershell -Command \"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('" + shortcutPath + "');$s.TargetPath\"";
-            ProcessBuilder pb = new ProcessBuilder("powershell", "-Command", "$s=(New-Object -ComObject WScript.Shell).CreateShortcut('" + shortcutPath + "');$s.TargetPath");
-            Process proc = pb.start();
+            Process proc = Runtime.getRuntime().exec(powershellCmd);
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream(), "UTF-8"));
             String target = reader.readLine();
             if (target != null && new File(target).exists()) return target.trim();
@@ -186,9 +208,8 @@ public class StartupPanelSecure extends JPanel {
 
     private String resolveServicePath(String serviceName) {
         try {
-            String cmd = String.format("(Get-WmiObject -Class Win32_Service -Filter \\\"Name='%s'\\\").PathName", serviceName);
-            ProcessBuilder pb = new ProcessBuilder("powershell", "-Command", cmd);
-            Process proc = pb.start();
+            String cmd = String.format("powershell -Command \"(Get-WmiObject -Class Win32_Service -Filter \\\"Name='%s'\\\").PathName\"", serviceName);
+            Process proc = Runtime.getRuntime().exec(cmd);
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream(), "UTF-8"));
             String path = reader.readLine();
             if (path != null && path.toLowerCase().contains(".exe")) {

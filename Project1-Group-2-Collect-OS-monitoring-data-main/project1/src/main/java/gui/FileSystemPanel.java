@@ -52,11 +52,23 @@ public class FileSystemPanel extends OshiJPanel{
     private void init(SystemInfo si){
         FileSystem fs = si.getOperatingSystem().getFileSystem();
         JLabel fileSystemLabel = new JLabel(FILE_SYSTEM_LABEL);
-        fileSystemLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        fileSystemLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
         fileSystemLabel.setOpaque(true);
-        fileSystemLabel.setBackground(new Color(100, 149, 237)); // CornflowerBlue
-        fileSystemLabel.setForeground(Color.WHITE);
-        fileSystemLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        fileSystemLabel.setBackground(Color.WHITE);
+        fileSystemLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        fileSystemLabel.setForeground(Color.BLACK);
+        fileSystemLabel.setBorder(BorderFactory.createEmptyBorder(15,2, 10, 10));
+
+        // Create header panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.add(fileSystemLabel, BorderLayout.WEST);
+        
+        // Add separator line
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setForeground(new Color(230, 230, 230));
+        separator.setBackground(new Color(230, 230, 230));
+        headerPanel.add(separator, BorderLayout.SOUTH);
 
         GridBagConstraints labelConstraints = new GridBagConstraints();
         labelConstraints.gridx = 0;
@@ -79,9 +91,13 @@ public class FileSystemPanel extends OshiJPanel{
         };
 
         JTable systemTable = new JTable(model);
+        systemTable.setBorder(BorderFactory.createEmptyBorder());
         Font sansSerifFont = new Font("SansSerif", Font.PLAIN, 12);
         systemTable.setFont(sansSerifFont);
-        systemTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
+        systemTable.setGridColor(new Color(230, 230, 230));
+        systemTable.setShowVerticalLines(true);
+        systemTable.setShowHorizontalLines(false);
+        systemTable.getTableHeader().setFont(new Font("Segou UI", Font.PLAIN, 14));
 
         resizeColumns(systemTable.getColumnModel());
 
@@ -96,6 +112,9 @@ public class FileSystemPanel extends OshiJPanel{
         systemTable.setRowSorter(sorter);
 
         JScrollPane scroll = new JScrollPane(systemTable);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setBackground(Color.WHITE);
+        scroll.getViewport().setBackground(Color.WHITE);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         GridBagConstraints scrollConstraints = new GridBagConstraints();

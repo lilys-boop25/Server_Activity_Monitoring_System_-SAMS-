@@ -1,7 +1,6 @@
 package gui;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -20,22 +19,40 @@ public class StartupAppPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        JLabel titleLabel = new JLabel("  Startup Apps", getAppIcon(), JLabel.LEFT);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel titleLabel = new JLabel("  Startup Apps");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
         titleLabel.setOpaque(true);
-        titleLabel.setBackground(new Color(32, 136, 203));
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        titleLabel.setBackground(Color.WHITE);
+        titleLabel.setForeground(Color.BLACK);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 2, 10, 10));
+
+        // Create header panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.add(titleLabel, BorderLayout.NORTH);
+        
+        // Add separator line
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setForeground(new Color(230, 230, 230));
+        separator.setBackground(new Color(230, 230, 230));
+        headerPanel.add(separator, BorderLayout.SOUTH);
 
         tableModel = new StartupTableModel();
         table = new JTable(tableModel);
         table.setRowHeight(32);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-
+        table.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        table.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
+        table.setGridColor(new Color(230, 230, 230));
+        table.setShowVerticalLines(true);
+        table.setShowHorizontalLines(false);
         table.getColumnModel().getColumn(0).setCellRenderer(new IconRenderer());
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        scrollPane.setBackground(Color.white);
+        scrollPane.getViewport().setBackground(Color.white);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         add(titleLabel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -124,10 +141,6 @@ public class StartupAppPanel extends JPanel {
             }
         } catch (Exception ignored) {}
         return UIManager.getIcon("FileView.fileIcon");
-    }
-
-    private Icon getAppIcon() {
-        return UIManager.getIcon("FileView.computerIcon");
     }
 
     static class StartupTableModel extends AbstractTableModel {
