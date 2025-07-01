@@ -28,6 +28,9 @@ public class OshiGui {
     private boolean menuExpanded = true;
 
     private JFrame mainFrame;
+    private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
+    private final Color COLOR_DEFAULT = new Color(245, 242, 239);
+
     private SystemInfo si = new SystemInfo();
 
     private JButton performanceButton = getJMenu("Performance", "Performance", "Performance", wrapInRoundedPanel(new PerformancePanel(si)), "/icons/performance.png");
@@ -39,9 +42,7 @@ public class OshiGui {
     private JButton fsButton = getJMenu("File System", "File System", "File System", wrapInRoundedPanel(new FileSystemPanel(si)), "/icons/Folder.png");
 
     JButton selectedButton = performanceButton;
-    private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
-    private final Color COLOR_DEFAULT = new Color(245, 242, 239);
-
+    
     public static void main(String[] args) {
         if (!CURRENT_PLATFORM.equals(PlatformEnum.WINDOWS) && !CURRENT_PLATFORM.equals(PlatformEnum.LINUX)) {
             return;

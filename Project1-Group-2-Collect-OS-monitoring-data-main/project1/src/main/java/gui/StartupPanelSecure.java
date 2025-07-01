@@ -54,6 +54,10 @@ public class StartupPanelSecure extends OshiJPanel {
         refreshBtn.addActionListener(e -> {
             tableModel.setRowCount(0);
             List<String> entries = StartupScanner.collectStartupEntries();
+            if (entries == null || entries.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No startup entries found or an error occurred.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             for (String line : entries) {
                 if (line.startsWith(">>") || line.trim().isEmpty()) continue;
 
@@ -71,10 +75,9 @@ public class StartupPanelSecure extends OshiJPanel {
         if (logoURL != null) {
             ImageIcon logoIcon = new ImageIcon(logoURL);
             Image scaledLogo = logoIcon.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
-            refreshBtn = new JButton(new ImageIcon(scaledLogo));
-        } else {
-            System.err.println("⚠ Không tìm thấy logo: /icons/Refresh.png");
+            refreshBtn.setIcon(new ImageIcon(scaledLogo)); // ✅ Gán icon, KHÔNG ghi đè nút
         }
+
 
         // Create header panel
         JPanel headerPanel = new JPanel();
@@ -196,7 +199,8 @@ public class StartupPanelSecure extends OshiJPanel {
     private String resolveShortcut(String shortcutPath) {
         try {
             String powershellCmd = "powershell -Command \"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('" + shortcutPath + "');$s.TargetPath\"";
-            Process proc = Runtime.getRuntime().exec(powershellCmd);
+            ProcessBuilder pb = new ProcessBuilder("powershell", "-Command", "$s=(New-Object -ComObject WScript.Shell).CreateShortcut('" + shortcutPath + "');$s.TargetPath");
+            Process proc = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream(), "UTF-8"));
             String target = reader.readLine();
             if (target != null && new File(target).exists()) return target.trim();
@@ -208,8 +212,13 @@ public class StartupPanelSecure extends OshiJPanel {
 
     private String resolveServicePath(String serviceName) {
         try {
-            String cmd = String.format("powershell -Command \"(Get-WmiObject -Class Win32_Service -Filter \\\"Name='%s'\\\").PathName\"", serviceName);
-            Process proc = Runtime.getRuntime().exec(cmd);
+            String[] cmd = {
+                "powershell",
+                "-Command",
+                String.format("(Get-WmiObject -Class Win32_Service -Filter \\\"Name='%s'\\\").PathName", serviceName)
+            };
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            Process proc = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream(), "UTF-8"));
             String path = reader.readLine();
             if (path != null && path.toLowerCase().contains(".exe")) {
