@@ -28,7 +28,6 @@ import oshi.util.FormatUtil;
  */
 public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
-
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(MemoryPanel.class);
 
@@ -41,9 +40,12 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private void init(GlobalMemory memory) {
+        setLayout(new GridBagLayout());
+        setBackground(Color.WHITE);
 
         JPanel memoryPanel = new JPanel();
         memoryPanel.setLayout(new GridBagLayout());
+        memoryPanel.setBackground(Color.WHITE);
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection ramData = new DynamicTimeSeriesCollection(1, 60, new Second());
@@ -58,35 +60,50 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         PerformancePanel.setChartRenderer(ramChart, Color.MAGENTA);
 
         GridBagConstraints ramConstraints = new GridBagConstraints();
-        ramConstraints.weightx = 1d;
+        ramConstraints.weightx = 0.5d;
         ramConstraints.weighty = 1d;
         ramConstraints.fill = GridBagConstraints.BOTH;
+        ramConstraints.gridx = 0;
+        ramConstraints.gridy = 0;
+        ramConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
 
-        memoryPanel.add(new ChartPanel(ramChart), ramConstraints);
+        ChartPanel ramChartPanel = new ChartPanel(ramChart);
+        ramChartPanel.setPreferredSize(new Dimension(300, 200)); // Minimum size
+        memoryPanel.add(ramChartPanel, ramConstraints);
 
         DynamicTimeSeriesCollection virtualMemData = new DynamicTimeSeriesCollection(1, 60, new Second());
         virtualMemData.setTimeBase(new Second(date));
         virtualMemData.addSeries(floatArrayPercent(getVirtualMemory(memory)), 0, "Used");
 
-        JFreeChart virChart = ChartFactory.createTimeSeriesChart(VIRTUAL_MEMORY, "", "% Memory", ramData, true, true, false);
+        JFreeChart virChart = ChartFactory.createTimeSeriesChart(VIRTUAL_MEMORY, "", "% Memory", virtualMemData, true, true, false);
 
         virChart.getXYPlot().getRangeAxis().setAutoRange(false);
         virChart.getXYPlot().getRangeAxis().setRange(0d, 100d);
 
         PerformancePanel.setChartRenderer(virChart, Color.MAGENTA);
 
-        GridBagConstraints virConstraints = (GridBagConstraints)ramConstraints.clone();
+        GridBagConstraints virConstraints = new GridBagConstraints();
+        virConstraints.weightx = 0.5d;
+        virConstraints.weighty = 1d;
+        virConstraints.fill = GridBagConstraints.BOTH;
         virConstraints.gridx = 1;
+        virConstraints.gridy = 0;
+        virConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
 
         ChartPanel virChartPanel = new ChartPanel(virChart);
+        virChartPanel.setPreferredSize(new Dimension(300, 200)); // Minimum size
         memoryPanel.add(virChartPanel, virConstraints);
 
         JTextArea textArea = new JTextArea();
+        textArea.setBackground(Color.WHITE);
+        textArea.setEditable(false);
+        textArea.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
         GridBagConstraints textConstraints = new GridBagConstraints();
         textConstraints.gridy = 1;
         textConstraints.gridwidth = 2;
         textConstraints.fill = GridBagConstraints.HORIZONTAL;
         textConstraints.weightx = 1d;
+        textConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         textArea.setText("Total RAM: " + FormatUtil.formatBytes(memory.getTotal()) + "\nTotal virtual memory: " + FormatUtil.formatBytes(memory.getVirtualMemory().getSwapTotal()));
         memoryPanel.add(textArea, textConstraints);
 
@@ -94,9 +111,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         memoryPanelConstraints.fill = GridBagConstraints.BOTH;
         memoryPanelConstraints.weightx = 1d;
         memoryPanelConstraints.weighty = 1d;
-        memoryPanelConstraints.gridx = 1;
-        memoryPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        memoryPanel.setMinimumSize(new Dimension(795,515));
+        memoryPanelConstraints.anchor = GridBagConstraints.CENTER;
         add(memoryPanel, memoryPanelConstraints);
 
         Timer timer = new Timer(Config.REFRESH_FAST, e -> {
@@ -106,17 +121,13 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
             virtualMemData.appendData(floatArrayPercent(getVirtualMemory(memory)));
         });
         timer.start();
-
     }
 
-    public static double getVirtualMemory(GlobalMemory memory)
-    {
+    public static double getVirtualMemory(GlobalMemory memory) {
         return (double)(memory.getVirtualMemory().getSwapUsed())/memory.getVirtualMemory().getSwapTotal();
     }
 
-
-    private double getRAM(GlobalMemory memory)
-    {
+    private double getRAM(GlobalMemory memory) {
         return 1d - (double)(memory.getAvailable())/memory.getTotal();
     }
 
@@ -128,16 +139,13 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static boolean run = false;
 
-    public static void updateMemoryInfo(GlobalMemory mem, JGradientButton memButton)
-    {
-        if (run)
-        {
+    public static void updateMemoryInfo(GlobalMemory mem, JGradientButton memButton) {
+        if (run) {
             return;
         }
         run = true;
         Thread thread = new Thread(() -> {
-            while(true)
-            {
+            while(true) {
                 double available = (double)mem.getAvailable()/(1024*1024*1024);
                 double total = (double)mem.getTotal()/(1024*1024*1024);
                 double used = total - available;
@@ -146,7 +154,6 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
-                    // Restore interrupted state...
                     Thread.currentThread().interrupt();
                     logger.error("Error occurred: ", e1);
                 }

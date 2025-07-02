@@ -17,6 +17,7 @@ public class FileSystemPanel extends OshiJPanel{
     private static final String[] COLUMNS = {"Device", "Type", "Total", "Available", "Used", "Diagram"};
     private static final double[] COLUMN_WIDTH_PERCENT = {0.1, 0.01, 0.01, 0.01, 0.01, 1.2};
     private static final String FILE_SYSTEM_LABEL = "File System";
+    
     private static class SizeComparator implements Comparator<String> {
         private static long parseSize(String sizeString) {
             String[] parts = sizeString.split(" ");

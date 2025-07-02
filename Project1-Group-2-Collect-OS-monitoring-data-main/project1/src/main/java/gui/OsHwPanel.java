@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 public class OsHwPanel extends OshiJPanel {
-    private static final String OPERATING_SYSTEM = "Operating System ";
+    private static final String OPERATING_SYSTEM = "Operating System";
     private static final String HARDWARE_INFORMATION = "Hardware Information";
     private static final String PROCESSOR = "Processor";
     private static final String DISPLAYS = "Displays";

@@ -8,7 +8,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.List;
 
-public class StartupPanelSecure extends OshiJPanel {
+public class StartupPanelSecure extends JPanel {
 
     private final DefaultTableModel tableModel;
 
@@ -29,6 +29,7 @@ public class StartupPanelSecure extends OshiJPanel {
         table.setFillsViewportHeight(true);
         table.setRowHeight(24);
         table.setFont(new Font("Consolas", Font.PLAIN, 13));
+        table.setGridColor(new Color(230, 230, 230));
         table.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 14));
 
         // Highlight trust level

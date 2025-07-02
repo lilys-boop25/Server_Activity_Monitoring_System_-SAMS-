@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,12 +32,14 @@ public class NetworkPanel extends PerformancePanel{
 
 
     private void initial(NetworkIF net, int index) {
-        GridBagConstraints netConstraints = new GridBagConstraints();
-
-        netConstraints.weightx = 1d;
-        netConstraints.weighty = 1d;
-        netConstraints.fill = GridBagConstraints.BOTH;
-        netConstraints.anchor = GridBagConstraints.NORTHWEST;
+        // Sử dụng GridBagLayout cho toàn bộ panel để responsive
+        this.setLayout(new GridBagLayout());
+        
+        GridBagConstraints mainConstraints = new GridBagConstraints();
+        mainConstraints.weightx = 1.0;
+        mainConstraints.weighty = 1.0;
+        mainConstraints.fill = GridBagConstraints.BOTH;
+        mainConstraints.anchor = GridBagConstraints.NORTHWEST;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection networkData = new DynamicTimeSeriesCollection(2, 60, new Second());
@@ -52,19 +53,24 @@ public class NetworkPanel extends PerformancePanel{
 
         PerformancePanel.setChartRenderer(netChart, Color.ORANGE, Color.YELLOW);
 
-        JPanel netPanel = new JPanel();
-
-        netPanel.setLayout(new GridBagLayout());
+        // Tạo ChartPanel với responsive sizing
         ChartPanel myChartPanel = new ChartPanel(netChart);
-        netPanel.add(myChartPanel, netConstraints);
-
-        GridBagConstraints netPanelConstraints = new GridBagConstraints();
-        netPanelConstraints.fill = GridBagConstraints.BOTH;
-        netPanelConstraints.weightx = 1d;
-        netPanelConstraints.weighty = 1d;
-        netPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        netPanel.setMinimumSize(new Dimension(795,530));
-        add(netPanel, netPanelConstraints);
+        
+        // Thiết lập kích thước tối thiểu và tối đa cho ChartPanel
+        myChartPanel.setMinimumDrawWidth(200);
+        myChartPanel.setMaximumDrawWidth(Integer.MAX_VALUE);
+        myChartPanel.setMinimumDrawHeight(150);
+        myChartPanel.setMaximumDrawHeight(Integer.MAX_VALUE);
+        
+        // Cho phép chart scale theo kích thước container
+        myChartPanel.setFillZoomRectangle(true);
+        myChartPanel.setMouseWheelEnabled(true);
+        
+        // Thiết lập preferred size dựa trên tỷ lệ aspect ratio
+        myChartPanel.setPreferredSize(new Dimension(800, 400));
+        
+        // Thêm ChartPanel trực tiếp vào NetworkPanel
+        this.add(myChartPanel, mainConstraints);
 
         Thread thread = new Thread(() -> {
             while(true)

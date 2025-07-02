@@ -4,14 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -38,11 +37,15 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private void init(HWDiskStore disk, int index) {
+        // Set layout for the main panel
+        setLayout(new GridBagLayout());
+        
         GridBagConstraints diskConstraints = new GridBagConstraints();
-
-        diskConstraints.weightx = 1d;
-        diskConstraints.weighty = 1d;
-        diskConstraints.fill = GridBagConstraints.NONE;
+        diskConstraints.weightx = 1.0;
+        diskConstraints.weighty = 1.0;
+        diskConstraints.fill = GridBagConstraints.BOTH;
+        diskConstraints.gridx = 0;
+        diskConstraints.gridy = 0;
 
         Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection diskData = new DynamicTimeSeriesCollection(2, 60, new Second());
@@ -56,20 +59,29 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
 
         PerformancePanel.setChartRenderer(diskChart, Color.CYAN, Color.GREEN);
 
-        JPanel diskPanel = new JPanel();
-        diskPanel.setLayout(new GridBagLayout());
+        // Create chart panel with responsive sizing
         ChartPanel myChartPanel = new ChartPanel(diskChart);
-        myChartPanel.setMinimumSize(new Dimension(700, 350));
-        diskPanel.add(myChartPanel, diskConstraints);
+        
+        // Calculate responsive dimensions based on screen size
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int chartWidth = Math.max(600, (int)(screenSize.width * 0.6)); // Minimum 600px or 60% of screen width
+        int chartHeight = Math.max(300, (int)(screenSize.height * 0.4)); // Minimum 300px or 40% of screen height
+        
+        // Set preferred size for better initial display
+        myChartPanel.setPreferredSize(new Dimension(chartWidth, chartHeight));
+        
+        // Set minimum size to prevent chart from becoming too small
+        myChartPanel.setMinimumSize(new Dimension(400, 250));
+        
+        // Enable automatic scaling and resizing
+        myChartPanel.setMouseWheelEnabled(true);
+        myChartPanel.setRangeZoomable(true);
+        myChartPanel.setDomainZoomable(true);
+        
+        // Add the chart panel directly to this panel
+        add(myChartPanel, diskConstraints);
 
-        GridBagConstraints diskPanelConstraints = new GridBagConstraints();
-        diskPanelConstraints.fill = GridBagConstraints.BOTH;
-        diskPanelConstraints.weightx = 1d;
-        diskPanelConstraints.weighty = 1d;
-        diskPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-        diskPanel.setMinimumSize(new Dimension(685, 420));
-        add(diskPanel, diskPanelConstraints);
-
+        // Start the data update thread
         Thread thread = new Thread(() -> {
             while(true)
             {
@@ -85,14 +97,13 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 }
             }
         });
+        thread.setDaemon(true); // Make thread daemon so it doesn't prevent application exit
         thread.start();
-
     }
 
     private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
         f[0] = (float) (d);
-
         return f;
     }
 
@@ -143,6 +154,7 @@ public class DiskPanel extends OshiJPanel { // NOSONAR squid:S110
                 }
             }
         });
+        thread.setDaemon(true); // Make thread daemon
         thread.start();
     }
 

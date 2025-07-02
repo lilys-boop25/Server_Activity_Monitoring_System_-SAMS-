@@ -12,8 +12,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.List;
 
 import oshi.SystemInfo;
@@ -22,6 +25,7 @@ import oshi.hardware.NetworkIF;
 
 public class PerformancePanel extends OshiJPanel{
     private static final Logger logger = LoggerFactory.getLogger(PerformancePanel.class);
+    
     public PerformancePanel() {
         super();
     }
@@ -93,9 +97,8 @@ public class PerformancePanel extends OshiJPanel{
         separator.setBackground(new Color(230, 230, 230));
         headerPanel.add(separator, BorderLayout.SOUTH);
 
-        // Create main content panel
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(null);
+        // Create main content panel with BorderLayout thay vì null layout
+        JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         
         // Create left sidebar for performance metrics
@@ -103,8 +106,9 @@ public class PerformancePanel extends OshiJPanel{
         perfMenuBar.setLayout(new BoxLayout(perfMenuBar, BoxLayout.Y_AXIS));
         perfMenuBar.setBorder(BorderFactory.createEmptyBorder());
         perfMenuBar.setBackground(Color.WHITE);
+        perfMenuBar.setPreferredSize(new Dimension(250, 0)); // Chỉ set width, height tự động
 
-        // Create right display panel
+        // Create right display panel với GridBagLayout
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new GridBagLayout());
         displayPanel.setBackground(Color.WHITE);
@@ -150,13 +154,11 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.getViewport().setBorder(null);
         scrollPerfPanel.setOpaque(false);
         scrollPerfPanel.getViewport().setOpaque(false);
+        scrollPerfPanel.setPreferredSize(new Dimension(250, 0));
 
-        // Position components
-        scrollPerfPanel.setBounds(0, 0, 250, 900);
-        contentPanel.add(scrollPerfPanel);
-
-        displayPanel.setBounds(260, 0, 1240, 900);
-        contentPanel.add(displayPanel);
+        // Thêm components vào content panel bằng BorderLayout
+        contentPanel.add(scrollPerfPanel, BorderLayout.WEST);
+        contentPanel.add(displayPanel, BorderLayout.CENTER);
 
         // Add components to main panel
         this.add(headerPanel, BorderLayout.NORTH);
@@ -167,6 +169,16 @@ public class PerformancePanel extends OshiJPanel{
 
         // Click CPU button by default
         cpuButton.doClick();
+        
+        // Thêm ComponentListener để xử lý resize
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // Force repaint when window is resized
+                displayPanel.revalidate();
+                displayPanel.repaint();
+            }
+        });
     }
 
 
@@ -216,12 +228,21 @@ public class PerformancePanel extends OshiJPanel{
             }
         });
 
-        // Click action
+        // Click action với responsive layout
         button.addActionListener(e -> {
             int nComponents = displayPanel.getComponents().length;
             if (nComponents <= 0 || displayPanel.getComponent(0) != panel) {
                 resetMainGui(displayPanel);
-                displayPanel.add(panel);
+                
+                // Thêm panel với GridBagConstraints để fill toàn bộ không gian
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.fill = GridBagConstraints.BOTH;
+                gbc.weightx = 1.0;
+                gbc.weighty = 1.0;
+                gbc.gridx = 0;
+                gbc.gridy = 0;
+                
+                displayPanel.add(panel, gbc);
                 refreshMainGui(displayPanel);
             }
         });
