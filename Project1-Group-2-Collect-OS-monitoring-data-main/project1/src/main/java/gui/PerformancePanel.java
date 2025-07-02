@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.List;
@@ -25,6 +27,8 @@ import oshi.hardware.NetworkIF;
 
 public class PerformancePanel extends OshiJPanel{
     private static final Logger logger = LoggerFactory.getLogger(PerformancePanel.class);
+    private JPanel displayPanel;
+    private JScrollPane scrollPerfPanel;
     
     public PerformancePanel() {
         super();
@@ -75,7 +79,6 @@ public class PerformancePanel extends OshiJPanel{
         chart.getXYPlot().setDomainGridlinePaint(new Color(230, 230, 230));
     }
 
-
     private void initial(SystemInfo si) {
         // Set layout for main panel
         this.setLayout(new BorderLayout());
@@ -97,7 +100,7 @@ public class PerformancePanel extends OshiJPanel{
         separator.setBackground(new Color(230, 230, 230));
         headerPanel.add(separator, BorderLayout.SOUTH);
 
-        // Create main content panel with BorderLayout thay vì null layout
+        // Create main content panel with responsive layout
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         
@@ -106,10 +109,9 @@ public class PerformancePanel extends OshiJPanel{
         perfMenuBar.setLayout(new BoxLayout(perfMenuBar, BoxLayout.Y_AXIS));
         perfMenuBar.setBorder(BorderFactory.createEmptyBorder());
         perfMenuBar.setBackground(Color.WHITE);
-        perfMenuBar.setPreferredSize(new Dimension(250, 0)); // Chỉ set width, height tự động
 
-        // Create right display panel với GridBagLayout
-        JPanel displayPanel = new JPanel();
+        // Create right display panel with responsive sizing
+        displayPanel = new JPanel();
         displayPanel.setLayout(new GridBagLayout());
         displayPanel.setBackground(Color.WHITE);
 
@@ -145,8 +147,8 @@ public class PerformancePanel extends OshiJPanel{
         }
         NetworkPanel.updateNetWorkInfo(networkIFs, netButton);
 
-        // Create scroll pane for left sidebar
-        JScrollPane scrollPerfPanel = new JScrollPane(perfMenuBar);
+        // Create scroll pane for left sidebar with responsive width
+        scrollPerfPanel = new JScrollPane(perfMenuBar);
         scrollPerfPanel.getVerticalScrollBar().setUnitIncrement(30);
         scrollPerfPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPerfPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -154,11 +156,24 @@ public class PerformancePanel extends OshiJPanel{
         scrollPerfPanel.getViewport().setBorder(null);
         scrollPerfPanel.setOpaque(false);
         scrollPerfPanel.getViewport().setOpaque(false);
-        scrollPerfPanel.setPreferredSize(new Dimension(250, 0));
+        
+        // Set responsive preferred size for sidebar
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int sidebarWidth = Math.min(300, Math.max(200, (int)(screenSize.width * 0.2))); // 20% of screen width, min 200px, max 300px
+        scrollPerfPanel.setPreferredSize(new Dimension(sidebarWidth, 0));
+        scrollPerfPanel.setMinimumSize(new Dimension(200, 0));
 
-        // Thêm components vào content panel bằng BorderLayout
+        // Add components to content panel using BorderLayout for automatic resizing
         contentPanel.add(scrollPerfPanel, BorderLayout.WEST);
         contentPanel.add(displayPanel, BorderLayout.CENTER);
+
+        // Add component listener for responsive behavior
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateResponsiveLayout();
+            }
+        });
 
         // Add components to main panel
         this.add(headerPanel, BorderLayout.NORTH);
@@ -169,18 +184,20 @@ public class PerformancePanel extends OshiJPanel{
 
         // Click CPU button by default
         cpuButton.doClick();
-        
-        // Thêm ComponentListener để xử lý resize
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                // Force repaint when window is resized
-                displayPanel.revalidate();
-                displayPanel.repaint();
-            }
-        });
     }
 
+    private void updateResponsiveLayout() {
+        // Update sidebar width based on current panel size
+        int currentWidth = this.getWidth();
+        if (currentWidth > 0) {
+            int sidebarWidth = Math.min(300, Math.max(200, (int)(currentWidth * 0.2)));
+            scrollPerfPanel.setPreferredSize(new Dimension(sidebarWidth, 0));
+            
+            // Force layout update
+            this.revalidate();
+            this.repaint();
+        }
+    }
 
     public static Color getColorByPercent(double percent)
     {
@@ -195,16 +212,16 @@ public class PerformancePanel extends OshiJPanel{
         }
     }
 
-
-
     private JGradientButton createButton(String title, Color color, OshiJPanel panel, JPanel displayPanel)
     {
         JGradientButton button = new JGradientButton(title);
-        int width = 250;
+        
+        // Make button width responsive to sidebar width
+        int width = 200; // Base width
         int height = 90;
         button.setPreferredSize(new Dimension(width, height));
-        button.setMaximumSize(new Dimension(width, height));
-        button.setMinimumSize(new Dimension(width, height));
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, height)); // Allow horizontal expansion
+        button.setMinimumSize(new Dimension(150, height));
 
         button.setMargin(new Insets(5, 10, 5, 10));
         button.setBorder(BorderFactory.createEmptyBorder());
@@ -228,25 +245,27 @@ public class PerformancePanel extends OshiJPanel{
             }
         });
 
-        // Click action với responsive layout
+        // Click action
         button.addActionListener(e -> {
             int nComponents = displayPanel.getComponents().length;
             if (nComponents <= 0 || displayPanel.getComponent(0) != panel) {
                 resetMainGui(displayPanel);
-                
-                // Thêm panel với GridBagConstraints để fill toàn bộ không gian
-                GridBagConstraints gbc = new GridBagConstraints();
-                gbc.fill = GridBagConstraints.BOTH;
-                gbc.weightx = 1.0;
-                gbc.weighty = 1.0;
-                gbc.gridx = 0;
-                gbc.gridy = 0;
-                
-                displayPanel.add(panel, gbc);
+                displayPanel.add(panel, createResponsiveConstraints());
                 refreshMainGui(displayPanel);
             }
         });
         return button;
+    }
+
+    private GridBagConstraints createResponsiveConstraints() {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.insets = new Insets(10, 10, 10, 10); // Add some padding
+        return constraints;
     }
 
     public static void resetMainGui(JPanel displayPanel) {

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Project1---2024.2
+=======
+## Project 1 - Collect host monitoring data
+>>>>>>> f827a03f8c12be05f46cd86c9d0901b250195f83
 
 This is a project for the subject Project I at Hanoi University of Science and Technology by Nguyễn Khánh Ly and Nguyễn Viết Quý Anh.
 
@@ -17,6 +21,10 @@ Email: Anh.NVQ214947@sis.hust.edu.vn
 ## API
 All API functions used in our project are in: 
 https://husteduvn-my.sharepoint.com/:x:/g/personal/anh_nvq214947_sis_hust_edu_vn/ERFJoT4Qy5lHj1IP-atgYI8BqzjSWslOTzoJMPKHWF-GwQ?e=YRvvxv
+<<<<<<< HEAD
+=======
+
+>>>>>>> f827a03f8c12be05f46cd86c9d0901b250195f83
 ## GUI App design
 https://balsamiq.cloud/sub69in/pno587s/r5009
 
